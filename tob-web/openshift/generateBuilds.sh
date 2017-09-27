@@ -56,7 +56,7 @@ if [ ! -z "$MissingParam" ]; then
 fi
 # -------------------------------------------------------------------------------------
 BuildConfigPostfix="_BuildConfig.json"
-CONTEXT_DIR_ROOT="prototypes/tob-web"
+CONTEXT_DIR_ROOT="tob-web"
 TEMPLATE_CONTEXT_DIR_ROOT="${CONTEXT_DIR_ROOT}/openshift/templates"
 ANGULAR_BUILDER_NAME="angular-builder"
 NGINX_RUNTIME_NAME="nginx-runtime"
