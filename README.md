@@ -3,4 +3,4 @@ A public repository of verifiable claims about organizations. Verifiable claims 
 
 The Verified Organization Network envisions the possibility of a number of public repositories of verifiable claims as a way of bootstrapping a trusted digital ecosystem.
 
-See https://github.com/bcgov for more information about the concept of a Verified Organization Network.
+See https://github.com/bcgov/von for more information about the concept of a Verified Organization Network.
