@@ -90,10 +90,10 @@ http {
             stub_status on;
 
             # Only allow access from localhost
-            allow 172.51.0.0/16;
+            allow all;
 
             # Other request should be denied
-            deny all;
+            # deny all;
 
             # No need to log this request, its just noise
             access_log off;
