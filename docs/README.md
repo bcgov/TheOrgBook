@@ -1,1 +1,1 @@
-This is a readme for me new project GH-Pages page.
+TheOrgBook - Bootstrapping the Verified Organization Self-Sovereign Identity Network.
