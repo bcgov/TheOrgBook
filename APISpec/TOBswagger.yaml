@@ -2568,10 +2568,10 @@ definitions:
       voLocationTypeId:
         $ref: '#/definitions/VOLocationType'
         description: A foreign key reference to the Verified Organization Location Type table.
-      Addressee:
+      addressee:
         type: string
         description: The Addressee Line of an official address.
-      AddlDeliveryInfo:
+      addlDeliveryInfo:
         type: string
         description: The Additional Delivery Info of an address
       unitNumber:
@@ -2700,7 +2700,6 @@ definitions:
       - theType
       - issuerOrgId
       - issuerURL
-      - claimSchemaDefinition
       - effectiveDate
     properties:
       id:
@@ -2719,9 +2718,6 @@ definitions:
       issuerURL:
         type: string
         description: The URL of the claim issuer organization.
-      claimSchemaDefinition:
-        type: string
-        description: A pointer to the on Ledger Schema Definition for this Claim Type.
       effectiveDate:
         type: string
         format: date-time
@@ -2802,20 +2798,20 @@ definitions:
     description: A list of the possible Jurisdiction of an Organization.
     required:
       - id
-      - jurisdictionAbbrv
-      - jurisdictionName
+      - abbrv
+      - name
       - effectiveDate
     properties:
       id:
         format: int32
         type: integer
         description: A system-generated unique identifier for a Jurisdiction
-      jurisdictionAbbrv:
+      abbrv:
         type: string
         maxLength: 25
         uniqueItems: true
         description: An abbreviation for this Jurisdiction, eg. BC.
-      jurisdictionName:
+      name:
         type: string
         maxLength: 1000
         uniqueItems: true
@@ -2842,6 +2838,7 @@ definitions:
       - id
       - givenName
       - surname
+      - effectiveDate
     properties:
       id:
         format: int32
@@ -2871,6 +2868,14 @@ definitions:
         type: string
         maxLength: 100
         description: The name of the Authorization Directory from with which the user Id is recorded.
+      effectiveDate:
+        type: string
+        format: date-time
+        description: The date upon which the User account was activated for use.
+      endDate:
+        type: string
+        format: date-time
+        description: The date after which the User could no longer be used.
   Role:
     type: object
     description: A table managed in the application by authorized users to create named Roles that can be assigned to Users as needed. Roles can be created as needed to support the users of the system and the roles they perform within the organization.
@@ -2898,6 +2903,7 @@ definitions:
       - id
       - userId
       - roleId
+      - effectiveDate
     properties:
       id:
         format: int32
@@ -2909,6 +2915,14 @@ definitions:
       roleId:
         $ref: '#/definitions/Role'
         description: A foreign key reference to a Role.
+      effectiveDate:
+        type: string
+        format: date-time
+        description: The date upon which the Role was activated for the user.
+      endDate:
+        type: string
+        format: date-time
+        description: The date after which the Role was no longer available to the user.
   Permission:
     type: object
     description: The set of permissions defined in the application. Each permission is given a name and triggers some behavior defined in the application. For example, a permission might allow users to see data or to have access to functionality restricted to users without that permission. Permissions are created as needed to the application and are added to the permissions table by data migrations executed at the time the software that uses the permission is deployed.

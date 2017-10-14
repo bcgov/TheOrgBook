@@ -1,164 +1,128 @@
 [
     {
-        "DBA": "Best Products",
+        "DBA": "Price Savers",
         "effectiveDate": "2010-10-10",
         "endDate": null,
-        "id": "4",
-        "verifiedOrgId": {
-            "id": "3"
-        }
-    },
-    {
-        "DBA": "McDuff",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "5",
-        "verifiedOrgId": {
-            "id": "3"
-        }
+        "id": "3",
+        "verifiedOrgId": "2"
     },
     {
         "DBA": "Muirhead's",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "6",
-        "verifiedOrgId": {
-            "id": "3"
-        }
+        "verifiedOrgId": "4"
     },
     {
-        "DBA": "Jeans Unlimited",
+        "DBA": "Henry's Hamburgers",
         "effectiveDate": "2010-10-10",
         "endDate": null,
-        "id": "7",
-        "verifiedOrgId": {
-            "id": "3"
-        }
-    },
-    {
-        "DBA": "Museum Company",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "8",
-        "verifiedOrgId": {
-            "id": "3"
-        }
+        "id": "9",
+        "verifiedOrgId": "6"
     },
     {
         "DBA": "Body Toning",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "10",
-        "verifiedOrgId": {
-            "id": "4"
-        }
-    },
-    {
-        "DBA": "Brendle's",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "12",
-        "verifiedOrgId": {
-            "id": "5"
-        }
+        "verifiedOrgId": "6"
     },
     {
         "DBA": "Britling Cafeterias",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "13",
-        "verifiedOrgId": {
-            "id": "5"
-        }
+        "verifiedOrgId": "8"
     },
     {
         "DBA": "Harold's",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "14",
-        "verifiedOrgId": {
-            "id": "5"
-        }
+        "verifiedOrgId": "8"
+    },
+    {
+        "DBA": "Record World",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "15",
+        "verifiedOrgId": "8"
     },
     {
         "DBA": "The Fox and Hound ",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "16",
-        "verifiedOrgId": {
-            "id": "6"
-        }
+        "verifiedOrgId": "8"
+    },
+    {
+        "DBA": "Edwards",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "17",
+        "verifiedOrgId": "8"
+    },
+    {
+        "DBA": "Grass Roots Yard Services",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "18",
+        "verifiedOrgId": "8"
+    },
+    {
+        "DBA": "Pantry Food Stores",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "19",
+        "verifiedOrgId": "8"
     },
     {
         "DBA": "Magik Grey",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "20",
-        "verifiedOrgId": {
-            "id": "9"
-        }
+        "verifiedOrgId": "8"
     },
     {
         "DBA": "Pantry Pride",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "21",
-        "verifiedOrgId": {
-            "id": "9"
-        }
+        "verifiedOrgId": "8"
+    },
+    {
+        "DBA": "Sandy's",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "22",
+        "verifiedOrgId": "8"
     },
     {
         "DBA": "Earthworks Garden Kare",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "23",
-        "verifiedOrgId": {
-            "id": "10"
-        }
+        "verifiedOrgId": "8"
     },
     {
-        "DBA": "Gamma Gas",
+        "DBA": "Universo Realtors",
         "effectiveDate": "2010-10-10",
         "endDate": null,
-        "id": "24",
-        "verifiedOrgId": {
-            "id": "10"
-        }
+        "id": "25",
+        "verifiedOrgId": "9"
     },
     {
-        "DBA": "Service Merchandise",
+        "DBA": "Gas Depot",
         "effectiveDate": "2010-10-10",
         "endDate": null,
-        "id": "27",
-        "verifiedOrgId": {
-            "id": "12"
-        }
+        "id": "26",
+        "verifiedOrgId": "9"
     },
     {
-        "DBA": "Stratacard",
+        "DBA": "Lionel Playworld",
         "effectiveDate": "2010-10-10",
         "endDate": null,
-        "id": "30",
-        "verifiedOrgId": {
-            "id": "14"
-        }
-    },
-    {
-        "DBA": "J. Brannam",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "31",
-        "verifiedOrgId": {
-            "id": "14"
-        }
-    },
-    {
-        "DBA": "Happy Family",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "32",
-        "verifiedOrgId": {
-            "id": "14"
-        }
+        "id": "28",
+        "verifiedOrgId": "10"
     }
 ]
