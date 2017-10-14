@@ -6,12 +6,8 @@
         "id": "1",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "1"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "1",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -20,12 +16,8 @@
         "id": "2",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "2"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "2",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -34,12 +26,8 @@
         "id": "3",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "2"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "2",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
@@ -48,12 +36,8 @@
         "id": "4",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "2"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "verifiedOrgId": "2",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
@@ -62,12 +46,8 @@
         "id": "5",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "3"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "2",
+        "voClaimType": "4"
     },
     {
         "claimJSON": null,
@@ -76,12 +56,8 @@
         "id": "6",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "3"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "3",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -90,12 +66,8 @@
         "id": "7",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "4"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "3",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
@@ -104,12 +76,8 @@
         "id": "8",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "4"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "4",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -118,12 +86,8 @@
         "id": "9",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "4"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "verifiedOrgId": "4",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
@@ -132,12 +96,8 @@
         "id": "10",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "5"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "4",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
@@ -146,12 +106,8 @@
         "id": "11",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "6"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "5",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -160,26 +116,18 @@
         "id": "12",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "6"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "5",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "13",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "6"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
+        "verifiedOrgId": "5",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
@@ -188,26 +136,18 @@
         "id": "14",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "7"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "5",
+        "voClaimType": "4"
     },
     {
         "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "15",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "7"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "inactiveClaimReasonId": "1",
+        "inactiveReason": "1",
+        "verifiedOrgId": "5",
+        "voClaimType": "5"
     },
     {
         "claimJSON": null,
@@ -216,12 +156,8 @@
         "id": "16",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "7"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "verifiedOrgId": "6",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -230,12 +166,8 @@
         "id": "17",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "7"
-        },
-        "voClaimType": {
-            "id": "4"
-        }
+        "verifiedOrgId": "6",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
@@ -244,12 +176,8 @@
         "id": "18",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "7"
-        },
-        "voClaimType": {
-            "id": "5"
-        }
+        "verifiedOrgId": "6",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
@@ -258,12 +186,8 @@
         "id": "19",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "8"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "6",
+        "voClaimType": "4"
     },
     {
         "claimJSON": null,
@@ -272,12 +196,8 @@
         "id": "20",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "8"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "6",
+        "voClaimType": "5"
     },
     {
         "claimJSON": null,
@@ -286,12 +206,8 @@
         "id": "21",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "8"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "verifiedOrgId": "7",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -300,12 +216,8 @@
         "id": "22",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "9"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "7",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
@@ -314,26 +226,18 @@
         "id": "23",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "9"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "7",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "24",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "9"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
+        "verifiedOrgId": "7",
+        "voClaimType": "4"
     },
     {
         "claimJSON": null,
@@ -342,12 +246,8 @@
         "id": "25",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "9"
-        },
-        "voClaimType": {
-            "id": "4"
-        }
+        "verifiedOrgId": "7",
+        "voClaimType": "5"
     },
     {
         "claimJSON": null,
@@ -356,12 +256,8 @@
         "id": "26",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "10"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "8",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -370,12 +266,8 @@
         "id": "27",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "11"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "9",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -384,12 +276,8 @@
         "id": "28",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "11"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "9",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
@@ -398,12 +286,8 @@
         "id": "29",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "11"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "verifiedOrgId": "9",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
@@ -412,12 +296,8 @@
         "id": "30",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "11"
-        },
-        "voClaimType": {
-            "id": "4"
-        }
+        "verifiedOrgId": "9",
+        "voClaimType": "4"
     },
     {
         "claimJSON": null,
@@ -426,12 +306,8 @@
         "id": "31",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "11"
-        },
-        "voClaimType": {
-            "id": "5"
-        }
+        "verifiedOrgId": "10",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -440,40 +316,28 @@
         "id": "32",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "12"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "10",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "33",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "12"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
+        "verifiedOrgId": "10",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "34",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "13"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
+        "verifiedOrgId": "11",
+        "voClaimType": "1"
     },
     {
         "claimJSON": null,
@@ -482,12 +346,8 @@
         "id": "35",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "13"
-        },
-        "voClaimType": {
-            "id": "2"
-        }
+        "verifiedOrgId": "11",
+        "voClaimType": "2"
     },
     {
         "claimJSON": null,
@@ -496,12 +356,8 @@
         "id": "36",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "13"
-        },
-        "voClaimType": {
-            "id": "3"
-        }
+        "verifiedOrgId": "11",
+        "voClaimType": "3"
     },
     {
         "claimJSON": null,
@@ -510,26 +366,18 @@
         "id": "37",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "13"
-        },
-        "voClaimType": {
-            "id": "4"
-        }
+        "verifiedOrgId": "11",
+        "voClaimType": "4"
     },
     {
         "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "38",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "13"
-        },
-        "voClaimType": {
-            "id": "5"
-        }
+        "inactiveClaimReasonId": "1",
+        "inactiveReason": "1",
+        "verifiedOrgId": "11",
+        "voClaimType": "5"
     },
     {
         "claimJSON": null,
@@ -538,11 +386,67 @@
         "id": "39",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": {
-            "id": "14"
-        },
-        "voClaimType": {
-            "id": "1"
-        }
+        "verifiedOrgId": "12",
+        "voClaimType": "1"
+    },
+    {
+        "claimJSON": null,
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "40",
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
+        "verifiedOrgId": "12",
+        "voClaimType": "2"
+    },
+    {
+        "claimJSON": null,
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "41",
+        "inactiveClaimReasonId": null,
+        "inactiveReason": "N/A",
+        "verifiedOrgId": "13",
+        "voClaimType": "1"
+    },
+    {
+        "claimJSON": null,
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "42",
+        "inactiveClaimReasonId": null,
+        "inactiveReason": "N/A",
+        "verifiedOrgId": "13",
+        "voClaimType": "2"
+    },
+    {
+        "claimJSON": null,
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "43",
+        "inactiveClaimReasonId": null,
+        "inactiveReason": "N/A",
+        "verifiedOrgId": "13",
+        "voClaimType": "3"
+    },
+    {
+        "claimJSON": null,
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "44",
+        "inactiveClaimReasonId": null,
+        "inactiveReason": "N/A",
+        "verifiedOrgId": "14",
+        "voClaimType": "1"
+    },
+    {
+        "claimJSON": null,
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "45",
+        "inactiveClaimReasonId": null,
+        "inactiveReason": "N/A",
+        "verifiedOrgId": "14",
+        "voClaimType": "2"
     }
 ]

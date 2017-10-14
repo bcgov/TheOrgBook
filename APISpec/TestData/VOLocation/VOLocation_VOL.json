@@ -11,12 +11,8 @@
         "province": "BC",
         "streetAddress": "2262 Burdett Avenue",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "1"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "1",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -30,12 +26,8 @@
         "province": "BC",
         "streetAddress": "223 Brew Creek Rd",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "2"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "2",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -49,12 +41,8 @@
         "province": "BC",
         "streetAddress": "2310 Mesa Vista Drive",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "3"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "2",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -68,12 +56,8 @@
         "province": "BC",
         "streetAddress": "3795 Burdett Avenue",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "3"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "3",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -87,12 +71,8 @@
         "province": "BC",
         "streetAddress": "3746 Noble Rd",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "3"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "4",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -106,12 +86,8 @@
         "province": "BC",
         "streetAddress": "3617 Essendene Avenue",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "3"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "4",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -125,12 +101,8 @@
         "province": "BC",
         "streetAddress": "2426 Cordova Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "3"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "5",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -144,12 +116,8 @@
         "province": "BC",
         "streetAddress": "1019 Hardy Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "3"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "6",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -163,12 +131,8 @@
         "province": "BC",
         "streetAddress": "1004 Robson St",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "4"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "6",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -182,12 +146,8 @@
         "province": "BC",
         "streetAddress": "3561 Wellington Ave",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "4"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "6",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -201,12 +161,8 @@
         "province": "BC",
         "streetAddress": "365 Old Spallumcheen Rd",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "5"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "7",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -220,12 +176,8 @@
         "province": "BC",
         "streetAddress": "47 Noble Rd",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "5"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -239,12 +191,8 @@
         "province": "BC",
         "streetAddress": "4764 Jade St",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "5"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -258,12 +206,8 @@
         "province": "BC",
         "streetAddress": "3356 Wallace Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "5"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -277,12 +221,8 @@
         "province": "BC",
         "streetAddress": "4173 James Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "6"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -296,12 +236,8 @@
         "province": "BC",
         "streetAddress": "2553 Holdom Avenue",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "6"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -315,12 +251,8 @@
         "province": "BC",
         "streetAddress": "3924 Roger Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "7"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -334,12 +266,8 @@
         "province": "BC",
         "streetAddress": "616 Scotts Lane",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "8"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -353,12 +281,8 @@
         "province": "BC",
         "streetAddress": "3690 Findlay Creek Road",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "9"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -372,12 +296,8 @@
         "province": "BC",
         "streetAddress": "1065 Sixth Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "9"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -391,12 +311,8 @@
         "province": "BC",
         "streetAddress": "2261 Blanshard",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "9"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -410,12 +326,8 @@
         "province": "BC",
         "streetAddress": "4761 King George Hwy",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "10"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -429,12 +341,8 @@
         "province": "BC",
         "streetAddress": "4136 Glover Road",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "10"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "8",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -448,12 +356,8 @@
         "province": "BC",
         "streetAddress": "735 Wallace Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "10"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "9",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -467,12 +371,8 @@
         "province": "BC",
         "streetAddress": "4359 Yoho Valley Road",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "11"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "9",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -486,12 +386,8 @@
         "province": "BC",
         "streetAddress": "2890 Burdett Avenue",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "12"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "9",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -505,12 +401,8 @@
         "province": "BC",
         "streetAddress": "1323 Cordova Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "12"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "10",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -524,12 +416,8 @@
         "province": "BC",
         "streetAddress": "727 Glover Road",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "13"
-        },
-        "voLocationTypeId": {
-            "id": "1"
-        }
+        "verifiedOrgID": "10",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -543,12 +431,8 @@
         "province": "BC",
         "streetAddress": "2814 Scotts Lane",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "14"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "11",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -562,12 +446,8 @@
         "province": "BC",
         "streetAddress": "907 Nootka Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "14"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "12",
+        "voLocationTypeId": "1"
     },
     {
         "AddlDeliveryInfo": null,
@@ -581,12 +461,8 @@
         "province": "BC",
         "streetAddress": "4528 Nootka Street",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "14"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "13",
+        "voLocationTypeId": "2"
     },
     {
         "AddlDeliveryInfo": null,
@@ -600,11 +476,7 @@
         "province": "BC",
         "streetAddress": "2183 Kinchant St",
         "unitNumber": null,
-        "verifiedOrgID": {
-            "id": "14"
-        },
-        "voLocationTypeId": {
-            "id": "2"
-        }
+        "verifiedOrgID": "14",
+        "voLocationTypeId": "1"
     }
 ]
