@@ -1,184 +1,128 @@
 [
     {
         "LegalName": "The Original House of Pies",
-        "busId": "14236031",
+        "busId": "11121398",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "1",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "2"
     },
     {
         "LegalName": "Asian Junction",
-        "busId": "40781412",
+        "busId": "90963545",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "2",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
     },
     {
-        "LegalName": "Price Savers",
-        "busId": "12775360",
+        "LegalName": "Best Products",
+        "busId": "27737460",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "3",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
     },
     {
-        "LegalName": "Henry's Hamburgers",
-        "busId": "62371291",
+        "LegalName": "McDuff",
+        "busId": "92659376",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "4",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
     },
     {
-        "LegalName": "Wells & Wade",
-        "busId": "82237955",
+        "LegalName": "Jeans Unlimited",
+        "busId": "20522665",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "5",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "3"
     },
     {
-        "LegalName": "Record World",
-        "busId": "54858583",
+        "LegalName": "Museum Company",
+        "busId": "43346349",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "6",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "4"
     },
     {
-        "LegalName": "Edwards",
-        "busId": "40033625",
+        "LegalName": "Wells & Wade",
+        "busId": "54670868",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "7",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
     },
     {
-        "LegalName": "Grass Roots Yard Services",
-        "busId": "89833799",
+        "LegalName": "Brendle's",
+        "busId": "49082797",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "8",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "3"
     },
     {
-        "LegalName": "Pantry Food Stores",
-        "busId": "22269314",
+        "LegalName": "Gamma Gas",
+        "busId": "89793697",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "9",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
     },
     {
-        "LegalName": "Sandy's",
-        "busId": "57098085",
+        "LegalName": "Service Merchandise",
+        "busId": "12128592",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "10",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
-    },
-    {
-        "LegalName": "Universo Realtors",
-        "busId": "62279795",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "11",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
-    },
-    {
-        "LegalName": "Gas Depot",
-        "busId": "47241952",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "12",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
-    },
-    {
-        "LegalName": "Lionel Playworld",
-        "busId": "53982378",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "13",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
     },
     {
         "LegalName": "Success Is Yours",
-        "busId": "59310793",
+        "busId": "45110128",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "11",
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
+    },
+    {
+        "LegalName": "Stratacard",
+        "busId": "86003100",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "12",
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
+    },
+    {
+        "LegalName": "J. Brannam",
+        "busId": "57617585",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "13",
+        "jurisdictionId": "1",
+        "orgTypeId": "1"
+    },
+    {
+        "LegalName": "Happy Family",
+        "busId": "88937272",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "14",
-        "jurisdictionId": {
-            "id": "1"
-        },
-        "orgTypeId": {
-            "id": "1"
-        }
+        "jurisdictionId": "1",
+        "orgTypeId": "3"
     }
 ]
