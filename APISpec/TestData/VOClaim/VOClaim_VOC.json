@@ -1,56 +1,56 @@
 [
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "1",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
+        "inactiveClaimReasonId": "1",
+        "inactiveReason": "1",
         "verifiedOrgId": "1",
         "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "2",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "2",
-        "voClaimType": "1"
+        "verifiedOrgId": "1",
+        "voClaimType": "2"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "3",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
         "verifiedOrgId": "2",
-        "voClaimType": "2"
+        "voClaimType": "1"
     },
     {
-        "claimJSON": "{}",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "4",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
         "verifiedOrgId": "2",
-        "voClaimType": "3"
+        "voClaimType": "2"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "5",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
         "verifiedOrgId": "2",
-        "voClaimType": "4"
+        "voClaimType": "3"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "6",
@@ -60,393 +60,223 @@
         "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "7",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "3",
-        "voClaimType": "2"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "8",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
         "verifiedOrgId": "4",
         "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "8",
+        "inactiveClaimReasonId": "1",
+        "inactiveReason": "1",
+        "verifiedOrgId": "4",
+        "voClaimType": "2"
+    },
+    {
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "9",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "4",
-        "voClaimType": "2"
+        "verifiedOrgId": "5",
+        "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "10",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "4",
-        "voClaimType": "3"
+        "verifiedOrgId": "5",
+        "voClaimType": "2"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "11",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "5",
+        "verifiedOrgId": "6",
         "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "12",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "5",
+        "verifiedOrgId": "6",
         "voClaimType": "2"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "13",
-        "inactiveClaimReasonId": "2",
-        "inactiveReason": "2",
-        "verifiedOrgId": "5",
+        "inactiveClaimReasonId": null,
+        "inactiveReason": "N/A",
+        "verifiedOrgId": "6",
         "voClaimType": "3"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "14",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "5",
+        "verifiedOrgId": "6",
         "voClaimType": "4"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "15",
-        "inactiveClaimReasonId": "1",
-        "inactiveReason": "1",
-        "verifiedOrgId": "5",
+        "inactiveClaimReasonId": null,
+        "inactiveReason": "N/A",
+        "verifiedOrgId": "6",
         "voClaimType": "5"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "16",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "6",
+        "verifiedOrgId": "7",
         "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "17",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "6",
-        "voClaimType": "2"
+        "inactiveClaimReasonId": "2",
+        "inactiveReason": "2",
+        "verifiedOrgId": "8",
+        "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "18",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "6",
-        "voClaimType": "3"
+        "verifiedOrgId": "8",
+        "voClaimType": "2"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "19",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "6",
-        "voClaimType": "4"
+        "verifiedOrgId": "8",
+        "voClaimType": "3"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "20",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "6",
-        "voClaimType": "5"
+        "verifiedOrgId": "8",
+        "voClaimType": "4"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "21",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "7",
+        "inactiveClaimReasonId": "1",
+        "inactiveReason": "1",
+        "verifiedOrgId": "9",
         "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "22",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "7",
+        "verifiedOrgId": "9",
         "voClaimType": "2"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "23",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "7",
-        "voClaimType": "3"
+        "verifiedOrgId": "10",
+        "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "24",
         "inactiveClaimReasonId": "2",
         "inactiveReason": "2",
-        "verifiedOrgId": "7",
-        "voClaimType": "4"
+        "verifiedOrgId": "11",
+        "voClaimType": "1"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "25",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "7",
-        "voClaimType": "5"
+        "verifiedOrgId": "11",
+        "voClaimType": "2"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "26",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "8",
-        "voClaimType": "1"
+        "verifiedOrgId": "11",
+        "voClaimType": "3"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "27",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "9",
-        "voClaimType": "1"
+        "verifiedOrgId": "11",
+        "voClaimType": "4"
     },
     {
-        "claimJSON": "e30=",
+        "claimJSON": null,
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "28",
         "inactiveClaimReasonId": null,
         "inactiveReason": "N/A",
-        "verifiedOrgId": "9",
-        "voClaimType": "2"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "29",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "9",
-        "voClaimType": "3"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "30",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "9",
-        "voClaimType": "4"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "31",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "10",
-        "voClaimType": "1"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "32",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "10",
-        "voClaimType": "2"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "33",
-        "inactiveClaimReasonId": "2",
-        "inactiveReason": "2",
-        "verifiedOrgId": "10",
-        "voClaimType": "3"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "34",
-        "inactiveClaimReasonId": "2",
-        "inactiveReason": "2",
-        "verifiedOrgId": "11",
-        "voClaimType": "1"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "35",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "11",
-        "voClaimType": "2"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "36",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "11",
-        "voClaimType": "3"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "37",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "11",
-        "voClaimType": "4"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "38",
-        "inactiveClaimReasonId": "1",
-        "inactiveReason": "1",
         "verifiedOrgId": "11",
         "voClaimType": "5"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "39",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "12",
-        "voClaimType": "1"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "40",
-        "inactiveClaimReasonId": "2",
-        "inactiveReason": "2",
-        "verifiedOrgId": "12",
-        "voClaimType": "2"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "41",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "13",
-        "voClaimType": "1"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "42",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "13",
-        "voClaimType": "2"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "43",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "13",
-        "voClaimType": "3"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "44",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "14",
-        "voClaimType": "1"
-    },
-    {
-        "claimJSON": "e30=",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "45",
-        "inactiveClaimReasonId": null,
-        "inactiveReason": "N/A",
-        "verifiedOrgId": "14",
-        "voClaimType": "2"
     }
 ]
