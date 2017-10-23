@@ -1,1 +1,1 @@
-TheOrgBook - Bootstrapping the Verified Organization Self-Sovereign Identity Network.
+TheOrgBook - Creating the Verifiable Organizations Network to bootstrap the Self-Sovereign Identity Ecosystem.
