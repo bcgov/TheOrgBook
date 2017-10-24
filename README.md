@@ -7,3 +7,5 @@ The Verifiable Organizations Network envisions the possibility of a number of pu
 See https://bcgov.github.io/TheOrgBook for more information about this project.
 
 See https://github.com/bcgov/von for more information about the concept of a Verifiable Organizations Network.
+
+To deploy TheOrgBook locally on an instance of OpenShift running locally, see [the instructions](./RunningLocal.md) in the file RunningLocal.md.

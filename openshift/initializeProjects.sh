@@ -72,7 +72,7 @@ ${SCRIPTS_DIR}/grantDeploymentPrivileges.sh \
 ${SCRIPTS_DIR}/grantDeploymentPrivileges.sh \
 	${PROD_PROJECT} \
 	${TOOLS_PROJECT}
-	
+
 echo "============================================================================"
 echo
 
@@ -90,6 +90,6 @@ ${SCRIPTS_DIR}/createGlusterfsClusterApp.sh \
 
 ${SCRIPTS_DIR}/createGlusterfsClusterApp.sh \
 	${PROD_PROJECT}
-	
+
 echo "============================================================================"
 echo
