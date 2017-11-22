@@ -2,6 +2,9 @@
 layout: default
 title: Main Page
 ---
+
+[Quick link to Clicky Things (Demos), APIs and Repos](#clicky-things)
+
 # Background - Adding Trust to the Internet
 
 Putting Internet users - and organizations - in control of their own online Identity has been a growing challenge since the start of the internet. With the creation of massive centralized stores of private data (e.g. Equifax, Google, Facebook, etc.), the ability for holders to use that data in ways that are not always in the best interest of the data owner (you!). Further, given the rise of cyber-hacking which exposes that data, a change is needed in how our data is handled. [Self-Sovereign Identity](https://bitsonblocks.net/2017/05/17/a-gentle-introduction-to-self-sovereign-identity/)  (SSI) is a promising approach to decentralize the control and location of our data, giving control of our data back to us. Taken further, SSI enables a higher level of trust on the Internet by providing mechanisms that enable verifiable identification of parties to a transaction, reducing the need for high-cost mechanisms to establish trust.
@@ -41,8 +44,7 @@ As an Organization goes through an online process to acquire their Registrations
 - This saves the users from having to re-type the information for each Service (and eliminates typos in the data)
 - Each Service can trust the information because it comes from a trusted source - and is cryptographically signed
 
-The Code
------------
+## The Code
 
 We're currently building two components to support TheOrgBook:
 
@@ -69,25 +71,27 @@ The VON-Connector is code to minimize the effort for a Service to become SSI-ena
 * Issue Verifiable Claims to an SSI-enabled Organization
 * Provide updates (including revocations) of Verifiable Claims to TheOrgBook and/or SSI-enabled Organizations
 
-Want to know more?
-==============
+## Want to know more?
 
-For the latest on what we are doing, check into [TheOrgBook on github](https://github.com/bcgov/TheOrgBook).
+A detailed document about our first demonstration project can be found [here](https://docs.google.com/document/d/1wNnXdQKUtWnx--xw3VQ9Fr2TDa0kUNIBSMmFGR4uoMg/edit?usp=sharing).
 
-A detailed document about the project can be found [here](https://docs.google.com/document/d/1wNnXdQKUtWnx--xw3VQ9Fr2TDa0kUNIBSMmFGR4uoMg/edit?usp=sharing).
-
-More links that may be of interest (There may be some instability in these links as the effort is in early days)
-
+### Clicky Things!
 * [TheOrgBook Demo (Test Build - More Stable)](https://devex-von-test.pathfinder.gov.bc.ca/home) 
-* [Swagger API UI (Test Build - More Stable)](https://django-devex-von-test.pathfinder.gov.bc.ca/api/v1/) 
 * [TheOrgBook Demo (Dev Build - YMMV)](https://devex-von-dev.pathfinder.gov.bc.ca/home) 
+
+### APIs
+* [Swagger API UI (Test Build - More Stable)](https://django-devex-von-test.pathfinder.gov.bc.ca/api/v1/) 
 * [Swagger API UI (Dev Build - YMMV)](https://django-devex-von-dev.pathfinder.gov.bc.ca/api/v1/) 
-* [TheOrgBook_Database (Test)](http://schema-spy-devex-von-test.pathfinder.gov.bc.ca/)
+
+### TheOrgBook Database Explorers
+* [TheOrgBook_Database (Test)](http://schema-spy-schema-spy-devex-von-test.pathfinder.gov.bc.ca)
 * [TheOrgBook_Database (Dev)](http://schema-spy-devex-von-dev.pathfinder.gov.bc.ca/) 
+
+### Repos
+* [TheOrgBook on github](https://github.com/bcgov/TheOrgBook)
 * [bcgov/von: Verified Organization Network](https://github.com/bcgov/von)
 * [Public Services and Procurement Canada: buyandsell.gc.ca](https://github.com/PSPC-SPAC-buyandsell)
 
-Want to help?
-===============
+## Want to help?
 
 Fork the code, get in touch and let's build this together.
