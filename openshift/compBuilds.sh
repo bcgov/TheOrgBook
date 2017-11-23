@@ -57,10 +57,10 @@ for build in ${BUILDS}; do
 	fi
 
   oc process --filename=${JSONFILE} ${LOCALPARAM} ${PARAMFILE} > ${JSONTMPFILE}
-  exitOnError  
+  exitOnError
   if [ -z ${GEN_ONLY} ]; then
     oc ${OC_ACTION} -f ${JSONTMPFILE}
-    exitOnError
+	exitOnError
   fi
 
   # Delete the tempfile if the keep command line option was not specified
@@ -83,7 +83,7 @@ if [ -f "${COMPONENT_JENKINSFILE}" ]; then
   exitOnError
   if [ -z ${GEN_ONLY} ]; then
     oc ${OC_ACTION} -f ${JSONTMPFILE}
-    exitOnError
+	exitOnError
   fi
 
   # Delete the tempfile if the keep command line option was not specified
