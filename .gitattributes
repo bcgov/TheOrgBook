@@ -6,4 +6,4 @@
 *.md text eol=lf
 *.json text eol=lf
 **/s2i/bin/* text eol=lf
-**/root/usr/bin/* text eol=lf
+**/root/**/* text eol=lf
