@@ -8,4 +8,10 @@ See https://bcgov.github.io/TheOrgBook for more information about this project.
 
 See https://github.com/bcgov/von for more information about the concept of a Verifiable Organizations Network.
 
-To deploy TheOrgBook locally on an instance of OpenShift running locally, see [the instructions](./RunningLocal.md) in the file RunningLocal.md.
+## Running on OpenShift
+
+To deploy TheOrgBook on a local instance of OpenShift, refer to [Running TheOrgBook Locally on OpenShift](./RunningLocal.md).  These instructions, apart from the steps that are specific to setting up your local environment, can be used to get the project deployed to a production OpenShift environment.
+
+## Running on Docker
+
+The project can also be run locally using Docker and Docker Compose.  Refer to [Running TheOrgBook with Docker Compose](./docker/README.md) for instructions.
