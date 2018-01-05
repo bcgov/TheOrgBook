@@ -1,114 +1,135 @@
 [
     {
-        "dbaName": "Price Savers",
-        "effectiveDate": "2010-10-10",
+        "dbaName": "Asian Junction",
+        "effectiveDate": "2003-10-24",
         "endDate": null,
         "id": "1",
-        "verifiableOrgId": "2"
-    },
-    {
-        "dbaName": "Best Products",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "2",
-        "verifiableOrgId": "2"
+        "verifiableOrgId": "1"
     },
     {
         "dbaName": "McDuff",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2012-05-16",
         "endDate": null,
-        "id": "3",
-        "verifiableOrgId": "2"
+        "id": "2",
+        "verifiableOrgId": "3"
     },
     {
         "dbaName": "Muirhead's",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2000-06-01",
+        "endDate": null,
+        "id": "3",
+        "verifiableOrgId": "3"
+    },
+    {
+        "dbaName": "Wells & Wade",
+        "effectiveDate": "1990-10-19",
         "endDate": null,
         "id": "4",
-        "verifiableOrgId": "2"
-    },
-    {
-        "dbaName": "Jeans Unlimited",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "5",
-        "verifiableOrgId": "2"
-    },
-    {
-        "dbaName": "Brendle's",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "6",
-        "verifiableOrgId": "6"
-    },
-    {
-        "dbaName": "Harold's",
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "7",
         "verifiableOrgId": "7"
     },
     {
-        "dbaName": "Pantry Pride",
-        "effectiveDate": "2010-10-10",
+        "dbaName": "Brendle's",
+        "effectiveDate": "1997-04-26",
+        "endDate": null,
+        "id": "5",
+        "verifiableOrgId": "7"
+    },
+    {
+        "dbaName": "Britling Cafeterias",
+        "effectiveDate": "2016-09-17",
+        "endDate": null,
+        "id": "6",
+        "verifiableOrgId": "7"
+    },
+    {
+        "dbaName": "The Fox and Hound ",
+        "effectiveDate": "2004-07-19",
+        "endDate": null,
+        "id": "7",
+        "verifiableOrgId": "9"
+    },
+    {
+        "dbaName": "Edwards",
+        "effectiveDate": "2010-02-03",
         "endDate": null,
         "id": "8",
-        "verifiableOrgId": "13"
+        "verifiableOrgId": "9"
+    },
+    {
+        "dbaName": "Grass Roots Yard Services",
+        "effectiveDate": "1994-02-16",
+        "endDate": null,
+        "id": "9",
+        "verifiableOrgId": "9"
+    },
+    {
+        "dbaName": "Pantry Food Stores",
+        "effectiveDate": "2002-07-11",
+        "endDate": null,
+        "id": "10",
+        "verifiableOrgId": "9"
+    },
+    {
+        "dbaName": "Magik Grey",
+        "effectiveDate": "1999-02-15",
+        "endDate": null,
+        "id": "11",
+        "verifiableOrgId": "9"
     },
     {
         "dbaName": "Sandy's",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2010-05-11",
         "endDate": null,
-        "id": "9",
-        "verifiableOrgId": "13"
+        "id": "12",
+        "verifiableOrgId": "10"
     },
     {
         "dbaName": "Earthworks Garden Kare",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2011-07-31",
         "endDate": null,
-        "id": "10",
-        "verifiableOrgId": "13"
+        "id": "13",
+        "verifiableOrgId": "10"
     },
     {
         "dbaName": "Universo Realtors",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "1997-04-17",
         "endDate": null,
-        "id": "11",
-        "verifiableOrgId": "14"
+        "id": "14",
+        "verifiableOrgId": "11"
     },
     {
         "dbaName": "Gas Depot",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2013-08-22",
         "endDate": null,
-        "id": "12",
-        "verifiableOrgId": "14"
+        "id": "15",
+        "verifiableOrgId": "11"
     },
     {
-        "dbaName": "Service Merchandise",
-        "effectiveDate": "2010-10-10",
+        "dbaName": "Success Is Yours",
+        "effectiveDate": "2001-07-06",
         "endDate": null,
-        "id": "13",
-        "verifiableOrgId": "14"
+        "id": "16",
+        "verifiableOrgId": "13"
     },
     {
         "dbaName": "Stratacard",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "1990-09-10",
         "endDate": null,
-        "id": "14",
-        "verifiableOrgId": "16"
+        "id": "17",
+        "verifiableOrgId": "13"
     },
     {
         "dbaName": "J. Brannam",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "1997-06-07",
         "endDate": null,
-        "id": "15",
-        "verifiableOrgId": "16"
+        "id": "18",
+        "verifiableOrgId": "13"
     },
     {
         "dbaName": "Happy Family",
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2004-11-22",
         "endDate": null,
-        "id": "16",
-        "verifiableOrgId": "16"
+        "id": "19",
+        "verifiableOrgId": "13"
     }
 ]
