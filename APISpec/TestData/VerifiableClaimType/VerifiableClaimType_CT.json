@@ -1,12 +1,12 @@
 [
     {
         "base64Logo": null,
-        "claimType": "Verified Organization",
+        "claimType": "Certificate of Incorporation",
         "effectiveDate": "2010-10-10",
         "endDate": null,
         "id": "1",
         "issuerServiceId": "1",
-        "issuerURL": "https://registries.bc.gov.ca/verifiedOrganization"
+        "issuerURL": "https://www2.gov.bc.ca/gov/content/employment-business/business/managing-a-business/permits-licences/businesses-incorporated-companies"
     },
     {
         "base64Logo": null,

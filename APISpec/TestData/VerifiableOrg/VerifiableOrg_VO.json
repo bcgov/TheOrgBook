@@ -1,146 +1,119 @@
 [
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "1992-06-23",
         "endDate": null,
         "id": "1",
         "jurisdictionId": "1",
         "legalName": "The Original House of Pies",
-        "orgId": "49464327",
-        "orgTypeId": "1"
+        "orgId": "76369773",
+        "orgTypeId": "2"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2015-01-11",
         "endDate": null,
         "id": "2",
         "jurisdictionId": "1",
-        "legalName": "Asian Junction",
-        "orgId": "57928381",
+        "legalName": "Price Savers",
+        "orgId": "73864343",
         "orgTypeId": "2"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "1995-12-01",
         "endDate": null,
         "id": "3",
         "jurisdictionId": "1",
-        "legalName": "Museum Company",
-        "orgId": "54872521",
-        "orgTypeId": "3"
+        "legalName": "Best Products",
+        "orgId": "67479989",
+        "orgTypeId": "2"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2017-10-09",
         "endDate": null,
         "id": "4",
         "jurisdictionId": "1",
-        "legalName": "Henry's Hamburgers",
-        "orgId": "75788190",
-        "orgTypeId": "4"
+        "legalName": "Jeans Unlimited",
+        "orgId": "95339210",
+        "orgTypeId": "1"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2007-07-10",
         "endDate": null,
         "id": "5",
         "jurisdictionId": "1",
-        "legalName": "Body Toning",
-        "orgId": "38933134",
-        "orgTypeId": "1"
+        "legalName": "Museum Company",
+        "orgId": "92704385",
+        "orgTypeId": "4"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2003-10-14",
         "endDate": null,
         "id": "6",
         "jurisdictionId": "1",
-        "legalName": "Wells & Wade",
-        "orgId": "58733934",
-        "orgTypeId": "4"
+        "legalName": "Henry's Hamburgers",
+        "orgId": "31941198",
+        "orgTypeId": "1"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2007-01-12",
         "endDate": null,
         "id": "7",
         "jurisdictionId": "1",
-        "legalName": "Britling Cafeterias",
-        "orgId": "82292862",
-        "orgTypeId": "1"
+        "legalName": "Body Toning",
+        "orgId": "70985532",
+        "orgTypeId": "2"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2003-09-02",
         "endDate": null,
         "id": "8",
         "jurisdictionId": "1",
-        "legalName": "Record World",
-        "orgId": "84242625",
+        "legalName": "Harold's",
+        "orgId": "82528764",
         "orgTypeId": "1"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2014-09-12",
         "endDate": null,
         "id": "9",
         "jurisdictionId": "1",
-        "legalName": "The Fox and Hound ",
-        "orgId": "45695730",
-        "orgTypeId": "2"
+        "legalName": "Record World",
+        "orgId": "39338194",
+        "orgTypeId": "1"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2005-10-05",
         "endDate": null,
         "id": "10",
         "jurisdictionId": "1",
-        "legalName": "Edwards",
-        "orgId": "70261238",
-        "orgTypeId": "1"
-    },
-    {
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "11",
-        "jurisdictionId": "1",
-        "legalName": "Grass Roots Yard Services",
-        "orgId": "13642362",
-        "orgTypeId": "1"
-    },
-    {
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "12",
-        "jurisdictionId": "1",
-        "legalName": "Pantry Food Stores",
-        "orgId": "91163707",
+        "legalName": "Pantry Pride",
+        "orgId": "46473100",
         "orgTypeId": "4"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2007-09-21",
         "endDate": null,
-        "id": "13",
+        "id": "11",
         "jurisdictionId": "1",
-        "legalName": "Magik Grey",
-        "orgId": "36115965",
+        "legalName": "Gamma Gas",
+        "orgId": "77003356",
+        "orgTypeId": "1"
+    },
+    {
+        "effectiveDate": "2007-01-19",
+        "endDate": null,
+        "id": "12",
+        "jurisdictionId": "1",
+        "legalName": "Service Merchandise",
+        "orgId": "46470557",
         "orgTypeId": "3"
     },
     {
-        "effectiveDate": "2010-10-10",
+        "effectiveDate": "2011-10-01",
         "endDate": null,
-        "id": "14",
-        "jurisdictionId": "1",
-        "legalName": "Gamma Gas",
-        "orgId": "30042089",
-        "orgTypeId": "1"
-    },
-    {
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "15",
+        "id": "13",
         "jurisdictionId": "1",
         "legalName": "Lionel Playworld",
-        "orgId": "11829260",
+        "orgId": "76506409",
         "orgTypeId": "1"
-    },
-    {
-        "effectiveDate": "2010-10-10",
-        "endDate": null,
-        "id": "16",
-        "jurisdictionId": "1",
-        "legalName": "Success Is Yours",
-        "orgId": "37170171",
-        "orgTypeId": "2"
     }
 ]
