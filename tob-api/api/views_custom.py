@@ -20,6 +20,7 @@
 """
 
 from rest_framework.views import APIView
+from django.http.response import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions 
@@ -148,3 +149,35 @@ class verifiableOrgsIdLocationsGet(APIView):
     locations = Location.objects.filter(verifiableOrgId=org)
     serializer = serializers.LocationSerializer(locations, many=True)
     return Response(serializer.data)
+
+class QuickLoad(APIView):
+  def get(self, request):
+    """
+    Used to initialize a client application.
+    Returns record counts, and data types required by the web application to perform filtering and/or populate list(s).
+    """
+    response = {'counts': {}, 'records': {}}
+
+    countOrgs = VerifiableOrg.objects.count()
+    countClaims = VerifiableClaim.objects.count()
+    response['counts'] = {'verifiableorgs': countOrgs, 'verifiableclaims': countClaims}
+
+    inactive = InactiveClaimReason.objects.all()
+    response['records']['inactiveclaimreasons'] = serializers.InactiveClaimReasonSerializer(inactive, many=True).data
+
+    issuers = IssuerService.objects.all()
+    response['records']['issuerservices'] = serializers.IssuerServiceSerializer(issuers, many=True).data
+
+    jurisd = Jurisdiction.objects.all()
+    response['records']['jurisdictions'] = serializers.JurisdictionSerializer(jurisd, many=True).data
+
+    locTypes = LocationType.objects.all()
+    response['records']['locationtypes'] = serializers.LocationTypeSerializer(locTypes, many=True).data
+
+    claimTypes = VerifiableClaimType.objects.all()
+    response['records']['verifiableclaimtypes'] = serializers.VerifiableClaimTypeSerializer(claimTypes, many=True).data
+
+    orgTypes = VerifiableOrgType.objects.all()
+    response['records']['verifiableorgtypes'] = serializers.VerifiableOrgTypeSerializer(orgTypes, many=True).data
+
+    return JsonResponse(response)
