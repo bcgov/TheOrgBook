@@ -91,4 +91,4 @@ class bcovrinConstructProof(APIView):
     proofRequestWithFilters = request.body.decode('utf-8')
     proofRequestProcesser = ProofRequestProcesser(proofRequestWithFilters)
     proofResponse = proofRequestProcesser.ConstructProof()
-    return JsonResponse(json.loads(proofResponse))
+    return JsonResponse(proofResponse)
