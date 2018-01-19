@@ -4,6 +4,7 @@
     <Name>tob-api</Name>
     <RootNamespace>tob-api</RootNamespace>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <WebBrowserPort>56325</WebBrowserPort>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -36,6 +37,11 @@
     <Compile Include="api\claimProcesser.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="api\exceptions\OrganizationNotRegisteredException.py" />
+    <Compile Include="api\exceptions\ClaimTypeNotRegisteredException.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="api\exceptions\__init__.py" />
     <Compile Include="api\fakedata.py" />
     <Compile Include="api\indy\agent.py" />
     <Compile Include="api\indy\claimDefParser.py" />
@@ -147,6 +153,7 @@
     <Folder Include="api\management\commands\" />
     <Folder Include="api\migrations\" />
     <Folder Include="api\models\" />
+    <Folder Include="api\exceptions\" />
     <Folder Include="api\templates\" />
     <Folder Include="api\templates\search\" />
     <Folder Include="api\templates\search\indexes\" />

@@ -51,6 +51,9 @@ class SwaggerSchemaView(APIView):
 urlpatterns = [
     # Swagger documentation
     url(r'^$', SwaggerSchemaView.as_view()),
+
+    url(r'^quickload$', views_custom.QuickLoad.as_view()),
+
     url(r'^users/current$', views_custom.usersCurrentGet.as_view()),
 
     url(r'^doingbusinessas/bulk$', views.doingbusinessasBulkPost.as_view()),
