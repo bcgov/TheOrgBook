@@ -1,11 +1,13 @@
 from api.indy.claimParser import ClaimParser
+from api.indy.agent import Holder
+
 from api.exceptions.ClaimTypeNotRegisteredException import ClaimTypeNotRegisteredException
 from api.exceptions.OrganizationNotRegisteredException import OrganizationNotRegisteredException
 from api.models.DoingBusinessAs import DoingBusinessAs
 from api.models.Location import Location
 from api.models.LocationType import LocationType
 from rest_framework.exceptions import APIException
-from api.indy.agent import Agent
+
 from django.utils import timezone
 from api.models.VerifiableClaimType import VerifiableClaimType
 from api.models.IssuerService import IssuerService
@@ -26,7 +28,6 @@ class ClaimProcesser(object):
     """
 
     def __init__(self) -> None:
-      self.__orgbook = Agent()
       self.__logger = logging.getLogger(__name__)
     
     def __ToDate(self, timeStamp: str):
@@ -260,8 +261,9 @@ class ClaimProcesser(object):
       return location
 
     async def __StoreClaim(self, claim):
-      self.__logger.debug("Storing the claim in the wallet ...")
-      await self.__orgbook.store_claim(claim)
+      async with Holder() as holder:
+        self.__logger.debug("Storing the claim in the wallet ...")
+        await holder.store_claim(claim)
     
     def SaveClaim(self, claimJson):      
       claim = ClaimParser(claimJson)
