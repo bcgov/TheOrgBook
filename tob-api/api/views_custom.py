@@ -19,6 +19,8 @@
     limitations under the License.
 """
 
+import json
+from django.http.response import JsonResponse
 from rest_framework.views import APIView
 from django.http.response import JsonResponse
 from rest_framework.response import Response
@@ -50,6 +52,8 @@ from .models.VerifiableClaim import VerifiableClaim
 from .models.VerifiableClaimType import VerifiableClaimType
 from .models.VerifiableOrg import VerifiableOrg
 from .models.VerifiableOrgType import VerifiableOrgType
+
+from django.db.models import Count
 
 # Custom views.  This file is hand edited.
 class usersCurrentGet(APIView):
@@ -150,17 +154,16 @@ class verifiableOrgsIdLocationsGet(APIView):
     serializer = serializers.LocationSerializer(locations, many=True)
     return Response(serializer.data)
 
-class QuickLoad(APIView):
+class quickLoad(APIView):
   def get(self, request):
     """
     Used to initialize a client application.
     Returns record counts, and data types required by the web application to perform filtering and/or populate list(s).
     """
-    response = {'counts': {}, 'records': {}}
-
-    countOrgs = VerifiableOrg.objects.count()
-    countClaims = VerifiableClaim.objects.count()
-    response['counts'] = {'verifiableorgs': countOrgs, 'verifiableclaims': countClaims}
+    response = {
+      'counts': recordCounts.get_recordCounts(),
+      'records': {}
+    }
 
     inactive = InactiveClaimReason.objects.all()
     response['records']['inactiveclaimreasons'] = serializers.InactiveClaimReasonSerializer(inactive, many=True).data
@@ -180,4 +183,30 @@ class QuickLoad(APIView):
     orgTypes = VerifiableOrgType.objects.all()
     response['records']['verifiableorgtypes'] = serializers.VerifiableOrgTypeSerializer(orgTypes, many=True).data
 
+    return JsonResponse(response)
+  
+class recordCounts(APIView):
+  @staticmethod
+  def get_recordCounts():
+    return {
+      'doingbusinessas': DoingBusinessAs.objects.count(),
+      'inactiveclaimreasons': InactiveClaimReason.objects.count(),
+      'issuerservices': IssuerService.objects.count(),
+      'jurisdictions': Jurisdiction.objects.count(),
+      'locations': Location.objects.count(),
+      'locationtypes': LocationType.objects.count(),
+      'verifiableclaims': VerifiableClaim.objects.count(),
+      'verifiableclaimTypes': VerifiableClaimType.objects.count(),
+      'verifiableorgs': VerifiableOrg.objects.count(),
+      'verifiableorgtypes': VerifiableOrgType.objects.count(),
+    }
+  
+  def get(self, request):
+    """  
+    Returns record count information.
+    """
+    response = {
+      'counts': self.get_recordCounts()
+    }
+    
     return JsonResponse(response)
