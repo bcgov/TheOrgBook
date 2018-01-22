@@ -1,4 +1,5 @@
 from von_agent.nodepool import NodePool
+from tob_api import hyperledger_indy
 from von_agent.agents import Issuer as VonIssuer
 from von_agent.agents import Verifier as VonVerifier
 from von_agent.agents import HolderProver as VonHolderProver
@@ -9,9 +10,10 @@ logger = logging.getLogger(__name__)
 
 class Issuer:
     def __init__(self):
+        config = hyperledger_indy.config()
         self.pool = NodePool(
             'the-org-book-issuer',
-            '/opt/app-root/genesis')
+            config['genesis_txn_path'])
 
         self.instance = VonIssuer(
             self.pool,
@@ -36,9 +38,10 @@ class Issuer:
 
 class Verifier:
     def __init__(self):
+        config = hyperledger_indy.config()
         self.pool = NodePool(
             'the-org-book-verifier',
-            '/opt/app-root/genesis')
+            config['genesis_txn_path'])
 
         self.instance = VonVerifier(
             self.pool,
@@ -63,9 +66,10 @@ class Verifier:
 
 class Holder:
     def __init__(self):
+        config = hyperledger_indy.config()
         self.pool = NodePool(
             'the-org-book-holder',
-            '/opt/app-root/genesis')
+            config['genesis_txn_path'])
 
         self.instance = VonHolderProver(
             self.pool,
