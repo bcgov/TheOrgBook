@@ -1,0 +1,41 @@
+{
+  "title": "Permitify Demo - Starting a Restaurant Recipe",
+  "claimTypes": [
+    {
+    "title": "Registration",
+    "issuerTLA": "BCReg",
+    "regLink": "https://bc-registries-devex-von-permitify-dev.pathfinder.gov.bc.ca/",
+    "regText": "Enroll with BC Registries"
+    },
+    {
+    "title": "Restaurant Clearance Letter",
+    "issuerTLA": "WorkSafe",
+    "regLink": "https://worksafe-bc-devex-von-permitify-dev.pathfinder.gov.bc.ca/",
+    "regText": "Register with WorkSafe BC"
+    },
+    {
+    "title": "PST Number",
+    "issuerTLA": "Ministry of Finance",
+    "regLink": "https://ministry-of-finance-devex-von-permitify-dev.pathfinder.gov.bc.ca/",
+    "regText": "Register with the BC Ministry of Finance"
+    },
+    {
+    "title": "Operating Permit",
+    "issuerTLA": "Health Authority",
+    "regLink": "https://fraser-valley-health-authority-devex-von-permitify-dev.pathfinder.gov.bc.ca/",
+    "regText": "Register with the Fraser Valley Health Authority"
+    },
+    {
+    "title": "Business License",
+    "issuerTLA": "Surrey",
+    "regLink": "https://city-of-surrey-devex-von-permitify-dev.pathfinder.gov.bc.ca/",
+    "regText": "Register with the City of Surrey"
+    },
+    {
+    "title": "Liquor License",
+    "issuerTLA": "Liquor Licensing",
+    "regLink": "https://liquor-control-and-licensing-branch-devex-von-permitify-dev.pathfinder.gov.bc.ca/",
+    "regText": "Register with the BC Liquor Control and Licensing Branch"
+    }
+  ]
+}

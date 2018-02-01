@@ -22,9 +22,9 @@ export class CertComponent implements OnInit {
     private route: ActivatedRoute) { }
 
   ngOnInit() {
-    let loaded = this.dataService.preloadData(['verifiableclaimtypes', 'issuerservices']);
+    let loaded = this.dataService.preloadData(['inactiveclaimreasons', 'issuerservices', 'verifiableclaimtypes']);
     this.sub = this.route.params.subscribe(params => {
-      this.id = +params['recordId'];
+      this.id = +params['certId'];
       loaded.then(status => {
         this.dataService.loadRecord('verifiableclaims', ''+this.id).subscribe((record : VerifiableClaim) => {
           let claim = this.dataService.formatClaim(record);

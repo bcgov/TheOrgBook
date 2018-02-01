@@ -27,17 +27,14 @@ export class BusinessComponent implements OnInit, OnDestroy {
   ngOnInit() {
     let loaded = this.dataService.preloadData(['verifiableclaimtypes', 'verifiableorgtypes', 'locationtypes', 'issuerservices']);
     this.sub = this.route.params.subscribe(params => {
-      this.id = +params['recordId'];
+      this.id = +params['orgId'];
       loaded.then(status => {
         this.dataService.loadVerifiableOrg(this.id).subscribe((record : VerifiableOrg) => {
-          this.record = record;
-          console.log('verified org:', record);
-          this.loaded = !!record;
           if(! record) this.error = 'Record not found';
           else {
             let orgType = <VerifiableOrgType>this.dataService.findOrgData('verifiableorgtypes', record.orgTypeId);
-            this.record.type = orgType || blankOrgType();
-            this.record.typeName = orgType && orgType.description;
+            record.type = orgType || blankOrgType();
+            record.typeName = orgType && orgType.description;
 
             let orgLocs = [];
             let claimLocs = {};
@@ -90,6 +87,11 @@ export class BusinessComponent implements OnInit, OnDestroy {
                 console.log('claims', res);
               });*/
           }
+
+          console.log('verified org:', record);
+          this.record = record;
+          this.loaded = !!record;
+
         }, err => {
           this.error = err;
         });
