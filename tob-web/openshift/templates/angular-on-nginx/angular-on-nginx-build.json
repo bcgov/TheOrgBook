@@ -2,8 +2,7 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "angular-on-nginx",
-    "creationTimestamp": null
+    "name": "angular-on-nginx"
   },
   "objects": [
     {
@@ -18,7 +17,6 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "${NAME}-build",
-        "creationTimestamp": null,
         "labels": {
           "app": "${NAME}"
         }
@@ -28,32 +26,39 @@
         "completionDeadlineSeconds": 1800,
         "triggers": [
           {
+            "type": "ConfigChange"
+          },
+          {
             "type": "ImageChange"
           }
         ],
         "source": {
-          "type": "Git",
-          "git": {
-            "ref": "${GIT_REF}",
-            "uri": "${GIT_REPO_URL}"
-          },
-          "contextDir": "${SOURCE_CONTEXT_DIR}"
+          "type": "Dockerfile",
+          "dockerfile": "FROM ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}\nCOPY * /tmp/app/dist/\nCMD  /usr/libexec/s2i/run",
+          "images": [
+            {
+              "from": {
+                "kind": "ImageStreamTag",
+                "namespace": "${SOURCE_IMAGE_NAMESPACE}",
+                "name": "${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}"
+              },
+              "paths": [
+                {
+                  "sourcePath": "/opt/app-root/src/dist/.",
+                  "destinationDir": "tmp"
+                }
+              ]
+            }
+          ]
         },
         "strategy": {
-          "type": "Source",
-          "sourceStrategy": {
+          "type": "Docker",
+          "dockerStrategy": {
             "from": {
-                "kind": "ImageStreamTag",
-                "name": "angular-builder:latest"
-            },
-            "runtimeImage": {
               "kind": "ImageStreamTag",
-              "name": "nginx-runtime:latest"
-            },
-            "runtimeArtifacts": [{
-              "sourcePath": "/opt/app-root/src/dist/",
-              "destinationDir": "app"
-            }]
+              "namespace": "${RUNTIME_IMAGE_NAMESPACE}",
+              "name": "${RUNTIME_IMAGE_NAME}:${RUNTIME_IMAGE_TAG}"
+            }
           }
         },
         "output": {
@@ -68,9 +73,6 @@
             "memory": "${MEMORY_LIMIT}"
           }
         }
-      },
-      "status": {
-        "lastVersion": 0
       }
     }
   ],
@@ -80,28 +82,49 @@
       "displayName": "Name",
       "description": "The name assigned to all of the objects defined in this template.",
       "required": true,
-      "value": "angular-scaffold"
+      "value": "angular-on-nginx"
     },
     {
-      "name": "GIT_REPO_URL",
-      "displayName": "GIT Source Repo URL",
-      "description": "A GIT URL to your source code.",
-      "required": true,
-      "value": "https://github.com/bcgov/angular-scaffold"
-    },
-    {
-      "name": "GIT_REF",
-      "displayName": "Git Reference",
-      "description": "The git reference or branch.",
-      "required": true,
-      "value": "master"
-    },
-    {
-      "name": "SOURCE_CONTEXT_DIR",
-      "displayName": "Source Context Directory",
-      "description": "The source context directory.",
+      "name": "SOURCE_IMAGE_NAMESPACE",
+      "displayName": "Source Image Namespace",
+      "description": "The namespace containing the source image.",
       "required": false,
-      "value": "tob-web"
+      "value": ""
+    },
+    {
+      "name": "SOURCE_IMAGE_NAME",
+      "displayName": "Source Image Name",
+      "description": "The name of the source image.",
+      "required": true,
+      "value": "angular-app"
+    },
+    {
+      "name": "SOURCE_IMAGE_TAG",
+      "displayName": "Source Image Tag",
+      "description": "The tag of the source image.",
+      "required": true,
+      "value": "latest"
+    },
+    {
+      "name": "RUNTIME_IMAGE_NAMESPACE",
+      "displayName": "Runtime Image Namespace",
+      "description": "The namespace containing the runtime image.",
+      "required": false,
+      "value": "openshift"
+    },
+    {
+      "name": "RUNTIME_IMAGE_NAME",
+      "displayName": "Runtime Image Name",
+      "description": "The name of the runtime image.",
+      "required": true,
+      "value": "nginx-runtime"
+    },
+    {
+      "name": "RUNTIME_IMAGE_TAG",
+      "displayName": "Runtime Image Tag",
+      "description": "The tag of the Runtime image.",
+      "required": true,
+      "value": "latest"
     },
     {
       "name": "OUTPUT_IMAGE_TAG",
