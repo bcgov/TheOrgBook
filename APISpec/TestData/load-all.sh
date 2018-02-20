@@ -63,36 +63,23 @@ VerifiableOrgType=VerifiableOrgType/VerifiableOrgType_VOType.json
 # The order of the loading is important - need to add independent files before dependent ones
 # ==============================================================================================
 
+echo Data for TheOrgBook is now loaded via the loading of claims. Details to come...
+
 # Users, Roles, and Permissions ...
-./load.sh ./${users} ${API_PREFIX}/users/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${roles} ${API_PREFIX}/roles/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${permissions} ${API_PREFIX}/permissions/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${userRole} ${API_PREFIX}/userroles/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${rolepermission} ${API_PREFIX}/rolepermissions/${BULK_PATH} "$@"
-exitOnError
+# ./load.sh ./${users} ${API_PREFIX}/users/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${roles} ${API_PREFIX}/roles/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${permissions} ${API_PREFIX}/permissions/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${userRole} ${API_PREFIX}/userroles/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${rolepermission} ${API_PREFIX}/rolepermissions/${BULK_PATH} "$@"; exitOnError
 
 # Everything else ...
-./load.sh ./${InactiveClaimReason} ${API_PREFIX}/inactiveclaimreasons/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${Jurisdiction} ${API_PREFIX}/jurisdictions/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${VerifiableOrgType} ${API_PREFIX}/verifiableorgtypes/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${LocationType} ${API_PREFIX}/locationtypes/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${IssuerService} ${API_PREFIX}/issuerservices/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${VerifiableClaimType} ${API_PREFIX}/verifiableclaimtypes/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${VerifiableOrg} ${API_PREFIX}/verifiableorgs/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${VerifiableClaim} ${API_PREFIX}/verifiableclaims/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${DoingBusinessAs} ${API_PREFIX}/doingbusinessas/${BULK_PATH} "$@"
-exitOnError
-./load.sh ./${Location} ${API_PREFIX}/locations/${BULK_PATH} "$@"
-exitOnError
+# ./load.sh ./${InactiveClaimReason} ${API_PREFIX}/inactiveclaimreasons/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${Jurisdiction} ${API_PREFIX}/jurisdictions/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${VerifiableOrgType} ${API_PREFIX}/verifiableorgtypes/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${LocationType} ${API_PREFIX}/locationtypes/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${IssuerService} ${API_PREFIX}/issuerservices/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${VerifiableClaimType} ${API_PREFIX}/verifiableclaimtypes/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${VerifiableOrg} ${API_PREFIX}/verifiableorgs/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${VerifiableClaim} ${API_PREFIX}/verifiableclaims/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${DoingBusinessAs} ${API_PREFIX}/doingbusinessas/${BULK_PATH} "$@"; exitOnError
+# ./load.sh ./${Location} ${API_PREFIX}/locations/${BULK_PATH} "$@"; exitOnError
