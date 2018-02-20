@@ -5,8 +5,9 @@ import { CertComponent } from 'app/cert/cert.component';
 import { IssuerComponent } from 'app/issuer/issuer.component';
 import { DashboardComponent } from 'app/dashboard/dashboard.component';
 import { RoadmapComponent } from 'app/roadmap/roadmap.component';
+import { NotFoundComponent } from 'app/not-found/not-found.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     redirectTo: 'home',
@@ -16,13 +17,13 @@ const routes: Routes = [
     path: 'home',
     component: DashboardComponent,
     data: {
-      breadcrumb: 'Search'
+      breadcrumb: 'dashboard.breadcrumb'
     }
   },
   {
     path: 'org/:orgId',
     data: {
-      breadcrumb: 'Organization Info'
+      breadcrumb: 'org.breadcrumb'
     },
     children: [
       {
@@ -33,7 +34,7 @@ const routes: Routes = [
         path: 'cert/:certId',
         component: CertComponent,
         data: {
-          breadcrumb: 'Permit and License Info'
+          breadcrumb: 'cert.breadcrumb'
         }
       }
     ]
@@ -42,7 +43,7 @@ const routes: Routes = [
     path: 'issuer/:issuerId',
     component: IssuerComponent,
     data: {
-      breadcrumb: 'Issuer Service'
+      breadcrumb: 'issuer.breadcrumb'
     }
   },
   {
@@ -53,7 +54,14 @@ const routes: Routes = [
     path: 'recipe/:recipeId',
     component: RoadmapComponent,
     data: {
-      breadcrumb: 'Roadmap'
+      breadcrumb: 'recipe.breadcrumb'
+    }
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
+    data: {
+      breadcrumb: 'not-found.breadcrumb'
     }
   }
 ];
