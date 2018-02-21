@@ -20,7 +20,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   public more = false;
   public less = false;
   public none = false;
+  public inited = false;
   public loading = false;
+  public recordCounts : {[key:string]:number} = {};
   private preload;
 
   constructor(
@@ -31,14 +33,25 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.preload = this.dataService.preloadData(['locations', 'locationtypes', 'verifiableorgtypes']);
+    this.preload.then(() => {
+      this.recordCounts = {
+        orgs: this.dataService.getRecordCount('verifiableorgs'),
+        certs: this.dataService.getRecordCount('verifiableclaims')
+      };
+      this.inited = true;
+    });
     this.$route.queryParams.subscribe(params => {
       this.setQuery(params.query);
     });
   }
 
   ngAfterViewInit() {
-    (<HTMLInputElement>document.getElementById('searchInput')).value = this.query;
-    requestAnimationFrame(() => this.focusSearch());
+    this.preload.then(() => {
+      requestAnimationFrame(() => {
+        (<HTMLInputElement>document.getElementById('searchInput')).value = this.query;
+        this.focusSearch()
+      });
+    });
   }
 
   setQuery(q) {
@@ -140,14 +153,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   next() {
     this.page ++;
     this.paginate();
-  }
-
-  orgCount() {
-    return this.dataService.getRecordCount('verifiableorgs');
-  }
-
-  claimCount() {
-    return this.dataService.getRecordCount('verifiableclaims');
   }
 
 }
