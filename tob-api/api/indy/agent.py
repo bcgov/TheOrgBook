@@ -1,5 +1,4 @@
 import os
-import uuid
 
 from von_agent.nodepool import NodePool
 from tob_api import hyperledger_indy
@@ -19,7 +18,7 @@ class Issuer:
     def __init__(self):
         config = hyperledger_indy.config()
         self.pool = NodePool(
-            uuid.uuid4(),
+            'the-org-book-issuer',
             config['genesis_txn_path'])
 
         self.instance = VonIssuer(
@@ -47,7 +46,7 @@ class Verifier:
     def __init__(self):
         config = hyperledger_indy.config()
         self.pool = NodePool(
-            uuid.uuid4(),
+            'the-org-book-verifier',
             config['genesis_txn_path'])
 
         self.instance = VonVerifier(
@@ -75,7 +74,7 @@ class Holder:
     def __init__(self):
         config = hyperledger_indy.config()
         self.pool = NodePool(
-            uuid.uuid4(),
+            'the-org-book-holder',
             config['genesis_txn_path'])
 
         self.instance = VonHolderProver(
