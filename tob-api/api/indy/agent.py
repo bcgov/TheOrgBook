@@ -1,6 +1,7 @@
 import os
 
 from von_agent.nodepool import NodePool
+from von_agent.wallet import Wallet
 from tob_api import hyperledger_indy
 from von_agent.agents import Issuer as VonIssuer
 from von_agent.agents import Verifier as VonVerifier
@@ -23,12 +24,12 @@ class Issuer:
 
         self.instance = VonIssuer(
             self.pool,
-            WALLET_SEED,
-            'TheOrgBook Issuer Wallet',
-            None,
-            '127.0.0.1',
-            9703,
-            'api/v0')
+            Wallet(
+                self.pool.name,
+                WALLET_SEED,
+                'TheOrgBook Issuer Wallet'
+            )
+        )
 
     async def __aenter__(self):
         await self.pool.open()
@@ -51,12 +52,12 @@ class Verifier:
 
         self.instance = VonVerifier(
             self.pool,
-            WALLET_SEED,
-            'TheOrgBook Verifier Wallet',
-            None,
-            '127.0.0.1',
-            9703,
-            'api/v0')
+            Wallet(
+                self.pool.name,
+                WALLET_SEED,
+                'TheOrgBook Verifier Wallet'
+            )
+        )
 
     async def __aenter__(self):
         await self.pool.open()
@@ -79,12 +80,12 @@ class Holder:
 
         self.instance = VonHolderProver(
             self.pool,
-            WALLET_SEED,
-            'TheOrgBook Holder Wallet',
-            None,
-            '127.0.0.1',
-            9703,
-            'api/v0')
+            Wallet(
+                self.pool.name,
+                WALLET_SEED,
+                'TheOrgBook Holder Wallet'
+            )
+        )
 
     async def __aenter__(self):
         await self.pool.open()
