@@ -23,8 +23,8 @@ class Issuer:
             config['genesis_txn_path'])
 
         issuer_type   = 'default'
-        issuer_config = {freshness_time:0}
-        issuer_creds  = {key:""}
+        issuer_config = {'freshness_time':0}
+        issuer_creds  = {'key':''}
 
         self.instance = VonIssuer(
             self.pool,
@@ -58,8 +58,8 @@ class Verifier:
             config['genesis_txn_path'])
 
         verifier_type   = 'default'
-        verifier_config = {freshness_time:0}
-        verifier_creds  = {key:""}
+        verifier_config = {'freshness_time':0}
+        verifier_creds  = {'key':''}
 
         self.instance = VonVerifier(
             self.pool,
@@ -93,8 +93,8 @@ class Holder:
             config['genesis_txn_path'])
 
         holder_type   = 'default'
-        holder_config = {freshness_time:0}
-        holder_creds  = {key:""}
+        holder_config = {'freshness_time':0}
+        holder_creds  = {'key':''}
 
         self.instance = VonHolderProver(
             self.pool,
