@@ -92,7 +92,7 @@ class Holder:
             'the-org-book-holder',
             config['genesis_txn_path'])
 
-        holder_type   = 'default'
+        holder_type   = 'virtual'
         holder_config = {'freshness_time':0}
         holder_creds  = {'key':''}
 
