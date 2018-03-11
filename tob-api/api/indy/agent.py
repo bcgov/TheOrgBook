@@ -86,7 +86,7 @@ class Verifier:
         await self.pool.close()
 
 
-class Holder:
+class Holder(VonHolderProver):
     def __init__(self):
         config = hyperledger_indy.config()
         self.pool = NodePool(
@@ -97,7 +97,7 @@ class Holder:
         holder_config = {'freshness_time':0}
         holder_creds  = {'key':''}
 
-        self.instance = VonHolderProver(
+        super().__init__(
             self.pool,
             Wallet(
                 self.pool.name,
