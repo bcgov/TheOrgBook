@@ -6,6 +6,7 @@ from tob_api import hyperledger_indy
 from von_agent.agents import Issuer as VonIssuer
 from von_agent.agents import Verifier as VonVerifier
 from von_agent.agents import HolderProver as VonHolderProver
+from typing import Set, Union
 
 import logging
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class Issuer:
             'the-org-book-issuer',
             config['genesis_txn_path'])
 
-        issuer_type   = 'default'
+        issuer_type   = 'virtual'
         issuer_config = {'freshness_time':0}
         issuer_creds  = {'key':''}
 
@@ -57,7 +58,7 @@ class Verifier:
             'the-org-book-verifier',
             config['genesis_txn_path'])
 
-        verifier_type   = 'default'
+        verifier_type   = 'virtual'
         verifier_config = {'freshness_time':0}
         verifier_creds  = {'key':''}
 
@@ -86,15 +87,15 @@ class Verifier:
 
 
 class Holder:
-    def __init__(self):
+    def __init__(self, legal_entity_id: str = None):
         config = hyperledger_indy.config()
         self.pool = NodePool(
             'the-org-book-holder',
             config['genesis_txn_path'])
 
-        holder_type   = 'default'
+        holder_type   = 'virtual'
         holder_config = {'freshness_time':0}
-        holder_creds  = {'key':''}
+        holder_creds  = {'key':'', 'virtual_wallet':legal_entity_id}
 
         self.instance = VonHolderProver(
             self.pool,
@@ -111,12 +112,12 @@ class Holder:
     async def __aenter__(self):
         await self.pool.open()
         instance = await self.instance.open()
+        # TODO should only create this once, and only in the root wallet (virtual_wallet == None)
         await self.instance.create_master_secret('secret')
         return instance
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
             logger.error(exc_type, exc_value, traceback)
-
         await self.instance.close()
         await self.pool.close()
