@@ -8,6 +8,8 @@ from von_agent.agents import Verifier as VonVerifier
 from von_agent.agents import HolderProver as VonHolderProver
 from typing import Set, Union
 
+from api import apps
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ class Issuer:
             Wallet(
                 self.pool.name,
                 WALLET_SEED,
-                'TheOrgBook Issuer Wallet',
+                'TheOrgBook_Issuer_Wallet',
                 issuer_type,
                 issuer_config,
                 issuer_creds,
@@ -67,7 +69,7 @@ class Verifier:
             Wallet(
                 self.pool.name,
                 WALLET_SEED,
-                'TheOrgBook Verifier Wallet',
+                'TheOrgBook_Verifier_Wallet',
                 verifier_type,
                 verifier_config,
                 verifier_creds,
@@ -93,16 +95,23 @@ class Holder:
             'the-org-book-holder',
             config['genesis_txn_path'])
 
-        holder_type   = 'virtual'
-        holder_config = {'freshness_time':0}
-        holder_creds  = {'key':'', 'virtual_wallet':legal_entity_id}
+        holder_type   = os.environ.get('INDY_WALLET_TYPE')
+        if holder_type == 'remote':
+            holder_url = os.environ.get('INDY_WALLET_URL')
+            holder_config = {'endpoint':holder_url,'ping':'schema/','auth':'api-token-auth/','keyval':'keyval/','freshness_time':0}
+            holder_creds  = {'auth_token':apps.get_remote_wallet_token(),'virtual_wallet':legal_entity_id}
+        else:
+            # TODO force to virtual for now
+            holder_type = 'virtual'
+            holder_config = {'freshness_time':0}
+            holder_creds  = {'key':'','virtual_wallet':legal_entity_id}
 
         self.instance = VonHolderProver(
             self.pool,
             Wallet(
                 self.pool.name,
                 WALLET_SEED,
-                'TheOrgBook Holder Wallet',
+                'TheOrgBook_Holder_Wallet',
                 holder_type,
                 holder_config,
                 holder_creds,
