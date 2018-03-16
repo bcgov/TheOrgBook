@@ -74,7 +74,7 @@ exit 1
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="tob-db tob-solr tob-api schema-spy tob-web"
+DEFAULT_CONTAINERS="tob-db tob-solr tob-wallet tob-api schema-spy tob-web"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
@@ -159,12 +159,29 @@ build-api() {
     'django'
 }
 
+build-wallet() {
+  #
+  # tob-wallet
+  #
+  echo -e "\nBuilding wallet-base image ..."
+  docker build \
+    -t 'wallet-base' \
+    -f '../tob-wallet/openshift/templates/wallet-base/Dockerfile' '../tob-wallet/openshift/templates/wallet-base/'
+
+  echo -e "\nBuilding tob-wallet image ..."
+  ${S2I_EXE} build \
+    '../tob-wallet' \
+    'wallet-base' \
+    'tob-wallet'
+}
+
 buildImages() {
   build-web
   build-solr
   build-db
   build-schema-spy
   build-api
+  build-wallet
 }
 
 configureEnvironment () {
@@ -209,6 +226,9 @@ configureEnvironment () {
   # tob-solr
   export CORE_NAME="the_org_book"
 
+  # tob-wallet
+  export WALLET_HTTP_PORT=${WALLET_HTTP_PORT-8000}
+
   # tob-api
   export API_HTTP_PORT=${API_HTTP_PORT-8081}
   export DATABASE_SERVICE_NAME="tob-db"
@@ -221,6 +241,16 @@ configureEnvironment () {
   export SOLR_SERVICE_NAME="tob-solr"
   export SOLR_CORE_NAME=${CORE_NAME}
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
+
+  # wallet type a command-line parameter (like seed) default to "virtual" if not specified
+  export INDY_WALLET_URL=http://${DOCKERHOST}:8000/api/v1/
+  export INDY_WALLET_TYPE=${wallet}
+
+  if [ "$COMMAND" == "start" ]; then
+    if [ -z "$wallet" ]; then
+      export INDY_WALLET_TYPE="virtual"
+    fi
+  fi
 
   # tob-web
   export WEB_HTTP_PORT=${WEB_HTTP_PORT-8080}
@@ -280,6 +310,9 @@ case "$1" in
     case "$@" in
       tob-api)
         build-api
+        ;;
+      tob-wallet)
+        build-wallet
         ;;
       tob-web)
         build-web
