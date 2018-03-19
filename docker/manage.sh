@@ -171,7 +171,11 @@ buildImages() {
 configureEnvironment () {
 
   if [ -f .env ]; then
-  	export $(cat .env | xargs)
+  	while read line; do
+  		if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
+  			export $line
+  		fi
+  	done < .env
   fi
 
   for arg in $@; do
@@ -211,7 +215,7 @@ configureEnvironment () {
   export CORE_NAME="the_org_book"
 
   # tob-api
-  export API_HTTP_PORT=${API_HTTP_PORT-8081}
+  export API_HTTP_PORT=${API_HTTP_PORT:-8081}
   export DATABASE_SERVICE_NAME="tob-db"
   export DATABASE_ENGINE="postgresql"
   export DATABASE_NAME=${POSTGRESQL_DATABASE}
@@ -224,8 +228,8 @@ configureEnvironment () {
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
 
   # tob-web
-  export TOB_THEME=${TOB_THEME-bcgov}
-  export WEB_HTTP_PORT=${WEB_HTTP_PORT-8080}
+  export TOB_THEME=${TOB_THEME:-bcgov}
+  export WEB_HTTP_PORT=${WEB_HTTP_PORT:-8080}
   export WEB_BASE_HREF=${WEB_BASE_HREF:-/}
   export API_URL=${API_URL-http://tob-api:8080/api/v1/}
   export IpFilterRules='#allow all; deny all;'
