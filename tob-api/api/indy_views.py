@@ -24,6 +24,7 @@ from api.claimDefProcesser import ClaimDefProcesser
 from rest_framework.response import Response
 from api import serializers
 from api.proofRequestProcesser import ProofRequestProcesser
+import logging
 import json
 from rest_framework import permissions
 from api.claimProcesser import ClaimProcesser
@@ -156,6 +157,7 @@ class bcovrinVerifyCredential(APIView):
     """
     Verifies a verifiable claim given a verifiable claim id
     """
+    __logger = logging.getLogger(__name__)
     verifiableClaimId = self.kwargs.get('id')
     if verifiableClaimId is not None:
       verifiableClaim = VerifiableClaim.objects.get(id=verifiableClaimId)
@@ -172,10 +174,17 @@ class bcovrinVerifyCredential(APIView):
         claimType.schemaVersion
       )
 
-      proofRequest = proofRequestBuilder.asDict()
+      legal_entity_id = None
+      try:
+        legal_entity_id = json.loads(verifiableClaim.claimJSON)['values']['legal_entity_id'][0]
+        __logger.debug('Claim for legal_entity_id: %s' % legal_entity_id)
+      except Error as e:
+        # no-op
+        self.__logger.debug('Claim for NO legal_entity_id')
 
+      proofRequest = proofRequestBuilder.asDict()
       proofRequestWithFilters = {
-        'filters': {},
+        'filters': {'legal_entity_id': legal_entity_id},
         'proof_request': proofRequest
       }
 
