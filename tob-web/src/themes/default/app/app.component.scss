@@ -1,5 +1,4 @@
-$bootstrap-sass-asset-helper: true;
-// @import "~bootstrap-sass/assets/stylesheets/bootstrap";
+@import "./app.component.custom";
 
 .header-logo {
   margin-right: 24px;
