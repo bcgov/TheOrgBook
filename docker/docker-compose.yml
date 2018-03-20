@@ -45,7 +45,7 @@ services:
     volumes:
       - ../tob-wallet/api:/opt/app-root/src/api
     networks:
-      - tob
+      - wallet-tob
       - wallet-db
     ports:
       - "${WALLET_HTTP_PORT}:8000"
@@ -98,6 +98,7 @@ services:
     volumes:
       - ../tob-api/api:/opt/app-root/src/api
     networks:
+      - wallet-tob
       - tob
     ports:
       - "${API_HTTP_PORT}:8080"
@@ -190,6 +191,7 @@ services:
 networks:
   tob:
   wallet-db:
+  wallet-tob:
 
 # volumes:
   # tob-data:
