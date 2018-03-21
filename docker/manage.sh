@@ -74,7 +74,7 @@ exit 1
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="tob-db tob-solr tob-wallet tob-api schema-spy tob-web"
+DEFAULT_CONTAINERS="tob-db tob-wallet-db tob-solr tob-wallet tob-api schema-spy tob-web"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
@@ -94,6 +94,7 @@ build-web() {
   echo -e "\nBuilding angular-app image ..."
   ${S2I_EXE} build \
   	-e "NG_BASE_HREF=${WEB_BASE_HREF}" \
+  	-e "TOB_THEME=${TOB_THEME}" \
     '../tob-web' \
     'centos/nodejs-6-centos7:6' \
     'angular-app'
@@ -187,7 +188,11 @@ buildImages() {
 configureEnvironment () {
 
   if [ -f .env ]; then
-  	export $(cat .env | xargs)
+  	while read line; do
+  		if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
+  			export $line
+  		fi
+  	done < .env
   fi
 
   for arg in $@; do
@@ -228,9 +233,14 @@ configureEnvironment () {
 
   # tob-wallet
   export WALLET_HTTP_PORT=${WALLET_HTTP_PORT-8000}
+  export WALLET_DB_SERVICE_NAME="tob-wallet-db"
+  export DATABASE_ENGINE="postgresql"
+  export DATABASE_NAME=${POSTGRESQL_DATABASE}
+  export DATABASE_USER=${POSTGRESQL_USER}
+  export DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
 
   # tob-api
-  export API_HTTP_PORT=${API_HTTP_PORT-8081}
+  export API_HTTP_PORT=${API_HTTP_PORT:-8081}
   export DATABASE_SERVICE_NAME="tob-db"
   export DATABASE_ENGINE="postgresql"
   export DATABASE_NAME=${POSTGRESQL_DATABASE}
@@ -243,7 +253,7 @@ configureEnvironment () {
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
 
   # wallet type a command-line parameter (like seed) default to "virtual" if not specified
-  export INDY_WALLET_URL=http://${DOCKERHOST}:8000/api/v1/
+  export INDY_WALLET_URL=http://tob-wallet:8000/api/v1/
   export INDY_WALLET_TYPE=${wallet}
 
   if [ "$COMMAND" == "start" ]; then
@@ -253,7 +263,8 @@ configureEnvironment () {
   fi
 
   # tob-web
-  export WEB_HTTP_PORT=${WEB_HTTP_PORT-8080}
+  export TOB_THEME=${TOB_THEME:-bcgov}
+  export WEB_HTTP_PORT=${WEB_HTTP_PORT:-8080}
   export WEB_BASE_HREF=${WEB_BASE_HREF:-/}
   export API_URL=${API_URL-http://tob-api:8080/api/v1/}
   export IpFilterRules='#allow all; deny all;'
