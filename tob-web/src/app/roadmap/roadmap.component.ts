@@ -80,16 +80,42 @@ export class RoadmapComponent implements OnInit {
 
       let ctypes = data['claimTypes'] || [];
       let ctype;
+      let depends = {};
       data['claimTypes'] = [];
-      for(let i = 0; i < ctypes.length; i++) {
-        ctype = Object.assign({}, ctypes[i]);
+      ctypes.forEach((ctype_spec, idx) => {
+        ctype = Object.assign({}, ctype_spec);
         ctype.cert = null;
-        if(! ctype.schemaName || ! typesBySchema[ctype.schemaName]) continue;
+        if(! ctype.schemaName || ! typesBySchema[ctype.schemaName]) return;
         ctype.regType = typesBySchema[ctype.schemaName];
         if(! ctype.regLink) ctype.regLink = ctype.regType.issuerURL;
-
+        depends[ctype.schemaName] = ctype.depends || [];
+        ctype.oldIdx = idx;
         data['claimTypes'].push(ctype);
-      }
+      });
+      this.expandDepends(depends);
+
+      data['claimTypes'].sort(this.cmpDependClaims(depends));
+      let dependIndex = {};
+      data['claimTypes'].forEach( (ctype, idx) => {
+        dependIndex[ctype['schemaName']] = idx;
+      });
+
+      console.log(depends);
+      console.log(dependIndex);
+
+      // expand dependency information
+      data['claimTypes'].forEach(ctype => {
+        let claimDeps = [];
+        if(ctype.schemaName in depends) {
+          depends[ctype.schemaName].forEach(schema => {
+            if(schema in dependIndex)
+              claimDeps.push(dependIndex[schema]);
+          });
+        }
+        claimDeps.sort();
+        ctype['depends'] = claimDeps.length ? claimDeps : null;
+      });
+
       this.recipe = data;
       console.log('recipe', data);
       this.$route.queryParams.subscribe(params => {
@@ -99,6 +125,40 @@ export class RoadmapComponent implements OnInit {
       console.log('failed');
       this.error = "An error occurred while loading the recipe.";
     });
+  }
+
+  cmpDependClaims(depends) {
+    return (a, b) => {
+      let schemaA = a.schemaName;
+      let schemaB = b.schemaName;
+      if(schemaA in depends && ~depends[schemaA].indexOf(schemaB)) return 1;
+      if(schemaB in depends && ~depends[schemaB].indexOf(schemaA)) return -1;
+      return (a.oldIdx == b.oldIdx ? 0 : (a.oldIdx < b.oldIdx ? 1 : -1));
+    }
+  }
+
+  expandDepends(all_deps) {
+    let found = true;
+    while(found) {
+      found = false;
+      for(let dep in all_deps) {
+        let deps = all_deps[dep];
+        let ndeps = new Set();
+        for(let extdep of deps) {
+          if(! (extdep in all_deps)) continue;
+          let extall = all_deps[extdep];
+          for(let extext of extall) {
+            if(extext !== dep && extext !== extdep && ! ~deps.indexOf(extext)) {
+              ndeps.add(extext);
+            }
+          }
+        }
+        if(ndeps.size) {
+          all_deps[dep] = deps.concat(Array.from(ndeps));
+          found = true;
+        }
+      }
+    }
   }
 
   setParams(record, q) {
