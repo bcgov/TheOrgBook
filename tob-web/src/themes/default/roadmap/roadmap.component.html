@@ -13,6 +13,9 @@
   <h1 class="roadmap-title" *ngIf="inited">{{recipe.title}}</h1>
 
   <ng-container *ngIf="! orgRecord && inited">
+    <div class="roadmap-tree mrgn-tp-lg mrgn-bttm-lg" *ngIf="recipe.tree">
+      <roadmap-tree [tree]="recipe.tree" [data]="recipe.claimTypes" [horizontal]="false"></roadmap-tree>
+    </div>
     <div class="row">
       <div class="col-md-5 col-md-push-7" *ngIf="registerLink">
         <div class="well">
@@ -138,8 +141,11 @@
     <div class="row" *ngFor="let claimType of recipe.claimTypes">
       <div class="col-sm-10 col-sm-push-1">
         <div class="panel panel-primary">
-          <div class="panel-heading">
-            <h2 class="panel-title">{{ claimType.title }}</h2>
+          <div class="panel-heading claim-heading">
+            <h2 class="panel-title">
+              <span class="fa fa-check-circle icon" *ngIf="claimType.cert"></span>
+              <span class="claim-title">{{ claimType.title }}</span>
+            </h2>
           </div>
           <div class="panel-body claim-body" *ngIf="claimType.cert">
             <div class="row form-group">
@@ -165,6 +171,16 @@
           </div>
           <div class="panel-body claim-body empty" *ngIf="! claimType.cert">
             <em class="text-muted">{{ (claimType.altText || 'recipe.cert-not-found') | translate }}</em>
+            <div class="depends" *ngIf="claimType.depends">
+              <h4 class="depends-title text-muted" translate>recipe.cert-depends-on</h4>
+              <ul class="depends-items">
+                <li [class]="'depends-item ' + (recipe.claimTypes[idx].cert ? 'found' : 'missing')" *ngFor="let idx of claimType.depends">
+                  <span class="fa fa-check-circle icon" *ngIf="recipe.claimTypes[idx].cert"></span>
+                  <span class="fa fa-times icon" *ngIf="! recipe.claimTypes[idx].cert"></span>
+                  {{ recipe.claimTypes[idx].title }}
+                </li>
+              </ul>
+            </div>
           </div>
           <div class="panel-footer text-right" *ngIf="claimType.cert">
             <a href="" [routerLink]="['/org', recordId, 'cert', claimType.cert.id] | localize" class="btn btn-default"><span class="fa fa-arrow-right"></span> {{ (claimType.linkText || 'recipe.cert-view-link') | translate }}</a>

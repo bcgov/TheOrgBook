@@ -4,7 +4,7 @@
     "title": "TheOrgBook Demo",
     "header": {
       "title": "TheOrgBook",
-      "logo-alt-text": "B.C. Government Logo"
+      "logo-alt-text": "Ontario Government Logo"
     },
     "footer": {
       "disclaimer": "Disclaimer",
@@ -30,7 +30,7 @@
   },
   "dashboard": {
     "breadcrumb": "Search",
-    "title": "Welcome to British Columbia's Verifiable Organizations",
+    "title": "Welcome to Ontario's Verifiable Organizations",
     "title-orgs": "organizations",
     "title-certs": "permits and licences"
   },
