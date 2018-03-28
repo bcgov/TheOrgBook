@@ -34,4 +34,4 @@ fi
 
 echo Data for TheOrgBook is now loaded via the loading of claims. Details to come...
 
-./loadClaims.py "${1}"
+./loadClaims.py "${1}" "${2}"
