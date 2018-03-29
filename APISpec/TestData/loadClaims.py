@@ -25,7 +25,9 @@ URLS = {
         # city_of_surrey
         'City': 'http://localhost:5004',
         # liquor_control_and_licensing_branch
-        'Liquor': 'http://localhost:5005'
+        'Liquor': 'http://localhost:5005',
+        # on_biz
+        'OntarioReg': "http://localhost:5006"
     },
   'dev': {
         # bc_registries (needs to be first)
@@ -59,11 +61,12 @@ URLS = {
 
 this_dir = dirname(__file__)
 
-claim_files = glob(join(this_dir, 'Claims', 'Claims_*'))
+#claim_files = glob(join(this_dir, 'Claims', 'Claims_*'))
 
 
-def main(env):
+def main(env, data_dir):
     # Each filename is a full permitify recipe
+    claim_files = glob(join(this_dir, data_dir + 'Claims', data_dir + 'Claims_*'))
     for filename in claim_files:
         with open(filename, 'r') as file:
             content = file.read()
@@ -73,7 +76,7 @@ def main(env):
                 if service_name not in permitify_services:
                     continue
                 for claim in permitify_services[service_name]:
-                    if service_name != 'Reg':
+                    if 'Reg' not in service_name:
                         claim['legal_entity_id'] = legal_entity_id
                         print('\n\n')
                         print('Issuing permit: {}'.format(
@@ -98,6 +101,7 @@ def main(env):
                             json=claim
                         )
                         result_json = response.json()
+                        print(result_json)
                     except:
                         raise Exception(
                             'Could not submit claim. '
@@ -105,7 +109,7 @@ def main(env):
 
                     print('\n\n Response from permitify:\n\n{}'.format(result_json))
 
-                    if service_name == 'Reg':
+                    if 'Reg' in service_name:
                         legal_entity_id = result_json['result']['orgId']
 
 
@@ -119,4 +123,5 @@ if __name__ == '__main__':
             print('{} {{local|dev|test}}'.format(sys.argv[0]))
         else:
             env = sys.argv[1]
-            main(env)
+            data_dir = sys.argv[2] if len(sys.argv) > 2 else ''
+            main(env, data_dir)
