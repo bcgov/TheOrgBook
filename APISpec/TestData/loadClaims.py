@@ -22,6 +22,8 @@ from random import *
 parser = argparse.ArgumentParser(description='A TheOrgBook Claim loader.  Supports randomization for test data and threading for fast loading')
 parser.add_argument('--random', action='store_true', required=False,
                     help='If data is to be randomized before loading (useful for test data)')
+parser.add_argument('--proofs', action='store_true', required=False,
+                    help='If calculate proofs as claims are loaded')
 parser.add_argument('--env', metavar='env', type=str, default='local',
                     help='Permitify and TheOrgBook services are on local/dev/test host')
 parser.add_argument('--inputdir', metavar='inputdir', type=str, default="Claims",
@@ -45,6 +47,15 @@ if args.random or args.threads > 1 or args.loops > 1:
     print('Randomizing!')
 else:
     print('NOT Randomizing.')
+
+loop_locks = {
+    'Reg': threading.Semaphore(),
+    'Worksafe': threading.Semaphore(),
+    'Finance': threading.Semaphore(),
+    'Health': threading.Semaphore(),
+    'City': threading.Semaphore(),
+    'Liquor': threading.Semaphore()
+}
 
 URLS = {
   'local': {
@@ -102,7 +113,7 @@ URLS = {
 
 this_dir = dirname(__file__)
 
-claim_files = glob(join(this_dir, 'Claims', 'Claims_*'))
+claim_files = glob(join(this_dir, args.inputdir, 'Claims_*'))
 
 do_it_random = (args.random or args.threads > 1 or args.loops > 1)
 num_loops = args.loops
@@ -179,6 +190,10 @@ def main_load(env, do_it_random, num_loops, thread_id):
                 'Is the Wallet Service running?')
 
     # Create new threads
+    loop_start_time = time.time()
+    loop_claims = 0
+    claim_elapsed_time = 0
+    proof_elapsed_time = 0
     for _ in range(0, num_loops):
         # Each filename is a full permitify recipe
         for filename in claim_files:
@@ -239,19 +254,51 @@ def main_load(env, do_it_random, num_loops, thread_id):
                                     'Is the Wallet Service running?')
                         else:
                             try:
+                                start_time = time.time()
+                                loop_locks[service_name].acquire()
                                 response = requests.post(
                                     '{}/submit_claim'.format(
                                         URLS[env][service_name]),
                                     json=claim
                                 )
+                                loop_locks[service_name].release()
                                 result_json = response.json()
+                                elapsed_time = time.time() - start_time
+                                claim_elapsed_time = claim_elapsed_time + elapsed_time
+                                print('Claim elapsed time >>> {}'.format(elapsed_time))
                             except:
+                                loop_locks[service_name].release()
                                 raise Exception(
                                     'Could not submit claim. '
                                     'Are Permitify and Docker running?')
                             print('\n\n Response from permitify:\n\n{}'.format(result_json))
                             if service_name == 'Reg':
                                 legal_entity_id = result_json['result']['orgId']
+                        loop_claims = loop_claims + 1
+
+                        if args.proofs:
+                            # "submit_claim" returns the id of the org, not the claim, so fake it pick any random claim
+                            my_id = randint(1, 6*(result_json['result']['id']-1))
+                            print('\n\nRequesting Proof:\n\n{}'.format(my_id))
+                            try:
+                                start_time = time.time()
+                                response = requests.get(
+                                    '{}/{}/verify'.format(
+                                        "http://localhost:8081/api/v1/verifiableclaims", str(my_id))
+                                )
+                                elapsed_time = time.time() - start_time
+                                proof_elapsed_time = proof_elapsed_time + elapsed_time
+                                print('Proof elapsed time >>> {}'.format(elapsed_time))
+                                result_json = response.json()
+                            except:
+                                raise Exception(
+                                    'Could not submit proof request. '
+                                    'Are Permitify and Docker running?')
+                            print('\n\n Response from TOB:\n\n')
+
+    print('Claim elapsed time >>> {}, {} claims'.format(claim_elapsed_time, loop_claims))
+    if args.proofs:
+        print('Proof elapsed time >>> {}, {} claims'.format(proof_elapsed_time, loop_claims))
 
 if __name__ == '__main__':
     try:
@@ -259,8 +306,16 @@ if __name__ == '__main__':
     except KeyError:
         print('{} --env <local|dev|test>'.format(sys.argv[0]))
     else:
+        execution_start = time.time()
+        my_threads = []
         for i in range(0, args.threads):
             thread = myThread(i, "Thread-{}".format(i), i)
             # Start new Threads
             thread.start()
-        print("Exiting Main Thread")
+            my_threads.append(thread)
+            time.sleep(1)
+        for i in range(0, args.threads):
+            my_threads[i].join()
+        execution_elapsed = time.time() - execution_start
+        print("Exiting Main Thread, time = {} secs".format(execution_elapsed))
+
