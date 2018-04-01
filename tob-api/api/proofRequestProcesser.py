@@ -103,8 +103,17 @@ class ProofRequestProcesser(object):
         self.__logger.debug('Proof request: %s' % json.dumps(
             self.__proof_request))
 
+        # legal entity id
+        self.__logger.debug(self.__filters)
+        if 'legal_entity_id' in self.__filters:
+            legal_entity_id = self.__filters['legal_entity_id']
+            self.__logger.debug('Proof request for legal_entity_id: %s' % legal_entity_id)
+        else:
+            legal_entity_id = None
+            self.__logger.debug('Proof request for legal_entity_id: None found')
+
         # Get claims for proof request from wallet
-        async with Holder() as holder:
+        async with Holder(legal_entity_id) as holder:
             claims = await holder.get_claims(
                 json.dumps(self.__proof_request))
             claims = json.loads(claims[1])
@@ -204,7 +213,7 @@ class ProofRequestProcesser(object):
 
         self.__logger.debug("Creating proof ...")
 
-        async with Holder() as holder:
+        async with Holder(legal_entity_id) as holder:
             proof = await holder.create_proof(
                     self.__proof_request,
                     claims,

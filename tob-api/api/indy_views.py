@@ -172,10 +172,17 @@ class bcovrinVerifyCredential(APIView):
         claimType.schemaVersion
       )
 
+      legal_entity_id = None
+      try:
+        legal_entity_id = json.loads(verifiableClaim.claimJSON)['values']['legal_entity_id'][0]
+      except Error as e:
+        # no-op
+        self.__logger.debug('Claim for NO legal_entity_id')
+
       proofRequest = proofRequestBuilder.asDict()
 
       proofRequestWithFilters = {
-        'filters': {},
+        'filters': {'legal_entity_id': legal_entity_id},
         'proof_request': proofRequest
       }
 
