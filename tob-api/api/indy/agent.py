@@ -21,18 +21,32 @@ class Issuer:
         self.pool = NodePool(
             'the-org-book-issuer',
             config['genesis_txn_path'])
+        wallet_name = 'TheOrgBook_Issuer_Wallet'
+
+        issuer_type   = 'virtual'
+        issuer_config = {'freshness_time':0}
+        issuer_creds  = {'key':''}
+
+        logger.debug("Issuer __init__>>> {} {} {}".format(issuer_type, issuer_config, issuer_creds))
+
+        issuer_wallet = Wallet(
+                 self.pool,
+                 WALLET_SEED,
+                 wallet_name,
+                 issuer_type,
+                 issuer_config,
+                 issuer_creds)
+
+        logger.debug("Issuer __init__>>> {} {} {}".format(issuer_type, issuer_config, issuer_creds))
 
         self.instance = VonIssuer(
-            self.pool,
-            Wallet(
-                self.pool.name,
-                WALLET_SEED,
-                'TheOrgBook Issuer Wallet'
-            )
+            # self.pool,
+            issuer_wallet
         )
 
     async def __aenter__(self):
         await self.pool.open()
+        await self.instance.wallet.create()
         return await self.instance.open()
 
     async def __aexit__(self, exc_type, exc_value, traceback):
@@ -49,18 +63,31 @@ class Verifier:
         self.pool = NodePool(
             'the-org-book-verifier',
             config['genesis_txn_path'])
+        wallet_name = 'TheOrgBook_Verifier_Wallet'
+
+        verifier_type   = 'virtual'
+        verifier_config = {'freshness_time':0}
+        verifier_creds  = {'key':''}
+
+        logger.debug("Verifier __init__>>> {} {} {}".format(verifier_type, verifier_config, verifier_creds))
+
+        verifier_wallet = Wallet(
+                 self.pool,
+                 wallet_name,
+                 verifier_type,
+                 verifier_config,
+                 verifier_creds)
+
+        logger.debug("Verifier __init__>>> {} {} {}".format(verifier_type, verifier_config, verifier_creds))
 
         self.instance = VonVerifier(
-            self.pool,
-            Wallet(
-                self.pool.name,
-                WALLET_SEED,
-                'TheOrgBook Verifier Wallet'
-            )
+             # self.pool,
+             verifier_wallet
         )
 
     async def __aenter__(self):
         await self.pool.open()
+        await self.instance.wallet.create()
         return await self.instance.open()
 
     async def __aexit__(self, exc_type, exc_value, traceback):
@@ -77,19 +104,36 @@ class Holder:
         self.pool = NodePool(
             'the-org-book-holder',
             config['genesis_txn_path'])
+        wallet_name = 'TheOrgBook_Holder_Wallet'
+
+        # TODO force to virtual for now
+        holder_type = 'virtual'
+        holder_config = {'freshness_time':0}
+        holder_creds  = {'key':''}
+        logger.debug('Using virtual Cfg: {} Creds: {}'.format(holder_config, holder_creds))
+
+        logger.debug("Holder __init__>>> {} {} {}".format(holder_type, holder_config, holder_creds))
+
+        holder_wallet = Wallet(
+                self.pool,
+                WALLET_SEED,
+                wallet_name,
+                holder_type,
+                holder_config,
+                holder_creds)
+
+        logger.debug("Holder __init__>>> {} {} {}".format(holder_type, holder_config, holder_creds))
 
         self.instance = VonHolderProver(
-            self.pool,
-            Wallet(
-                self.pool.name,
-                WALLET_SEED,
-                'TheOrgBook Holder Wallet'
-            )
+            # self.pool,
+            holder_wallet
         )
 
     async def __aenter__(self):
         await self.pool.open()
+        await self.instance.wallet.create()
         instance = await self.instance.open()
+        # TODO should only create this once, and only in the root wallet (virtual_wallet == None)
         await self.instance.create_master_secret('secret')
         return instance
 
