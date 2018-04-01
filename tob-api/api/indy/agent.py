@@ -99,7 +99,7 @@ class Verifier:
 
 
 class Holder:
-    def __init__(self):
+    def __init__(self, legal_entity_id: str = None):
         config = hyperledger_indy.config()
         self.pool = NodePool(
             'the-org-book-holder',
@@ -109,7 +109,7 @@ class Holder:
         # TODO force to virtual for now
         holder_type = 'virtual'
         holder_config = {'freshness_time':0}
-        holder_creds  = {'key':''}
+        holder_creds  = {'key':'','virtual_wallet':legal_entity_id}
         logger.debug('Using virtual Cfg: {} Creds: {}'.format(holder_config, holder_creds))
 
         logger.debug("Holder __init__>>> {} {} {}".format(holder_type, holder_config, holder_creds))
