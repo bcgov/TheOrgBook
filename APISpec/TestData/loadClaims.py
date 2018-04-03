@@ -70,7 +70,9 @@ URLS = {
         # city_of_surrey
         'City': 'http://localhost:5004',
         # liquor_control_and_licensing_branch
-        'Liquor': 'http://localhost:5005'
+        'Liquor': 'http://localhost:5005',
+        # on_biz
+        'OntarioReg': "http://localhost:5006"
     },
   'dev': {
         # bc_registries (needs to be first)
@@ -195,6 +197,9 @@ def main_load(env, do_it_random, num_loops, thread_id):
     claim_elapsed_time = 0
     proof_elapsed_time = 0
     for _ in range(0, num_loops):
+        # Each filename is a full permitify recipe
+        claim_files = glob(join(this_dir, args.inputdir + 'Claims', args.inputdir + 'Claims_*'))
+
         # Each filename is a full permitify recipe
         for filename in claim_files:
             with open(filename, 'r') as file:
