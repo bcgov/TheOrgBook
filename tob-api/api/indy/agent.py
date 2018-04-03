@@ -110,7 +110,7 @@ class Holder:
         self.pool = NodePool(
             'the-org-book-holder-' + str(thread_id),
             config['genesis_txn_path'])
-        wallet_name = 'TheOrgBook_Holder_Wallet'
+        wallet_name = 'TheOrgBook_Holder_Wallet' + '$$' +  str(thread_id)
 
         holder_type   = os.environ.get('INDY_WALLET_TYPE')
         if holder_type == 'remote':
