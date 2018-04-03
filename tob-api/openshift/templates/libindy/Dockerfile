@@ -10,7 +10,10 @@ apt-get install -y \
     cmake \
     libssl-dev \
     libsqlite3-dev \
-    libsodium-dev
+    libsodium-dev \
+    libzmq3-dev
+
+RUN apt-get install -y sqlite3 libsqlite3-dev
 
 ENV HOME=/opt/app-root/src
 WORKDIR $HOME
@@ -21,10 +24,10 @@ RUN chmod +x rustup
 RUN ./rustup -y
 
 # Build libindy
-RUN git clone https://github.com/hyperledger/indy-sdk.git
+RUN git clone https://github.com/bcgov/indy-sdk.git
 WORKDIR $HOME/indy-sdk/libindy
 RUN git fetch
-RUN git checkout 778a38d92234080bb77c6dd469a8ff298d9b7154
+RUN git checkout enterprise-wallet
 RUN $HOME/.cargo/bin/cargo build
 
 # Move libindy to lib path
