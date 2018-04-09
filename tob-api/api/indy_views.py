@@ -24,6 +24,7 @@ from api.claimDefProcesser import ClaimDefProcesser
 from rest_framework.response import Response
 from api import serializers
 from api.proofRequestProcesser import ProofRequestProcesser
+import logging
 import json
 from rest_framework import permissions
 from api.claimProcesser import ClaimProcesser
@@ -58,9 +59,12 @@ class bcovrinGenerateClaimRequest(APIView):
 
     returns: indy sdk claim request json
     """
+    __logger = logging.getLogger(__name__)
+    __logger.warn('>>> Generate a claim request')
     claimDef = request.body.decode('utf-8')
     claimDefProcesser = ClaimDefProcesser(claimDef)
     claimRequest = claimDefProcesser.GenerateClaimRequest()
+    __logger.warn('<<< Generated claim request')
     return JsonResponse(json.loads(claimRequest))
 
 # ToDo:
@@ -93,10 +97,13 @@ class bcovrinStoreClaim(APIView):
 
     returns: created verifiableClaim model
     """
+    __logger = logging.getLogger(__name__)
+    __logger.warn('>>> Store a claim')
     claim = request.body.decode('utf-8')
     claimProcesser = ClaimProcesser()
     verifiableOrg = claimProcesser.SaveClaim(claim)
     serializer = serializers.VerifiableOrgSerializer(verifiableOrg)
+    __logger.warn('<<< Stored claim')
     return Response(serializer.data)
 
 class bcovrinConstructProof(APIView):
@@ -141,6 +148,7 @@ class bcovrinConstructProof(APIView):
 
     returns: indy sdk proof json
     """
+    __logger = logging.getLogger(__name__)
     proofRequestWithFilters = request.body.decode('utf-8')
     proofRequestProcesser = ProofRequestProcesser(proofRequestWithFilters)
     proofResponse = proofRequestProcesser.ConstructProof()
@@ -156,6 +164,7 @@ class bcovrinVerifyCredential(APIView):
     """
     Verifies a verifiable claim given a verifiable claim id
     """
+    __logger = logging.getLogger(__name__)
     verifiableClaimId = self.kwargs.get('id')
     if verifiableClaimId is not None:
       verifiableClaim = VerifiableClaim.objects.get(id=verifiableClaimId)
@@ -175,12 +184,12 @@ class bcovrinVerifyCredential(APIView):
       legal_entity_id = None
       try:
         legal_entity_id = json.loads(verifiableClaim.claimJSON)['values']['legal_entity_id'][0]
+        __logger.debug('Claim for legal_entity_id: %s' % legal_entity_id)
       except Error as e:
         # no-op
         self.__logger.debug('Claim for NO legal_entity_id')
 
       proofRequest = proofRequestBuilder.asDict()
-
       proofRequestWithFilters = {
         'filters': {'legal_entity_id': legal_entity_id},
         'proof_request': proofRequest

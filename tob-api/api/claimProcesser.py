@@ -14,6 +14,7 @@ from api.models.IssuerService import IssuerService
 from api.models.VerifiableClaim import VerifiableClaim
 import logging
 import json
+
 import base64
 from api.models.Jurisdiction import Jurisdiction
 from api.models.VerifiableOrgType import VerifiableOrgType
@@ -284,6 +285,7 @@ class ClaimProcesser(object):
       claim = ClaimParser(claimJson)
       print(claimJson)
       self.__logger.debug(">>> Processing {0} claim ...\n{1}".format(claim.schemaName, claimJson))
+      start_time = time.time()
 
       # If the claim type has not been registered, reject the claim.
       verifiableClaimType = self.__get_VerifiableClaimType(claim)
@@ -292,6 +294,9 @@ class ClaimProcesser(object):
 
       # Look up the organization ...
       verifiableOrg = self.__get_VerifiableOrg(claim)
+      elapsed_time = time.time() - start_time
+      self.__logger.debug('Claim elapsed time 1 >>> {}'.format(elapsed_time))
+      start_time = time.time()
 
       # ToDo:
       # - Don't hard code the claim types at this level.  Get things working and refactor.
@@ -299,6 +304,9 @@ class ClaimProcesser(object):
       if "incorporation" in claim.schemaName:
         verifiableOrg = self.__CreateOrUpdateVerifiableOrg(claim, verifiableOrg)
         location = self.__CreateOrUpdateLocation(claim, verifiableOrg, None, "Headquarters")
+      elapsed_time = time.time() - start_time
+      self.__logger.debug('Claim elapsed time 2 >>> {}'.format(elapsed_time))
+      start_time = time.time()
 
       # All claims following the initial 'incorporation.bc_registries' claim MUST have an legal_entity_id (or'corp_num') field to relate the claim to the business.
       # If a mathcing VerifiableOrg record does not exist at this point, reject the claim.
@@ -307,12 +315,21 @@ class ClaimProcesser(object):
 
       # Process the claim and store it in the wallet ...
       self.__CreateOrUpdateVerifiableClaim(claim, verifiableClaimType, verifiableOrg)
+      elapsed_time = time.time() - start_time
+      self.__logger.debug('Claim elapsed time 3 >>> {}'.format(elapsed_time))
+      start_time = time.time()
+
       eventloop.do(self.__StoreClaim(claim.json))
+      elapsed_time = time.time() - start_time
+      self.__logger.debug('Claim elapsed time 4 >>> {}'.format(elapsed_time))
+      start_time = time.time()
 
       # Process all other parsable claim types ...
       if claim.schemaName == "doing_business_as.bc_registries":
         doingBusinessAs = self.__CreateOrUpdateDoingBusinessAs(claim, verifiableOrg)
         location = self.__CreateOrUpdateLocation(claim, verifiableOrg, doingBusinessAs, "Location")
+      elapsed_time = time.time() - start_time
+      self.__logger.debug('Claim elapsed time 5 >>> {}'.format(elapsed_time))
 
       self.__logger.debug("<<< Processing {0} claim.")
       return verifiableOrg

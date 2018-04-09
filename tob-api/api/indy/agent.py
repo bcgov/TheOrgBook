@@ -1,4 +1,5 @@
 import os
+import threading
 
 from von_agent.nodepool import NodePool
 from von_agent.wallet import Wallet
@@ -6,6 +7,9 @@ from tob_api import hyperledger_indy
 from von_agent.agents import Issuer as VonIssuer
 from von_agent.agents import Verifier as VonVerifier
 from von_agent.agents import HolderProver as VonHolderProver
+from typing import Set, Union
+
+from api import apps
 
 import logging
 
@@ -30,12 +34,12 @@ class Issuer:
         self.__logger.debug("Issuer __init__>>> {} {} {}".format(issuer_type, issuer_config, issuer_creds))
 
         issuer_wallet = Wallet(
-                 self.pool,
-                 WALLET_SEED,
-                 wallet_name,
-                 issuer_type,
-                 issuer_config,
-                 issuer_creds)
+                self.pool,
+                WALLET_SEED,
+                wallet_name,
+                issuer_type,
+                issuer_config,
+                issuer_creds)
 
         self.__logger.debug("Issuer __init__>>> {} {} {}".format(issuer_type, issuer_config, issuer_creds))
 
@@ -78,17 +82,18 @@ class Verifier:
         self.__logger.debug("Verifier __init__>>> {} {} {}".format(verifier_type, verifier_config, verifier_creds))
 
         verifier_wallet = Wallet(
-                 self.pool,
-                 wallet_name,
-                 verifier_type,
-                 verifier_config,
-                 verifier_creds)
+                self.pool,
+                WALLET_SEED,
+                wallet_name,
+                verifier_type,
+                verifier_config,
+                verifier_creds)
 
         self.__logger.debug("Verifier __init__>>> {} {} {}".format(verifier_type, verifier_config, verifier_creds))
 
         self.instance = VonVerifier(
-             # self.pool,
-             verifier_wallet
+            # self.pool,
+            verifier_wallet
         )
 
     async def __aenter__(self):
@@ -113,16 +118,25 @@ class Holder:
         self.__logger = logging.getLogger(__name__)
 
         config = hyperledger_indy.config()
+        thread_id = threading.get_ident()
         self.pool = NodePool(
-            'the-org-book-holder',
+            'the-org-book-holder-' + str(thread_id),
             config['genesis_txn_path'])
-        wallet_name = 'TheOrgBook_Holder_Wallet'
+        wallet_name = 'TheOrgBook_Holder_Wallet' + '$$' +  str(thread_id)
 
-        # TODO force to virtual for now
-        holder_type = 'virtual'
-        holder_config = {'freshness_time':0}
-        holder_creds  = {'key':'','virtual_wallet':legal_entity_id}
-        self.__logger.debug('Using virtual Cfg: {} Creds: {}'.format(holder_config, holder_creds))
+        holder_type   = os.environ.get('INDY_WALLET_TYPE')
+        if holder_type == 'remote':
+            # wallet_name = wallet_name + "$$" + str(thread_id)
+            holder_url = os.environ.get('INDY_WALLET_URL')
+            holder_config = {'endpoint':holder_url,'ping':'schema/','auth':'api-token-auth/','keyval':'keyval/','freshness_time':0}
+            holder_creds  = {'auth_token':apps.get_remote_wallet_token(),'virtual_wallet':legal_entity_id}
+            self.__logger.debug('Using remote Cfg: {} Creds: {}'.format(holder_config, holder_creds))
+        else:
+            # TODO force to virtual for now
+            holder_type = 'virtual'
+            holder_config = {'freshness_time':0}
+            holder_creds  = {'key':'','virtual_wallet':legal_entity_id}
+            self.__logger.debug('Using virtual Cfg: {} Creds: {}'.format(holder_config, holder_creds))
 
         self.__logger.debug("Holder __init__>>> {} {} {}".format(holder_type, holder_config, holder_creds))
 

@@ -1,6 +1,6 @@
 #!/bin/bash
-export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
 export MSYS_NO_PATHCONV=1
+export DOCKERHOST=${APPLICATION_URL-$(docker run --net=host codenvy/che-ip)}
 set -e
 
 S2I_EXE=s2i
@@ -74,7 +74,7 @@ exit 1
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="tob-db tob-solr tob-api schema-spy tob-web"
+DEFAULT_CONTAINERS="tob-db tob-wallet-db tob-solr tob-wallet tob-api schema-spy tob-web"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
@@ -160,12 +160,29 @@ build-api() {
     'django'
 }
 
+build-wallet() {
+  #
+  # tob-wallet
+  #
+  echo -e "\nBuilding wallet-base image ..."
+  docker build \
+    -t 'wallet-base' \
+    -f '../tob-wallet/openshift/templates/wallet-base/Dockerfile' '../tob-wallet/openshift/templates/wallet-base/'
+
+  echo -e "\nBuilding tob-wallet image ..."
+  ${S2I_EXE} build \
+    '../tob-wallet' \
+    'wallet-base' \
+    'tob-wallet'
+}
+
 buildImages() {
   build-web
   build-solr
   build-db
   build-schema-spy
   build-api
+  build-wallet
 }
 
 configureEnvironment () {
@@ -214,6 +231,14 @@ configureEnvironment () {
   # tob-solr
   export CORE_NAME="the_org_book"
 
+  # tob-wallet
+  export WALLET_HTTP_PORT=${WALLET_HTTP_PORT-6000}
+  export WALLET_DB_SERVICE_NAME="tob-wallet-db"
+  export DATABASE_ENGINE="postgresql"
+  export DATABASE_NAME=${POSTGRESQL_DATABASE}
+  export DATABASE_USER=${POSTGRESQL_USER}
+  export DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
+
   # tob-api
   export API_HTTP_PORT=${API_HTTP_PORT:-8081}
   export DATABASE_SERVICE_NAME="tob-db"
@@ -226,6 +251,16 @@ configureEnvironment () {
   export SOLR_SERVICE_NAME="tob-solr"
   export SOLR_CORE_NAME=${CORE_NAME}
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
+
+  # wallet type a command-line parameter (like seed) default to "virtual" if not specified
+  export INDY_WALLET_URL=http://tob-wallet:8000/api/v1/
+  export INDY_WALLET_TYPE=${wallet}
+
+  if [ "$COMMAND" == "start" ]; then
+    if [ -z "$wallet" ]; then
+      export INDY_WALLET_TYPE="virtual"
+    fi
+  fi
 
   # tob-web
   export TOB_THEME=${TOB_THEME:-bcgov}
@@ -286,6 +321,9 @@ case "$1" in
     case "$@" in
       tob-api)
         build-api
+        ;;
+      tob-wallet)
+        build-wallet
         ;;
       tob-web)
         build-web
