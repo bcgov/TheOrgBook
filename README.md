@@ -15,3 +15,7 @@ To deploy TheOrgBook on a local instance of OpenShift, refer to [Running TheOrgB
 ## Running on Docker
 
 The project can also be run locally using Docker and Docker Compose.  Refer to [Running TheOrgBook with Docker Compose](./docker/README.md) for instructions.
+
+## Resetting the Ledger
+
+For information on the process of resetting the ledger and wallets refer to the [Resetting the Ledger and Wallets](./ResettingTheLedger.md) documentation.
