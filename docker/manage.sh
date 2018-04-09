@@ -238,7 +238,7 @@ configureEnvironment () {
 
 getStartupParams() {
   CONTAINERS=""
-  ARGS="--force-recreate"
+  ARGS=""
 
   for arg in $@; do
     case "$arg" in
@@ -276,7 +276,8 @@ case "$1" in
     ;;
   rm)
     configureEnvironment
-    docker-compose rm
+    docker-compose rm -f
+    docker volume prune -f
     ;;
   build)
     COMMAND=$1
