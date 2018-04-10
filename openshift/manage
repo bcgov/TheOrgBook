@@ -39,6 +39,9 @@ usage () {
       - Drop and recreate the database.
       - Rebuild search indexes.
       - Register the environment's DID with the ledger.
+
+    registerDids
+      - Register/re-register the services's DIDs with the ledger.
 EOF
 exit 1
 }
@@ -174,10 +177,18 @@ hardReset() {
 
   printAndWait "If you are resetting the ledger, wait for the ledger to completely start up before continuing."
 
-  registerDid "the_org_book"
+  registerDids $(getDidNames)
 
   echoWarning "\nThe project's database and indy wallets have been reset."  
   echoWarning "You can now use the Permitify manage script to scale the Permitify pods up."  
+}
+
+getDidNames() {
+  _didNames="
+    the_org_book
+    the_org_book_on"
+  
+  echo ${_didNames}
 }
 
 getLedgerAddress() {
@@ -219,8 +230,13 @@ case "${_cmd}" in
 
     hardReset "${apiPodName}" "${dbPodName}" "${dbName}" "${dbUsername}"
     ;;
+  registerdids)
+    registerDids $(getDidNames)
+    ;;
   *)
-      usage;;
+    echoWarning "Unrecognized command; ${_cmd}"
+    usage
+    ;;
 esac
 
 popd >/dev/null
