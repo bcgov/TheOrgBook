@@ -5,6 +5,7 @@ import logging
 from api.indy import eventloop
 from rest_framework.exceptions import NotAcceptable
 import requests
+import time
 
 # LEDGER_URL = os.environ.get('LEDGER_URL')
 # if not LEDGER_URL:
@@ -118,9 +119,9 @@ class ProofRequestProcesser(object):
                 json.dumps(self.__proof_request))
             claims = json.loads(claims[1])
 
-        self.__logger.debug(
-            'Wallet returned the following claims for proof request: %s' %
-            json.dumps(claims))
+        #self.__logger.debug(
+        #    'Wallet returned the following claims for proof request: %s' %
+        #    json.dumps(claims))
 
         # If any of the claims for proof are empty, we cannot construct a proof
         for attr in claims['attrs']:
@@ -214,11 +215,14 @@ class ProofRequestProcesser(object):
         self.__logger.debug("Creating proof ...")
 
         async with Holder(legal_entity_id) as holder:
+            start_time = time.time()
             proof = await holder.create_proof(
                     self.__proof_request,
                     claims,
                     requested_claims
                 )
+            elapsed_time = time.time() - start_time
+            self.__logger.debug('Proof elapsed time >>> {}'.format(elapsed_time))
 
         self.__logger.debug(
             'Created proof: %s' %
