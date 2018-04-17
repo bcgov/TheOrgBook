@@ -22,40 +22,21 @@ The Process
 
 These instructions assume you are using the OpenShift management scripts found here; [openshift-project-tools](https://github.com/BCDevOps/openshift-project-tools).  Refer to the [OpenShift Scripts](https://github.com/BCDevOps/openshift-project-tools/blob/master/bin/README.md) documentation for details.
 
-It is assumed you have an instance of Permitify running to run this script.
+It is assumed you have an instance of Permitify running to run this script, and you have working copies of both the Permitify and TheOrgBook source code.
 
-1. Open a Git Bash command prompt to your project's root `openshift` directory.
-1. Switch to the appropriate OpenShift project.
-   - `oc project devex-von-dev`
-1. Scale the API server (django) to zero pods, and wait for the deployment to be scaled to zero (monitor the progress in the OpenShift console);
-   - `scaleDeployment.sh django 0`
-1. Recreate the database (postgresql);
-   - `dropAndRecreateDatabase.sh devex-von-dev postgresql TheOrgBook_Database TheOrgBook_User`
-1. Scale the API server (django) back up to it's working set of pods, and wait for the deployment to be scaled back up (monitor the progress in the OpenShift console).  The database schema will get created as part of the migration process as the pods(s) come up.
-   - `scaleDeployment.sh django 1`
-1. Reboot all of the Permitify pods. This is needed because issuers must register themselves with TheOrgBook before they can issue claims.
-    - `oc project devex-von-permitify-dev`
-    - `scaleDeployment.sh worksafe-bc 0`
-    - `scaleDeployment.sh ministry-of-finance 0`
-    - `scaleDeployment.sh liquor-control-and-licensing-branch 0`
-    - `scaleDeployment.sh fraser-valley-health-authority 0`
-    - `scaleDeployment.sh city-of-surrey 0`
-    - `scaleDeployment.sh bc-registries 0`
-    - Wait for all of the pods to scale down completely...
-    - `scaleDeployment.sh worksafe-bc 1`
-    - `scaleDeployment.sh ministry-of-finance 1`
-    - `scaleDeployment.sh liquor-control-and-licensing-branch 1`
-    - `scaleDeployment.sh fraser-valley-health-authority 1`
-    - `scaleDeployment.sh city-of-surrey 1`
-    - `scaleDeployment.sh bc-registries 1`
-    - `oc project devex-von-dev`
-1. Use the `load-all.sh` script to populate the database through the Permitify services. (Assumes permitify is running)
-   - `./loadData.sh --env {local|dev|test}`
-1. Rebuild the Solr search index;
-   - `runInContainer.sh django 'python ./manage.py rebuild_index --noinput'`
-
-ToDo:
-- Wrap the above in a master script that has the user wait between the steps.
+1. Open 2 Git Bash command prompt windows; one to your `.../permitify/openshift` working directory and the other to your `.../TheOrgBook/openshift` working directory.
+1. From the `.../TheOrgBook/openshift` command prompt, run the manage command to reset the database in TheOrgBook environment.
+    - For example; 
+        - `./manage -P -e dev resetDatabase`
+    - For full usage information run;
+        - `./manage -h`
+1. From the `.../permitify/openshift` command prompt, run the manage commands to recycle all of the Permitify service pods.  This is needed because issuers must register themselves with TheOrgBook before they can issue claims.
+    - For example; 
+        - `./manage -e dev recycle`
+    - For full usage information run;
+        - `./manage -h`
+1. Wait for all of the Permitify services to full start before continuing.
+1. Use the `load-all.sh` script to populate the database through the Permitify services.
 
 Creating/Loading Test Data
 --------------------

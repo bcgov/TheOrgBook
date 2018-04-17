@@ -1,4 +1,4 @@
-#! /usr/local/bin/python3
+#! /usr/bin/python3
 
 #
 # "requests" must be installed - pip3 install requests
@@ -77,8 +77,8 @@ URLS = {
         'City': 'http://localhost:5004',
         # liquor_control_and_licensing_branch
         'Liquor': 'http://localhost:5005',
-        # on_biz
-        'OntarioReg': "http://localhost:5006"
+        # onbis
+        'OntarioReg': 'http://localhost:5006'
     },
   'dev': {
         # bc_registries (needs to be first)
@@ -92,7 +92,9 @@ URLS = {
         # city_of_surrey
         'City': 'https://city-of-surrey-devex-von-permitify-dev.pathfinder.gov.bc.ca',
         # liquor_control_and_licensing_branch
-        'Liquor': 'https://liquor-control-and-licensing-branch-devex-von-permitify-dev.pathfinder.gov.bc.ca'
+        'Liquor': 'https://liquor-control-and-licensing-branch-devex-von-permitify-dev.pathfinder.gov.bc.ca',
+         # onbis
+        'OntarioReg': 'https://onbis-devex-von-permitify-dev.pathfinder.gov.bc.ca'
     },
   'test': {
         # bc_registries (needs to be first)

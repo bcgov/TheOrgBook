@@ -1,6 +1,6 @@
 #!/bin/bash
-export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
 export MSYS_NO_PATHCONV=1
+export DOCKERHOST=${APPLICATION_URL-$(docker run  --rm --net=host codenvy/che-ip)}
 set -e
 
 S2I_EXE=s2i
@@ -20,9 +20,9 @@ export COMPOSE_PROJECT_NAME="tob"
 usage() {
   cat <<-EOF
 
-  Usage: $0 {start|stop|build|rm}
+  Usage: $0 [command] [options]
 
-  Options:
+  Commands:
 
   build - Build the docker images for the project.
           You need to do this first, since the builds require
@@ -66,8 +66,14 @@ usage() {
   stop - Stops the services.  This is a non-destructive process.  The containers
          are not deleted so they will be reused the next time you run start.
 
-  rm - Removes any existing application containers.
+  rm - Remove project containers and associated volumes.
 
+  registerDids - Register the DIDs for the issuer services.
+                 This is intended for development use.
+
+                 Examples:
+                 $0 registerDids seed=the_org_book_0000000000000000000
+                 - This will register the DID using the provided seed with the locally running von-network instance.
 EOF
 exit 1
 }
@@ -164,15 +170,10 @@ build-wallet() {
   #
   # tob-wallet
   #
-  echo -e "\nBuilding wallet-base image ..."
-  docker build \
-    -t 'wallet-base' \
-    -f '../tob-wallet/openshift/templates/wallet-base/Dockerfile' '../tob-wallet/openshift/templates/wallet-base/'
-
   echo -e "\nBuilding tob-wallet image ..."
   ${S2I_EXE} build \
     '../tob-wallet' \
-    'wallet-base' \
+    'registry.access.redhat.com/rhscl/python-35-rhel7:3.5' \
     'tob-wallet'
 }
 
@@ -203,7 +204,7 @@ configureEnvironment () {
     esac
   done
   
-  if [ "$COMMAND" == "start" ]; then
+  if [ "$COMMAND" == "start" ] || [ "$COMMAND" == "registerdids" ]; then
     if [ -z "$seed" ]; then
       echo "You must provide a seed parameter. For example: seed=my_seed_000000000000000000000000."
       exit 1
@@ -293,14 +294,87 @@ getStartupParams() {
 
   echo ${ARGS} ${CONTAINERS}
 }
+
+deleteVolumes() {
+  _projectName=${COMPOSE_PROJECT_NAME:-docker}
+
+  echo "Stopping and removing any running containers ..."
+  docker-compose rm -svf >/dev/null
+
+  _pattern="^${_projectName}_\|^docker_"
+  _volumes=$(docker volume ls -q | grep ${_pattern})
+
+  if [ ! -z "${_volumes}" ]; then
+    echo "Removing project volumes ..."
+    echo ${_volumes} |  xargs docker volume rm
+  else
+    echo "No project volumes exist."
+  fi
+}
+
+registerDids() {
+  _seeds=${@}
+  if [ -z "${_seeds}" ]; then
+    echo -e \\n"registerDids; Missing parameter!"\\n
+    exit 1
+  fi
+
+  for _seed in ${_seeds}; do
+    registerDid ${_seed}
+  done
+}
+
+registerDid() {
+  _seed=${1}
+  if [ -z "${_seed}" ]; then
+    echo -e \\n"registerDid; Missing parameter!"\\n
+    exit 1
+  fi
+  _seedJson=$(getSeedJson ${_seed})
+  _ledgerUri=$(getLedgerRegistrationUrl)
+
+  echo -e \\n"Registering ${_seed} with the ledger ..."
+  curl -X POST \
+    ${_ledgerUri} \
+    -H 'content-type: application/json' \
+    -d "${_seedJson}"
+}
+
+getSeedJson() {
+  _seed=${1}
+  if [ -z "${_seed}" ]; then
+    echo -e \\n"getSeedJson; Missing parameter!"\\n
+    exit 1
+  fi
+
+  echo "{\"seed\": \"${_seed}\"}"
+}
+
+generateSeeds() {
+  echo ${INDY_WALLET_SEED}
+}
+
+getLedgerRegistrationUrl() {
+  if [[ ("${LEDGER_URL}" == "http://${DOCKERHOST}:9000") && ("${DOCKERHOST}" != "localhost") ]]; then
+    _ledgerUrl="http://localhost:9000"  
+  else
+    _ledgerUrl="${LEDGER_URL}"
+  fi
+
+  echo "${_ledgerUrl}/register"
+}
+
+toLower() {
+  echo $(echo ${@} | tr '[:upper:]' '[:lower:]')
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
+COMMAND=$(toLower ${1})
+shift
 
-case "$1" in
+case "${COMMAND}" in
   start)
-    COMMAND=$1
-    shift
     _startupParams=$(getStartupParams $@)
     configureEnvironment $@
     docker-compose up ${_startupParams}
@@ -311,11 +385,13 @@ case "$1" in
     ;;
   rm)
     configureEnvironment
-    docker-compose rm
+    deleteVolumes
+    ;;
+  registerdids)
+      configureEnvironment $@
+      registerDids $(generateSeeds)
     ;;
   build)
-    COMMAND=$1
-    shift
     _startupParams=$(getStartupParams $@)
     configureEnvironment $@
     case "$@" in
