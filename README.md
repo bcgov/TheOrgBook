@@ -8,6 +8,10 @@ See https://bcgov.github.io/TheOrgBook for more information about this project.
 
 See https://github.com/bcgov/von for more information about the concept of a Verifiable Organizations Network.
 
+## Getting Started
+
+The best way to get started is with a working application.  The [Quick Start Guide](./docker/README.md#running-a-complete-provisional-von-network) for **Running a Complete Provisional VON Network** will get you started with a complete set of applications running on your local machine in Docker.
+
 ## Running on OpenShift
 
 To deploy TheOrgBook on a local instance of OpenShift, refer to [Running TheOrgBook Locally on OpenShift](./RunningLocal.md).  These instructions, apart from the steps that are specific to setting up your local environment, can be used to get the project deployed to a production OpenShift environment.
