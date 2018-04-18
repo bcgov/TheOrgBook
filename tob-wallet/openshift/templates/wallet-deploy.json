@@ -4,12 +4,28 @@
   "metadata": {
     "name": "${NAME}-deployment-template",
     "annotations": {
-      "description": "Deployment template for a django server connected to a PostGreSQL database.",
+      "description": "Deployment template for a django server connected to a PostgreSQL database.",
       "tags": "django",
       "iconClass": "icon-python"
     }
   },
   "objects": [
+    {
+      "kind": "Secret",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "labels": {
+          "app": "${NAME}"
+        }
+      },
+      "data": {
+        "wallet-user": "${WALLET_USER}",
+        "wallet-password": "${WALLET_PASSWORD}",
+        "admin-password": "${WALLET_ADMIN_PASSWORD}"
+      },
+      "type": "Opaque"
+    },
     {
       "kind": "Service",
       "apiVersion": "v1",
@@ -17,7 +33,7 @@
         "name": "${NAME}",
         "annotations": {
           "description": "Exposes and load balances the application pods",
-          "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"},{\"name\": \"${SOLR_SERVICE_NAME}\", \"kind\": \"Service\"}]"
+          "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"}]"
         }
       },
       "spec": {
@@ -34,34 +50,12 @@
       }
     },
     {
-      "kind": "Route",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${NAME}"
-      },
-      "spec": {
-        "host": "${APPLICATION_DOMAIN}",
-        "port": {
-          "targetPort": "8080-tcp"
-        },
-        "tls": {
-          "insecureEdgeTerminationPolicy": "Redirect",
-          "termination": "edge"
-        },
-        "to": {
-          "kind": "Service",
-          "name": "${NAME}",
-          "weight": 100
-        }
-      }
-    },
-    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
         "name": "${NAME}",
         "annotations": {
-          "description": "Defines how to deploy the application server"
+          "description": "Defines how to deploy the application server."
         }
       },
       "spec": {
@@ -110,20 +104,16 @@
                   }
                 ],
                 "readinessProbe": {
-                  "failureThreshold": 5,
-                  "periodSeconds": 30,
+                  "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
-                  "timeoutSeconds": 20,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080
                   }
                 },
                 "livenessProbe": {
-                  "failureThreshold": 5,
-                  "periodSeconds": 60,
+                  "timeoutSeconds": 3,
                   "initialDelaySeconds": 30,
-                  "timeoutSeconds": 20,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080
@@ -173,55 +163,35 @@
                     "value": "${DJANGO_DEBUG}"
                   },
                   {
-                    "name": "SOLR_SERVICE_NAME",
-                    "value": "${SOLR_SERVICE_NAME}"
-                  },
-                  {
-                    "name": "SOLR_CORE_NAME",
-                    "value": "${SOLR_CORE_NAME}"
-                  },
-                  {
-                    "name": "INDY_WALLET_SEED",
-                    "value": "${INDY_WALLET_SEED}"
-                  },
-                  {
-                    "name": "LEDGER_URL",
-                    "value": "${LEDGER_URL}"
-                  },
-                  {
-                    "name": "INDY_WALLET_TYPE",
-                    "value": "${INDY_WALLET_TYPE}"
-                  },
-                  {
-                    "name": "INDY_WALLET_URL",
-                    "value": "${INDY_WALLET_URL}"
-                  },
-                  {
                     "name": "WALLET_USER_ID",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${WALLET_DEPLOYMENT_NAME}",
+                        "name": "${NAME}",
                         "key": "wallet-user"
                       }
                     }
                   },
                   {
-                    "name": "WALLET_PASSWORD",
+                    "name": "WALLET_USER_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${WALLET_DEPLOYMENT_NAME}",
+                        "name": "${NAME}",
                         "key": "wallet-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WALLET_ADMIN_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${NAME}",
+                        "key": "admin-password"
                       }
                     }
                   }
                 ],
                 "resources": {
-                  "requests": {
-                    "cpu": "${CPU_REQUEST}",
-                    "memory": "${MEMORY_REQUEST}"
-                  },
                   "limits": {
-                    "cpu": "${CPU_LIMIT}",
                     "memory": "${MEMORY_LIMIT}"
                   }
                 }
@@ -238,7 +208,7 @@
       "displayName": "Name",
       "description": "The name assigned to all of the OpenShift resources associated to the server instance.",
       "required": true,
-      "value": "django"
+      "value": "wallet"
     },
     {
       "name": "IMAGE_NAMESPACE",
@@ -248,17 +218,11 @@
       "value": "devex-von-tools"
     },
     {
-      "name": "APPLICATION_DOMAIN",
-      "displayName": "Application Hostname",
-      "description": "The exposed hostname that will route to the Django service, if left blank a value will be defaulted.",
-      "value": ""
-    },
-    {
       "name": "DATABASE_SERVICE_NAME",
       "displayName": "Database Service Name",
       "description": "The name of the database server/service.",
       "required": true,
-      "value": "postgresql"
+      "value": "wallet-db"
     },
     {
       "name": "DATABASE_ENGINE",
@@ -273,6 +237,30 @@
       "required": true,
       "description": "Name of the deployed database (see environment variables in deployed database).",
       "value": "TheOrgBook_Database"
+    },
+    {
+      "name": "WALLET_USER",
+      "displayName": "Wallet Connection Username",
+      "description": "Username for the account that will be used for accessing the wallet.  Needs to be basee64 encoded.",
+      "required": true,
+      "generate": "expression",
+      "from": "[a-zA-Z_][a-zA-Z0-9_]{10}"
+    },
+    {
+      "name": "WALLET_PASSWORD",
+      "displayName": "Wallet Connection Password",
+      "description": "Password for the account that will be used for accessing the wallet.  Needs to be basee64 encoded.",
+      "required": true,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "WALLET_ADMIN_PASSWORD",
+      "displayName": "Wallet Admin Password",
+      "description": "Password for the 'well-e-admin' superuser account.  Needs to be basee64 encoded.",
+      "required": true,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
     },
     {
       "name": "APP_CONFIG",
@@ -294,94 +282,24 @@
       "value": "False"
     },
     {
-      "name": "SOLR_SERVICE_NAME",
-      "displayName": "SOLR Service Name",
-      "description": "The name of the service associated with the SOLR search engine.",
-      "required": false,
-      "value": "solr"
-    },
-    {
-      "name": "SOLR_CORE_NAME",
-      "displayName": "SOLR Core Name",
-      "description": "The name of the core to use when connecting with SOLR.",
-      "required": false,
-      "value": "the_org_book"
-    },
-    {
       "name": "TAG_NAME",
       "displayName": "Environment TAG name",
       "description": "The TAG name for this environment, e.g., dev, test, prod",
-      "value": "dev",
-      "required": true
+      "required": true,
+      "value": "dev"
     },
     {
       "name": "DATABASE_DEPLOYMENT_NAME",
       "displayName": "Database Deployment Name",
       "description": "The name associated to the database deployment resources.  In particular, this is used to wire up the credentials associated to the database.",
       "required": true,
-      "value": "postgresql"
-    },
-    {
-      "name": "INDY_WALLET_SEED",
-      "displayName": "Indy Wallet Seed",
-      "description": "The seed that the indy wallet uses to generate predictable keys.",
-      "required": true,
-      "value": "the_org_book_dev_000000000000000"
-    },
-    {
-      "name": "LEDGER_URL",
-      "displayName": "VON network ledger url.",
-      "description": "URL for a running instance of the von-network.",
-      "required": true,
-      "value": "http://159.89.115.24"
-    },
-    {
-      "name": "INDY_WALLET_TYPE",
-      "displayName": "Indy Wallet Type",
-      "description": "The wallet type to use; remote (enterprise) or virtual (local), defaults to virtual.",
-      "required": true,
-      "value": "remote"
-    },
-    {
-      "name": "INDY_WALLET_URL",
-      "displayName": "Indy Wallet URL",
-      "description": "The URL to the wallet provider.  Used only when using a remote (enterprise) wallet.",
-      "required": true,
-      "value": "http://wallet:8080/api/v1/"
-    },
-    {
-      "name": "WALLET_DEPLOYMENT_NAME",
-      "displayName": "Wallet Deployment Name",
-      "description": "The name associated to the wallet deployment resources.  In particular, this is used to wire up the credentials associated to the wallet.",
-      "required": true,
-      "value": "wallet"
-    },
-    {
-      "name": "CPU_LIMIT",
-      "displayName": "Resources CPU Limit",
-      "description": "The resources CPU limit (in cores) for this build.",
-      "required": true,
-      "value": "1"
+      "value": "wallet-db"
     },
     {
       "name": "MEMORY_LIMIT",
-      "displayName": "Resources Memory Limit",
-      "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
+      "displayName": "Memory Limit",
       "required": true,
-      "value": "1.5Gi"
-    },   
-    {
-      "name": "CPU_REQUEST",
-      "displayName": "Resources CPU Request",
-      "description": "The resources CPU request (in cores) for this build.",
-      "required": true,
-      "value": "250m"
-    },
-    {
-      "name": "MEMORY_REQUEST",
-      "displayName": "Resources Memory Request",
-      "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
-      "required": true,
+      "description": "Maximum amount of memory the Django container can use.",
       "value": "512Mi"
     }
   ]
