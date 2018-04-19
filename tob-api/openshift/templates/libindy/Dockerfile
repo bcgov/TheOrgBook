@@ -22,7 +22,7 @@ WORKDIR $HOME
 RUN curl -o rustup https://sh.rustup.rs && \
 	chmod +x rustup && \
 	./rustup -y && \
-	git clone https://github.com/ianco/indy-sdk.git && \
+	git clone https://github.com/bcgov/indy-sdk.git && \
 	cd indy-sdk/libindy && \
 	$HOME/.cargo/bin/cargo build && \
 	mv target/debug/libindy.so /usr/lib && \
