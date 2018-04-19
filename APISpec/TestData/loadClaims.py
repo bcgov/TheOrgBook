@@ -43,7 +43,7 @@ if os.path.exists(args.inputdir):
 else:
     print('Directory not found \'%s\'' % args.inputdir)
 my_prefix = ""
-if os.path.exists(args.prefix):
+if os.path.exists(args.prefix + args.inputdir):
     print('Processing prefix \'%s\'' % args.prefix)
     my_prefix = args.prefix
 
@@ -60,7 +60,8 @@ loop_locks = {
     'Finance': threading.Semaphore(),
     'Health': threading.Semaphore(),
     'City': threading.Semaphore(),
-    'Liquor': threading.Semaphore()
+    'Liquor': threading.Semaphore(),
+    'OntarioReg': threading.Semaphore()
 }
 
 URLS = {
