@@ -11,6 +11,7 @@ services:
       - RealIpFrom=${RealIpFrom}
       - TOB_THEME=${TOB_THEME}
       - WEB_BASE_HREF=${WEB_BASE_HREF}
+      - WEB_DEPLOY_URL=${WEB_DEPLOY_URL}
     networks:
       - tob
     ports:
@@ -49,13 +50,15 @@ services:
       - WALLET_ADMIN_PASSWORD=${WALLET_ADMIN_PASSWORD}
       - STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH}
       - WEB_CONCURRENCY=${WEB_CONCURRENCY}
+      - RUST_LOG=${RUST_LOG}
+      - RUST_BACKTRACE=${RUST_BACKTRACE}
     volumes:
       - ../tob-wallet/api:/opt/app-root/src/api
     networks:
       - wallet-tob
       - wallet-db
     ports:
-      - "${WALLET_HTTP_PORT}:8000"
+      - "${WALLET_HTTP_PORT}:8080"
     depends_on:
       - tob-db
       - tob-wallet-db
@@ -104,6 +107,8 @@ services:
       - WALLET_PASSWORD=${WALLET_USER_PASSWORD}
       - STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH}
       - WEB_CONCURRENCY=${WEB_CONCURRENCY}
+      - RUST_LOG=${RUST_LOG}
+      - RUST_BACKTRACE=${RUST_BACKTRACE}
     volumes:
       - ../tob-api/api:/opt/app-root/src/api
     networks:
