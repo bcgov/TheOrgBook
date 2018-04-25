@@ -56,32 +56,6 @@
       }
     },
     {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata":
-      {
-        "name": "${NAME}",
-        "labels":
-        {
-          "app": "${NAME}",
-          "template": "${NAME}-deployment-template"
-        }
-      },
-      "spec":
-      {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources":
-        {
-          "requests":
-          {
-            "storage": "${PERSISTENT_VOLUME_SIZE}"
-          }
-        }
-      }
-    },
-    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -125,15 +99,6 @@
             }
           },
           "spec": {
-            "volumes": [
-              {
-                "name": "${NAME}-data",
-                "persistentVolumeClaim":
-                {
-                  "claimName": "${NAME}"
-                }
-              }
-            ],
             "containers": [
               {
                 "name": "${NAME}",
@@ -145,27 +110,25 @@
                   }
                 ],
                 "readinessProbe": {
-                  "timeoutSeconds": 3,
+                  "failureThreshold": 5,
+                  "periodSeconds": 30,
                   "initialDelaySeconds": 3,
+                  "timeoutSeconds": 20,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080
                   }
                 },
                 "livenessProbe": {
-                  "timeoutSeconds": 3,
+                  "failureThreshold": 5,
+                  "periodSeconds": 60,
                   "initialDelaySeconds": 30,
+                  "timeoutSeconds": 20,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080
                   }
                 },
-                "volumeMounts": [
-                  {
-                    "name": "${NAME}-data",
-                    "mountPath": "${MOUNT_PATH}"
-                  }
-                ],
                 "env": [
                   {
                     "name": "DATABASE_SERVICE_NAME",
@@ -224,10 +187,41 @@
                   {
                     "name": "LEDGER_URL",
                     "value": "${LEDGER_URL}"
+                  },
+                  {
+                    "name": "INDY_WALLET_TYPE",
+                    "value": "${INDY_WALLET_TYPE}"
+                  },
+                  {
+                    "name": "INDY_WALLET_URL",
+                    "value": "${INDY_WALLET_URL}"
+                  },
+                  {
+                    "name": "WALLET_USER_ID",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_DEPLOYMENT_NAME}",
+                        "key": "wallet-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WALLET_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_DEPLOYMENT_NAME}",
+                        "key": "wallet-password"
+                      }
+                    }
                   }
                 ],
                 "resources": {
+                  "requests": {
+                    "cpu": "${CPU_REQUEST}",
+                    "memory": "${MEMORY_REQUEST}"
+                  },
                   "limits": {
+                    "cpu": "${CPU_LIMIT}",
                     "memory": "${MEMORY_LIMIT}"
                   }
                 }
@@ -252,9 +246,9 @@
           "name": "${NAME}"
         },
         "minReplicas": 1,
-        "maxReplicas": 1
+        "maxReplicas": 4
       }
-    }
+    }    
   ],
   "parameters": [
     {
@@ -270,13 +264,6 @@
       "required": true,
       "description": "The namespace of the OpenShift project containing the imagestream for the application.",
       "value": "devex-von-tools"
-    },
-    {
-      "name": "MEMORY_LIMIT",
-      "displayName": "Memory Limit",
-      "required": true,
-      "description": "Maximum amount of memory the Django container can use.",
-      "value": "512Mi"
     },
     {
       "name": "APPLICATION_DOMAIN",
@@ -338,7 +325,7 @@
       "required": false,
       "value": "the_org_book"
     },
-	{
+    {
       "name": "TAG_NAME",
       "displayName": "Environment TAG name",
       "description": "The TAG name for this environment, e.g., dev, test, prod",
@@ -353,27 +340,6 @@
       "value": "postgresql"
     },
     {
-      "name": "PERSISTENT_VOLUME_SIZE",
-      "displayName": "Persistent Volume Size",
-      "description": "The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.",
-      "required": true,
-      "value": "1Gi"
-    },
-    {
-      "name": "MOUNT_PATH",
-      "displayName": "Mount Path",
-      "description": "The path to mount the persistent volume.",
-      "required": true,
-      "value": "/opt/app-root/src/.indy_client"
-    },
-    {
-      "name": "MOUNT_PATH",
-      "displayName": "Mount Path",
-      "description": "The path to mount the persistent volume.",
-      "required": true,
-      "value": "/opt/app-root/src/.indy_client"
-    },
-    {
       "name": "INDY_WALLET_SEED",
       "displayName": "Indy Wallet Seed",
       "description": "The seed that the indy wallet uses to generate predictable keys.",
@@ -386,6 +352,55 @@
       "description": "URL for a running instance of the von-network.",
       "required": true,
       "value": "http://159.89.115.24"
+    },
+    {
+      "name": "INDY_WALLET_TYPE",
+      "displayName": "Indy Wallet Type",
+      "description": "The wallet type to use; remote (enterprise) or virtual (local), defaults to virtual.",
+      "required": true,
+      "value": "remote"
+    },
+    {
+      "name": "INDY_WALLET_URL",
+      "displayName": "Indy Wallet URL",
+      "description": "The URL to the wallet provider.  Used only when using a remote (enterprise) wallet.",
+      "required": true,
+      "value": "http://wallet:8080/api/v1/"
+    },
+    {
+      "name": "WALLET_DEPLOYMENT_NAME",
+      "displayName": "Wallet Deployment Name",
+      "description": "The name associated to the wallet deployment resources.  In particular, this is used to wire up the credentials associated to the wallet.",
+      "required": true,
+      "value": "wallet"
+    },
+    {
+      "name": "CPU_LIMIT",
+      "displayName": "Resources CPU Limit",
+      "description": "The resources CPU limit (in cores) for this build.",
+      "required": true,
+      "value": "1"
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "displayName": "Resources Memory Limit",
+      "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
+      "required": true,
+      "value": "1.5Gi"
+    },   
+    {
+      "name": "CPU_REQUEST",
+      "displayName": "Resources CPU Request",
+      "description": "The resources CPU request (in cores) for this build.",
+      "required": true,
+      "value": "250m"
+    },
+    {
+      "name": "MEMORY_REQUEST",
+      "displayName": "Resources Memory Request",
+      "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
+      "required": true,
+      "value": "512Mi"
     }
   ]
 }

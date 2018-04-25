@@ -192,7 +192,10 @@ def main_load(env, do_it_random, num_loops, thread_id):
         try:
             my_url = "http://localhost:6000/api/v1/api-token-auth/"
             response = requests.post(my_url, data = {"username":"wall-e", "password":"pass1234"})
+
+            print("Getting token from {} ...".format(response.url))
             json_data = response.json()
+
             remote_token = 'Token ' + json_data["token"]
             print("Authenticated remote wallet server: " + remote_token)
         except:
@@ -203,6 +206,7 @@ def main_load(env, do_it_random, num_loops, thread_id):
     # Create new threads
     loop_start_time = time.time()
     loop_claims = 0
+    loop_proofs = 0
     claim_elapsed_time = 0
     proof_elapsed_time = 0
     for _ in range(0, num_loops):
@@ -261,6 +265,8 @@ def main_load(env, do_it_random, num_loops, thread_id):
                                     headers={'Authorization': remote_token},
                                     json=wallet_item
                                 )
+
+                                print("Submitting claim to {} ...".format(response.url))
                                 result_json = response.json()
                             except:
                                 raise Exception(
@@ -276,10 +282,14 @@ def main_load(env, do_it_random, num_loops, thread_id):
                                     json=claim
                                 )
                                 loop_locks[service_name].release()
+                                print(response)
+                                
+                                print("Submitting claim to {} ...".format(response.url))
                                 result_json = response.json()
+
                                 elapsed_time = time.time() - start_time
                                 claim_elapsed_time = claim_elapsed_time + elapsed_time
-                                print('Claim elapsed time >>> {}'.format(elapsed_time))
+                                print('Timing,Claim elapsed time,{},secs'.format(elapsed_time))
                             except:
                                 loop_locks[service_name].release()
                                 raise Exception(
@@ -302,17 +312,21 @@ def main_load(env, do_it_random, num_loops, thread_id):
                                 )
                                 elapsed_time = time.time() - start_time
                                 proof_elapsed_time = proof_elapsed_time + elapsed_time
-                                print('Proof elapsed time >>> {}'.format(elapsed_time))
+                                print('Timing,Proof elapsed time,{},secs'.format(elapsed_time))
+
+                                print("Requesting proof from {} ...".format(response.url))
                                 result_json = response.json()
+                                loop_proofs = loop_proofs + 1
                             except:
-                                raise Exception(
-                                    'Could not submit proof request. '
-                                    'Are Permitify and Docker running?')
+                                # raise Exception(
+                                #     'Could not submit proof request. '
+                                #     'Are Permitify and Docker running?')
+                                print('Could not submit proof request. Are Permitify and Docker running?')
                             print('\n\n Response from TOB:\n\n')
 
-    print('Claim elapsed time >>> {}, {} claims'.format(claim_elapsed_time, loop_claims))
+    print('Timing,Claim elapsed time,{},{},claims'.format(claim_elapsed_time, loop_claims))
     if args.proofs:
-        print('Proof elapsed time >>> {}, {} claims'.format(proof_elapsed_time, loop_claims))
+        print('Timing,Proof elapsed time,{},{},claims'.format(proof_elapsed_time, loop_proofs))
 
 if __name__ == '__main__':
     try:
@@ -331,5 +345,5 @@ if __name__ == '__main__':
         for i in range(0, args.threads):
             my_threads[i].join()
         execution_elapsed = time.time() - execution_start
-        print("Exiting Main Thread, time = {} secs".format(execution_elapsed))
+        print("Timing,Exiting Main Thread,time,{},secs".format(execution_elapsed))
 

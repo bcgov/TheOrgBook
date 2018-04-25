@@ -4,7 +4,7 @@
 # JSON Template File: templates/wallet-deploy.json
 #=========================================================
 # NAME=wallet
-# IMAGE_NAMESPACE=devex-von-tools
+# IMAGE_NAMESPACE=ontvon-von-tools
 # DATABASE_SERVICE_NAME=wallet-db
 # DATABASE_ENGINE=postgresql
 # DATABASE_NAME=TheOrgBook_Database
