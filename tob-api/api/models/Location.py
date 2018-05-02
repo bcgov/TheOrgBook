@@ -45,4 +45,3 @@ class Location(Auditable):
     endDate = models.DateField(blank=True, null=True)   
     class Meta:
         db_table = 'LOCATION'
-
