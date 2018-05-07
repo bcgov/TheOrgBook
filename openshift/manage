@@ -42,6 +42,11 @@ usage () {
 
     registerDids
       - Register/re-register the services's DIDs with the ledger.
+
+    rebuildSearchIndex
+      - Rebuild the search index for a given environment.
+
+
 EOF
 exit 1
 }
@@ -203,6 +208,12 @@ case "${_cmd}" in
     walletApiPodName=${3:-wallet}
     walletDbPodName=${4:-wallet-db}
     hardReset "${apiPodName}" "${dbPodName}" "${walletApiPodName}" "${walletDbPodName}"
+    ;;
+  rebuildsearchindex)
+    apiPodName=${1:-django}
+    switchProject
+    exitOnError
+    rebuildSearchIndex "${apiPodName}"
     ;;
   registerdids)
     registerDids $(getDidNames)
