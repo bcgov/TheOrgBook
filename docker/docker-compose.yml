@@ -109,6 +109,7 @@ services:
       - WEB_CONCURRENCY=${WEB_CONCURRENCY}
       - RUST_LOG=${RUST_LOG}
       - RUST_BACKTRACE=${RUST_BACKTRACE}
+      - TOB_THEME=${TOB_THEME}
     volumes:
       - ../tob-api/api:/opt/app-root/src/api
     networks:
@@ -121,10 +122,11 @@ services:
       - tob-wallet
       - tob-solr
     command: >
-      /bin/bash -c "
+        /bin/bash -c "
         echo sleeping ...;
         sleep 20;
-        ${STI_SCRIPTS_PATH}/run;"
+        python manage.py migrate &&
+        RUST_LOG=debug && RUST_BACKTRACE=full && python manage.py runserver 0.0.0.0:8080;"
 
   # 
   # schema-spy
