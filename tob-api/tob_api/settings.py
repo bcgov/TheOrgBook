@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 import posixpath
 import logging.config
+import os.path
+import glob
 
 try:
      from . import database  
@@ -214,9 +216,7 @@ LOGGING = {
     },
 }
 
-import custom_settings_$TOB_THEME.py
 
- }
-      }
-   custom_settings_bcgov.py   : {full set of fields}
-    }
+
+with open(os.path.join(BASE_DIR, 'custom_settings_' + os.getenv('TOB_THEME') + '.py')) as source_file:
+    exec(source_file.read())

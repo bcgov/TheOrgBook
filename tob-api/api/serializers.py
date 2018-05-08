@@ -36,10 +36,10 @@ import os
 from django.conf import settings
 import utils
 
-class CurrentUserViewModelSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = CurrentUserViewModel
-    fields = ('id','givenName','surname','email','active','userRoles','smUserId','smAuthorizationDirectory')
+#class CurrentUserViewModelSerializer(serializers.ModelSerializer):
+#  class Meta:
+#    model = CurrentUserViewModel
+#    fields = ('id','givenName','surname','email','active','userRoles','smUserId','smAuthorizationDirectory')
 
 class DoingBusinessAsSerializer(serializers.ModelSerializer):
   class Meta:
