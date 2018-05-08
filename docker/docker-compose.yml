@@ -111,7 +111,7 @@ services:
       - RUST_LOG=${RUST_LOG}
       - RUST_BACKTRACE=${RUST_BACKTRACE}
     volumes:
-      - ../tob-api/api:/home/indy/src/api
+      - ../tob-api/api:/home/indy/api
     networks:
       - wallet-tob
       - tob
@@ -126,7 +126,7 @@ services:
       /bin/bash -c "
         echo sleeping ...;
         sleep 20;
-        if [ "$DEBUG" == "true" ]; then
+        if [ $DEBUG ] && [ "$DEBUG" == "true" ]; then
           python manage.py runserver --noreload --nothreading 0.0.0.0:8080;
         else
           ${STI_SCRIPTS_PATH}/run;
