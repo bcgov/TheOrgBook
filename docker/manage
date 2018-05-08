@@ -412,6 +412,11 @@ case "${COMMAND}" in
        buildImages
     esac
     ;;
+  shell)
+    _startupParams=$(getStartupParams $@)
+    configureEnvironment $@
+    docker-compose run tob-api bash
+    ;;
   *)
     usage
 esac
