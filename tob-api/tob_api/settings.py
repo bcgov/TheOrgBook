@@ -218,5 +218,5 @@ LOGGING = {
 
 
 
-with open(os.path.join(BASE_DIR, 'custom_settings_' + os.getenv('TOB_THEME') + '.py')) as source_file:
+with open(os.path.join(BASE_DIR, 'custom_settings_' + os.getenv('TOB_THEME').lower() + '.py')) as source_file:
     exec(source_file.read())
