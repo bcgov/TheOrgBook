@@ -19,7 +19,9 @@
     limitations under the License.
 """
 
+from api.auth import IsSignedRequest
 from api.indy.proofRequestBuilder import ProofRequestBuilder
+from api.indy.issuer import IssuerManager, IssuerException
 from api.claimDefProcesser import ClaimDefProcesser
 from rest_framework.response import Response
 from api import serializers
@@ -32,6 +34,7 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from api.models.VerifiableClaim import VerifiableClaim
 
+
 # ToDo:
 # * Refactor the saving process to use serializers, etc.
 # ** Make it work with generics.GenericAPIView
@@ -41,7 +44,8 @@ class bcovrinGenerateClaimRequest(APIView):
   """  
   Generate a claim request from a given claim definition.
   """
-  permission_classes = (permissions.AllowAny,)  
+  #permission_classes = (IsSignedRequest,)  
+  permission_classes = (permissions.AllowAny,)
   
   def post(self, request, *args, **kwargs):
     """  
@@ -67,6 +71,7 @@ class bcovrinGenerateClaimRequest(APIView):
     __logger.warn('<<< Generated claim request')
     return JsonResponse(json.loads(claimRequest))
 
+
 # ToDo:
 # * Refactor the saving process to use serializers, etc.
 # ** Make it work with generics.GenericAPIView
@@ -76,7 +81,8 @@ class bcovrinStoreClaim(APIView):
   """  
   Store a verifiable claim.
   """
-  permission_classes = (permissions.AllowAny,)  
+  #permission_classes = (IsSignedRequest,)  # FIXME - change to IsRegisteredIssuer
+  permission_classes = (permissions.AllowAny,)
   
   def post(self, request, *args, **kwargs):
     """  
@@ -105,6 +111,7 @@ class bcovrinStoreClaim(APIView):
     serializer = serializers.VerifiableOrgSerializer(verifiableOrg)
     __logger.warn('<<< Stored claim')
     return Response(serializer.data)
+
 
 class bcovrinConstructProof(APIView):
   """  
@@ -154,6 +161,7 @@ class bcovrinConstructProof(APIView):
     proofResponse = proofRequestProcesser.ConstructProof()
     return JsonResponse(proofResponse)
 
+
 class bcovrinVerifyCredential(APIView):
   """  
   Verifies a verifiable claim
@@ -201,3 +209,59 @@ class bcovrinVerifyCredential(APIView):
       return JsonResponse({'success': True, 'proof': proofResponse})
 
     return JsonResponse({'success': False})
+
+
+class bcovrinRegisterIssuer(APIView):
+  """
+  Register an issuer (like permitify), creating or updating the necessary records
+  """
+  # performs its own header verification
+  authentication_classes = ()
+  permission_classes = (permissions.AllowAny,)
+  
+  def post(self, request, *args, **kwargs):
+    """  
+    Processes an issuer definition and creates or updates the corresponding records.
+    Responds with the updated issuer definition including record IDs.
+
+    Example request payload:
+
+    ```json
+    {
+        "issuer": {
+            "did": "issuer DID",
+            "name": "issuer name (english)",
+            "abbreviation": "issuer TLA (english)",
+            "email": "administrator email",
+            "url": "url for issuer details"
+        },
+        "jurisdiction": {
+            "name": "name of jurisdiction (english)",
+            "abbreviation": "jurisdiction TLA (english)"
+        },
+        "claim-types": [
+            {
+                "name": "claim type name (english)",
+                "endpoint": "url for issuing claims",
+                "schema": "schema name",
+                "version": "schema version"
+            }
+        ]
+    }
+    ```
+
+    returns: `{"success": boolean, "result": updated issuer definition}`
+    """
+    __logger = logging.getLogger(__name__)
+    __logger.warn('>>> Register issuer')
+    issuerDef = request.body.decode('utf-8')
+    issuerJson = json.loads(issuerDef)
+    try:
+      issuerManager = IssuerManager()
+      updated = issuerManager.registerIssuer(request, issuerJson)
+      response = {'success': True, 'result': updated}
+    except IssuerException as e:
+      __logger.exception('Issuer request not accepted:')
+      response = {'success': False, 'result': str(e)}
+    __logger.warn('<<< Register issuer')
+    return JsonResponse(response)

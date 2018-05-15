@@ -12,7 +12,6 @@ if [ -z $(type -P "$S2I_EXE") ]; then
 fi
 
 SCRIPT_HOME="$( cd "$( dirname "$0" )" && pwd )"
-export COMPOSE_PROJECT_NAME="tob"
 
 # =================================================================================================================
 # Usage:
@@ -46,7 +45,6 @@ usage() {
           By default all containers that components comprise of, will be rebuilt.
 
             $0 build
-
 
   start - Creates the application containers from the built images
           and starts the services based on the docker-compose.yml file.
@@ -100,6 +98,7 @@ build-web() {
   echo -e "\nBuilding angular-app image ..."
   ${S2I_EXE} build \
     -e "NG_BASE_HREF=${WEB_BASE_HREF}" \
+    -e "NG_DEPLOY_URL=${WEB_DEPLOY_URL}" \
     -e "TOB_THEME=${TOB_THEME}" \
     '../tob-web' \
     'centos/nodejs-6-centos7:6' \
@@ -149,20 +148,10 @@ build-api() {
   #
   # tob-api
   #
-  echo -e "\nBuilding libindy image ..."
-  docker build \
-    -t 'libindy' \
-    -f '../tob-api/openshift/templates/libindy/Dockerfile' '../tob-api/openshift/templates/libindy/'
-
-  echo -e "\nBuilding python-libindy image ..."
-  docker build \
-    -t 'python-libindy' \
-    -f '../tob-api/openshift/templates/python-libindy/Dockerfile' '../tob-api/openshift/templates/python-libindy/'
-
   echo -e "\nBuilding django image ..."
   ${S2I_EXE} build \
     '../tob-api' \
-    'python-libindy' \
+    'andrewwhitehead/von-image:py36-indy1.3.1-dev-441-ew-s2i' \
     'django'
 }
 
@@ -215,6 +204,8 @@ configureEnvironment () {
       exit 1
     fi
   fi
+  
+  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-tob}"
 
   export INDY_WALLET_SEED=${seed}
   export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
@@ -254,19 +245,20 @@ configureEnvironment () {
   export DATABASE_NAME=${POSTGRESQL_DATABASE}
   export DATABASE_USER=${POSTGRESQL_USER}
   export DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
+  export DEBUG=${DEBUG}
   export DJANGO_SECRET_KEY=wpn1GZrouOryH2FshRrpVHcEhMfMLtmTWMC2K5Vhx8MAi74H5y
   export DJANGO_DEBUG=True
   export SOLR_SERVICE_NAME="tob-solr"
   export SOLR_CORE_NAME=${CORE_NAME}
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
 
-  # wallet type a command-line parameter (like seed) default to "virtual" if not specified
+  # wallet type a command-line parameter (like seed) default to "remote" if not specified
   export INDY_WALLET_URL=http://tob-wallet:8080/api/v1/
   export INDY_WALLET_TYPE=${wallet}
 
   if [ "$COMMAND" == "start" ]; then
     if [ -z "$wallet" ]; then
-      export INDY_WALLET_TYPE="virtual"
+      export INDY_WALLET_TYPE="remote"
     fi
   fi
 
@@ -274,6 +266,7 @@ configureEnvironment () {
   export TOB_THEME=${TOB_THEME:-bcgov}
   export WEB_HTTP_PORT=${WEB_HTTP_PORT:-8080}
   export WEB_BASE_HREF=${WEB_BASE_HREF:-/}
+  export WEB_DEPLOY_URL=${WEB_DEPLOY_URL:-/}
   export API_URL=${API_URL-http://tob-api:8080/api/v1/}
   export IpFilterRules='#allow all; deny all;'
   export RealIpFrom='127.0.0.0/16'
@@ -417,6 +410,11 @@ case "${COMMAND}" in
       *)
        buildImages
     esac
+    ;;
+  shell)
+    _startupParams=$(getStartupParams $@)
+    configureEnvironment $@
+    docker-compose run tob-api bash
     ;;
   *)
     usage
