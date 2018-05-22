@@ -3,7 +3,7 @@
 
     TheOrgBook is a repository for Verifiable Claims made about Organizations related to a known foundational Verifiable Claim. See https://github.com/bcgov/VON
 
-    OpenAPI spec version: v1
+    OpenAPI spec version: v2
         
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,15 +23,17 @@ import datetime
 
 from django.db import models
 from django.utils import timezone
-from .UserRole import UserRole
 
-class CurrentUserViewModel(models.Model):	    
-    givenName = models.CharField(max_length=255, blank=True, null=True)   
-    surname = models.CharField(max_length=255, blank=True, null=True)   
-    email = models.CharField(max_length=255, blank=True, null=True)   
-    active = models.BooleanField()   
-    userRoles = models.ManyToManyField('UserRole', related_name='userRoles', blank=True)   
-    smUserId = models.CharField(max_length=255, blank=True, null=True)   
-    smAuthorizationDirectory = models.CharField(max_length=255, blank=True, null=True)   
+from auditable.models import Auditable
+
+
+class Subject(Auditable):
+    sourceId = models.TextField(blank=True, null=True)
+    initialCredential = models.OneToOneField(
+        'Credential', related_name='subjects')
+
+    startDate = models.DateField(default=timezone.now)
+    endDate = models.DateField(blank=True, null=True)
+
     class Meta:
-      abstract = True
+        db_table = 'SUBJECT'

@@ -3,9 +3,8 @@
 
     TheOrgBook is a repository for Verifiable Claims made about Organizations related to a known foundational Verifiable Claim. See https://github.com/bcgov/VON
 
-    OpenAPI spec version: v1
+    OpenAPI spec version: v2
         
-
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -24,10 +23,20 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
-class UserRoleViewModel(models.Model):	    
-    effectiveDate = models.DateField(default=timezone.now)   
-    expiryDate = models.DateField(blank=True, null=True)   
-    roleId = models.IntegerField()   
-    userId = models.IntegerField()   
+from auditable.models import Auditable
+
+from .Schema import Schema
+from .Issuer import Issuer
+
+
+class CredentialType(Auditable):
+    schema = models.ForeignKey('Schema', related_name='credential_types')
+    issuer = models.ForeignKey('Issuer', related_name='credential_types')
+    description = models.TextField(blank=True, null=True)
+    processorConfig = models.TextField()
+
+    startDate = models.DateField(default=timezone.now)
+    endDate = models.DateField(blank=True, null=True)
+
     class Meta:
-      abstract = True
+        db_table = 'CREDENTIAL_TYPE'

@@ -3,7 +3,7 @@
 
     TheOrgBook is a repository for Verifiable Claims made about Organizations related to a known foundational Verifiable Claim. See https://github.com/bcgov/VON
 
-    OpenAPI spec version: v1
+    OpenAPI spec version: v2
         
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,16 +23,22 @@ import datetime
 
 from django.db import models
 from django.utils import timezone
-from .User import User
-from .Role import Role
 
 from auditable.models import Auditable
 
-class UserRole(Auditable):	    
-    userId = models.ForeignKey('User', related_name='users')   
-    roleId = models.ForeignKey('Role', related_name='userRoles')   
-    effectiveDate = models.DateField(default=timezone.now)   
-    endDate = models.DateField(blank=True, null=True)   
-    class Meta:
-        db_table = 'USER_ROLE'
 
+class Address(Auditable):
+    credential = models.ManyToManyField('Credential', related_name='addresses')
+    addressee = models.TextField(blank=True, null=True)
+    civicAddress = models.TextField(blank=True, null=True)
+    city = models.TextField(blank=True, null=True)
+    province = models.TextField(blank=True, null=True)
+    postalCode = models.TextField(blank=True, null=True)
+    country = models.TextField(blank=True, null=True)
+    addressType = models.TextField(blank=True, null=True)
+
+    startDate = models.DateField(default=timezone.now)
+    endDate = models.DateField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'ADDRESS'

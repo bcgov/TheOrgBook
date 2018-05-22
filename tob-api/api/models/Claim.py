@@ -3,7 +3,7 @@
 
     TheOrgBook is a repository for Verifiable Claims made about Organizations related to a known foundational Verifiable Claim. See https://github.com/bcgov/VON
 
-    OpenAPI spec version: v1
+    OpenAPI spec version: v2
         
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,10 +26,16 @@ from django.utils import timezone
 
 from auditable.models import Auditable
 
-class Permission(Auditable):	    
-    code = models.CharField(max_length=100)   
-    name = models.CharField(max_length=100)   
-    description = models.CharField(max_length=1000)   
-    class Meta:
-        db_table = 'PERMISSION'
+from .Credential import Credential
 
+
+class Claim(Auditable):
+    credential = models.ForeignKey('Credential', related_name='claims')
+    name = models.TextField(blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
+
+    startDate = models.DateField(default=timezone.now)
+    endDate = models.DateField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'CLAIM'

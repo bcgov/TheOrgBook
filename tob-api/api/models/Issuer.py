@@ -3,7 +3,7 @@
 
     TheOrgBook is a repository for Verifiable Claims made about Organizations related to a known foundational Verifiable Claim. See https://github.com/bcgov/VON
 
-    OpenAPI spec version: v1
+    OpenAPI spec version: v2
         
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,15 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
-class RolePermissionViewModel(models.Model):	    
-    roleId = models.IntegerField()   
-    permissionId = models.IntegerField()   
+from auditable.models import Auditable
+
+
+class Issuer(Auditable):
+    did = models.TextField()
+    url = models.TextField()
+
+    startDate = models.DateField(default=timezone.now)
+    endDate = models.DateField(blank=True, null=True)
+
     class Meta:
-      abstract = True
+        db_table = 'ISSUER'
