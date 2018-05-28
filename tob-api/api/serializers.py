@@ -31,6 +31,7 @@ from .models.VerifiableClaim import VerifiableClaim
 from .models.VerifiableClaimType import VerifiableClaimType
 from .models.VerifiableOrg import VerifiableOrg
 from .models.VerifiableOrgType import VerifiableOrgType
+from . import utils
 
 class DoingBusinessAsSerializer(serializers.ModelSerializer):
   class Meta:
@@ -55,8 +56,8 @@ class JurisdictionSerializer(serializers.ModelSerializer):
 class LocationSerializer(serializers.ModelSerializer):
   class Meta:
     model = Location
-    fields = ('id','verifiableOrgId','doingBusinessAsId','locationTypeId','addressee','addlDeliveryInfo','unitNumber','streetAddress','municipality','province','postalCode','latLong','effectiveDate','endDate')
-
+    fields = list(utils.fetch_custom_settings('serializers', 'Location', 'includeFields'))
+   
 class LocationTypeSerializer(serializers.ModelSerializer):
   class Meta:
     model = LocationType

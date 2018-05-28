@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 import posixpath
 import logging.config
+import os.path
+import glob
+from pathlib import Path
 
 try:
      from . import database  
@@ -214,10 +217,9 @@ LOGGING = {
     },
 }
 
-EXCLUDED_FIELDS = {
-    'ongov':
-      {'Location': 
-           {'streetAddress', 'municipality'}
-      },
-     'default': {}
-}
+
+custom_settings_file = Path(os.path.join(BASE_DIR, 'custom_settings_' + str(os.getenv('TOB_THEME')).lower() + '.py'))
+if custom_settings_file.exists():
+        with open(custom_settings_file) as source_file:
+            print("Loading custom settings file: " + 'custom_settings_' + str(os.getenv('TOB_THEME')).lower() + '.py')
+            exec(source_file.read())
