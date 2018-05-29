@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'auditable',
     'api',
+    'api_v2',
     'corsheaders',
 ]
 

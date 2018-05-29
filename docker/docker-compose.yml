@@ -112,6 +112,7 @@ services:
       - RUST_BACKTRACE=${RUST_BACKTRACE}
     volumes:
       - ../tob-api/api:/home/indy/api
+      - ../tob-api/api_v2:/home/indy/api_v2
     networks:
       - wallet-tob
       - tob
