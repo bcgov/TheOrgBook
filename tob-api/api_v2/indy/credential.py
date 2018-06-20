@@ -148,6 +148,12 @@ class Credential(object):
 
 
 class CredentialManager(object):
+    """
+    Handles processing of incoming credentials. Populates application
+    database based on rules provided by issuer are registration.
+    """
+
+    
     def __init__(
         self, credential: Credential, credential_definition_metadata: dict
     ) -> None:
@@ -155,6 +161,12 @@ class CredentialManager(object):
         self.credential_definition_metadata = credential_definition_metadata
 
     def process(self):
+        """
+        Processes incoming credential data and returns newly created credential
+        
+        Returns:
+            Credential -- newly created credential in application database
+        """
         # Get context for this credential if it exists
         try:
             issuer = Issuer.objects.get(did=self.credential.origin_did)
@@ -196,12 +208,22 @@ class CredentialManager(object):
             )
 
         credential = self.populate_application_database(
-            credential_type, "source_id"
+            credential_type, source_id
         )
-        eventloop.do(self.store("source_id"))
+        eventloop.do(self.store(source_id))
         return credential
 
     def populate_application_database(self, credential_type, source_id):
+        """[summary]
+        
+        Arguments:
+            credential_type {CredentialType} -- CredentialType model for this
+                                                credential
+            source_id {string} -- Unique string representing the subject
+        
+        Returns:
+            Credential -- Newly created credential
+        """
         # Obtain required models from database
 
         # Create subject, credential, claim models
@@ -261,7 +283,19 @@ class CredentialManager(object):
                 if _from == "value":
                     field_value = _input
                 elif _from == "claim":
-                    field_value = getattr(self.credential, _input)
+                    try:
+                        field_value = getattr(self.credential, _input)
+                    except AttributeError as error:
+
+                        raise CredentialException(
+                            "Credential does not contain the configured claim "
+                            + "'{}' which is mapped to field '{}'. ".format(
+                                _input, field
+                            )
+                            + "Claims are: {}".format(
+                                ", ".join(self.credential.claim_attributes)
+                            )
+                        )
                 else:
                     raise CredentialException(
                         "Supported field from values are 'value' and 'claim'"
