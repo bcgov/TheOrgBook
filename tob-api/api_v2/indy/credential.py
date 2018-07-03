@@ -11,8 +11,9 @@ from von_agent.util import schema_key
 
 from api_v2.models.Issuer import Issuer
 from api_v2.models.Schema import Schema
-from api_v2.models.Subject import Subject
+from api_v2.models.Topic import Topic
 from api_v2.models.CredentialType import CredentialType
+from api_v2.models.Credential import Credential as CredentialModel
 from api_v2.models.Claim import Claim
 
 from api_v2.models.Name import Name
@@ -148,6 +149,11 @@ class Credential(object):
 
 
 class CredentialManager(object):
+    """
+    Handles processing of incoming credentials. Populates application
+    database based on rules provided by issuer are registration.
+    """
+
     def __init__(
         self, credential: Credential, credential_definition_metadata: dict
     ) -> None:
@@ -155,6 +161,12 @@ class CredentialManager(object):
         self.credential_definition_metadata = credential_definition_metadata
 
     def process(self):
+        """
+        Processes incoming credential data and returns newly created credential
+        
+        Returns:
+            Credential -- newly created credential in application database
+        """
         # Get context for this credential if it exists
         try:
             issuer = Issuer.objects.get(did=self.credential.origin_did)
@@ -184,213 +196,253 @@ class CredentialManager(object):
             schema=schema, issuer=issuer
         )
 
-        try:
-            source_id = getattr(self.credential, credential_type.source_claim)
-        except AttributeError as error:
-            raise CredentialException(
-                "Credential does not contain the configured source_claim "
-                + "'{}'. Claims are: {}".format(
-                    credential_type.source_claim,
-                    ", ".join(self.credential.claim_attributes),
+        topic = self.populate_application_database(credential_type)
+        credential_wallet_id = eventloop.do(self.store(topic.source_id))
+        return credential_wallet_id
+
+    def populate_application_database(self, credential_type):
+
+        # Takes our mapping rules and returns a value from credential
+        def process_mapping(rules):
+            if not rules:
+                return None
+
+            # Get required values from config
+            try:
+                _input = rules["input"]
+                _from = rules["from"]
+            except KeyError as error:
+                raise CredentialException(
+                    "Every mapping must specify 'input' and 'from' values."
                 )
+
+            # Pocessor is optional
+            try:
+                processor = rules["processor"]
+            except KeyError as error:
+                processor = None
+
+            # Get model field value from string literal or claim value
+            if _from == "value":
+                mapped_value = _input
+            elif _from == "claim":
+                try:
+                    mapped_value = getattr(self.credential, _input)
+                except AttributeError as error:
+                    raise CredentialException(
+                        "Credential does not contain the configured claim '{}'".format(
+                            _input
+                        )
+                        + "Claims are: {}".format(
+                            ", ".join(self.credential.claim_attributes)
+                        )
+                    )
+            else:
+                raise CredentialException(
+                    "Supported field from values are 'value' and 'claim'"
+                    + " but received '{}'".format(_from)
+                )
+
+            # If we have a processor config, build pipeline of functions
+            # and run field value through pipeline
+            if processor is not None:
+                pipeline = []
+                # Construct pipeline by dot notation. Last token is the
+                # function name and all preceeding dots denote path of
+                # module starting from `PROCESSOR_FUNCTION_BASE_PATH``
+                for function_path_with_name in processor:
+                    function_path, function_name = function_path_with_name.rsplit(
+                        ".", 1
+                    )
+
+                    # Does the file exist?
+                    try:
+                        function_module = import_module(
+                            "{}.{}".format(
+                                PROCESSOR_FUNCTION_BASE_PATH, function_path
+                            )
+                        )
+                    except ModuleNotFoundError as error:
+                        raise CredentialException(
+                            "No processor module named '{}'".format(
+                                function_path
+                            )
+                        )
+
+                    # Does the function exist?
+                    try:
+                        function = getattr(function_module, function_name)
+                    except AttributeError as error:
+                        raise CredentialException(
+                            "Module '{}' has no function '{}'.".format(
+                                function_path, function_name
+                            )
+                        )
+
+                    # Build up a list of functions to call
+                    pipeline.append(function)
+
+                # We want to run the pipeline in logical order
+                pipeline.reverse()
+
+                # Run pipeline
+                while len(pipeline) > 0:
+                    function = pipeline.pop()
+                    mapped_value = function(mapped_value)
+
+            # This is ugly. von-agent currently serializes null values
+            # to the string 'None'
+            if mapped_value == "None":
+                mapped_value = None
+
+            return mapped_value
+
+        processor_config = credential_type.processor_config
+        topic_defs = processor_config["topic"]
+
+        # We accept object or array for topic def
+        if type(topic_defs) is dict:
+            topic_defs = [topic_defs]
+
+        cardinality_fields = processor_config.get("cardinality_fields") or []
+        mapping = processor_config.get("mapping") or []
+
+        # Issuer can register multiple topic selectors to fall back on
+        # We use the first valid topic and related parent if applicable
+        for topic_def in topic_defs:
+            parent_topic = None
+            topic = None
+
+            parent_topic_name = process_mapping(topic_def.get("parent_name"))
+            parent_topic_source_id = process_mapping(
+                topic_def.get("parent_source_id")
+            )
+            parent_topic_type = process_mapping(topic_def.get("parent_type"))
+
+            topic_name = process_mapping(topic_def.get("name"))
+            topic_source_id = process_mapping(topic_def.get("source_id"))
+            topic_type = process_mapping(topic_def.get("type"))
+
+            # Get parent topic if possible
+            if parent_topic_name:
+                parent_topic = Topic.objects.get(
+                    credentials__names__text=parent_topic_name
+                )
+            elif parent_topic_source_id and parent_topic_type:
+                parent_topic = Topic.objects.get(
+                    source_id=parent_topic_source_id, type=parent_topic_type
+                )
+
+            # Current topic if possible
+            if topic_name:
+                topic = Topic.objects.get(credentials__names__text=topic_name)
+            elif topic_source_id and topic_type:
+                try:
+                    topic = Topic.objects.get(
+                        source_id=topic_source_id, type=topic_type
+                    )
+                except Topic.DoesNotExist as error:
+                    # Create a new topic if our query comes up empty
+                    topic = Topic.objects.create(
+                        source_id=topic_source_id, type=topic_type
+                    )
+
+            # We stick with the first topic that we resolve
+            if topic:
+                break
+
+        # If we couldn't resolve _any_ topics from the configuration,
+        # we can't continue
+        if not topic:
+            raise CredentialException(
+                "Issuer registration 'topic' must specify at least one valid topic name OR topic type and topic source_id"
             )
 
-        credential = self.populate_application_database(
-            credential_type, source_id
-        )
-        eventloop.do(self.store(source_id))
-        return credential
+        # We search for existing credentials by cardinality_fields to apply end_date
+        existing_credential_query = {
+            "credential_type__id": credential_type.id,
+            "topics__id": topic.id,
+            "end_date": None,
+        }
+        for cardinality_field in cardinality_fields:
+            try:
+                existing_credential_query["claims__name"] = cardinality_field
+                existing_credential_query["claims__value"] = getattr(
+                    self.credential, cardinality_field
+                )
+            except AttributeError as error:
+                raise CredentialException(
+                    "Issuer configuration specifies field '{}' ".format(
+                        cardinality_field
+                    )
+                    + "in cardinality_fields value does not exist in "
+                    + "credential. Values are: {}".format(
+                        ", ".join(list(self.credential.claim_attributes))
+                    )
+                )
+        try:
+            existing_credential = CredentialModel.objects.get(
+                **existing_credential_query
+            )
+            existing_credential.end_date = timezone.now()
+            existing_credential.save()
+        except CredentialModel.DoesNotExist as error:
+            # No record to implicitly expire
+            pass
 
-    def populate_application_database(self, credential_type, source_id):
-        # Obtain required models from database
+        # We always create a new credential model to represent the current credential
+        credential = topic.credentials.create(credential_type=credential_type)
 
-        # Create subject, credential, claim models
-        subject, created = Subject.objects.get_or_create(source_id=source_id)
-
-        credential = subject.credentials.create(
-            subject=subject, credential_type=credential_type
-        )
-
-        # TODO: optimize into a single insert
+        # Create and associate claims for this credential
         for claim_attribute in self.credential.claim_attributes:
             claim_value = getattr(self.credential, claim_attribute)
             Claim.objects.create(
                 credential=credential, name=claim_attribute, value=claim_value
             )
 
-        # Update optional models based on processor config
-        processor_config = credential_type.processor_config
-        if not processor_config:
-            return credential.id
+        # Recurisvely associate parent topic and all of it's related topics
+        # (all related credentials' topics)
+        related_topic_ids = []
 
-        # Iterate model types in processor mapping
-        for i, model_mapper in enumerate(processor_config):
+        def associate_related_topics(topic):
+            credential.topics.add(topic)
+            for related_credential in topic.credentials.all():
+                for credential_topic in related_credential.topics.distinct():
+                    # Don't traverse known relationships
+                    if credential_topic.id not in related_topic_ids:
+                        related_topic_ids.append(credential_topic.id)
+                        credential.topics.add(credential_topic)
+                        associate_related_topics(credential_topic)
+
+        if parent_topic is not None:
+            associate_related_topics(parent_topic)
+
+        # Create search models using mapping from issuer config
+        for model_mapper in mapping:
             model_name = model_mapper["model"]
-            cardinality_fields = model_mapper.get("cardinality_fields") or []
 
             # We currently support 4 model types
             # see SUPPORTED_MODELS_MAPPING
             try:
                 Model = SUPPORTED_MODELS_MAPPING[model_name]
+                model = Model()
             except KeyError as error:
                 raise CredentialException(
                     "Unsupported model type '{}'".format(model_name)
                 )
 
-            # Iterate fields on model mapping config
-            processed_values = {}
-            for field in processor_config[i]["fields"]:
-                field_data = processor_config[i]["fields"][field]
+            for field, field_mapper in model_mapper["fields"].items():
+                setattr(model, field, process_mapping(field_mapper))
 
-                # Get required values from config
-                try:
-                    _input = field_data["input"]
-                    _from = field_data["from"]
-                except KeyError as error:
-                    raise CredentialException(
-                        "Every field must specify 'input' and 'from' values."
-                    )
-
-                # Pocessor is optional
-                try:
-                    processor = field_data["processor"]
-                except KeyError as error:
-                    processor = None
-
-                # Get model field value from string literal or claim value
-                if _from == "value":
-                    field_value = _input
-                elif _from == "claim":
-                    field_value = getattr(self.credential, _input)
-                else:
-                    raise CredentialException(
-                        "Supported field from values are 'value' and 'claim'"
-                        + " but received '{}'".format(_from)
-                    )
-
-                # If we have a processor config, build pipeline of functions
-                # and run field value through pipeline
-                if processor is not None:
-                    pipeline = []
-                    # Construct pipeline by dot notation. Last token is the function name
-                    # and all preceeding dots denote path of module starting from
-                    # `PROCESSOR_FUNCTION_BASE_PATH``
-                    for function_path_with_name in processor:
-                        function_path, function_name = function_path_with_name.rsplit(
-                            ".", 1
-                        )
-
-                        # Does the file exist?
-                        try:
-                            function_module = import_module(
-                                "{}.{}".format(
-                                    PROCESSOR_FUNCTION_BASE_PATH, function_path
-                                )
-                            )
-                        except ModuleNotFoundError as error:
-                            raise CredentialException(
-                                "No processor module named '{}'".format(
-                                    function_path
-                                )
-                            )
-
-                        # Does the function exist?
-                        try:
-                            function = getattr(function_module, function_name)
-                        except AttributeError as error:
-                            raise CredentialException(
-                                "Module '{}' has no function '{}'.".format(
-                                    function_path, function_name
-                                )
-                            )
-
-                        # Build up a list of functions to call
-                        pipeline.append(function)
-
-                    # We want to run the pipeline in logical order
-                    pipeline.reverse()
-
-                    # Run pipeline
-                    while len(pipeline) > 0:
-                        function = pipeline.pop()
-                        field_value = function(field_value)
-
-                processed_values[field] = field_value
-
-                # This is ugly. von-agent currently serializes null values
-                # to the string 'None'
-                if processed_values[field] == "None":
-                    processed_values[field] = None
-
-            model = None
-            # Try to get an existing model based on cardinality_fields.
-            # We always limit query by this subject and without an end_date.
-            model_args = {
-                "credentials__subject__id": subject.id,
-                "end_date": None,
-            }
-            for cardinality_field in cardinality_fields:
-                try:
-                    model_args[cardinality_field] = processed_values[
-                        cardinality_field
-                    ]
-                except KeyError as error:
-                    raise CredentialException(
-                        "Issuer configuration specifies field '{}' ".format(
-                            cardinality_field
-                        )
-                        + "in cardinality_fields value does not exist in "
-                        + "credential processor. Values are: {}".format(
-                            ", ".join(list(processed_values.keys()))
-                        )
-                    )
-
-            # If the issuer changes its `cardinality_fields` it's possible for
-            # this query to return multiple records.
-            #
-            # To handle this, we always get the _last created_ record for this
-            # subject, with no end_date, and with values in
-            # `cardinality_fields` equal to their resulting values after
-            # running through the function pipeline. We update the most
-            # recently created record and we implicitly set the end_date
-            # for `now` for all other returned records.
-            try:
-                query = (
-                    Model.objects.filter(**model_args)
-                    .order_by("-create_timestamp")
-                    .distinct()
-                )
-
-                # We care about the most recent model if there
-                # are more than one
-                model = query[0]
-                # If there are other records for this query, then the issuer
-                # changed its `cardinality_fields` to something less specific
-                # than it was previously.
-                query.exclude(pk=model.id).update(end_date=timezone.now())
-            except IndexError as error:
-                logger.warn(error)
-
-            # If it doesn't exist, we create a new one
-            if not model:
-                model = Model()
-
-            # Either way, we update the fields based on results of
-            # mapping and processor
-            for value in processed_values:
-                setattr(model, value, processed_values[value])
-
-            # Save and associate with credential
+            model.credential = credential
             model.save()
-            model.credentials.add(credential)
 
-        return credential.id
+        return topic
 
     async def store(self, legal_entity_id):
-
         # Store credential in wallet
         async with Holder(legal_entity_id) as holder:
-            await holder.store_cred(
+            return await holder.store_cred(
                 self.credential.json,
                 _json.dumps(self.credential_definition_metadata),
             )

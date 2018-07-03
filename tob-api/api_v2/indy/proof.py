@@ -5,8 +5,6 @@ from collections import namedtuple
 from api.indy.agent import Holder
 from api.indy import eventloop
 
-from api_v2.indy.proof_request import ProofRequest
-
 logger = logging.getLogger(__name__)
 
 
@@ -14,7 +12,18 @@ Filter = namedtuple("Filter", "claim_name claim_value")
 
 
 class ProofManager(object):
+    """
+    Class to manage creation of indy proofs.
+    """
+
     def __init__(self, proof_request: dict, source_id: str) -> None:
+        """Constructor
+        
+        Arguments:
+            proof_request {dict} -- valid indy proof request
+            source_id {str} -- unique identifier for subject
+        """
+
         self.source_id = source_id
         self.proof_request = proof_request
         self.filters = []
