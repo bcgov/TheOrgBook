@@ -1,0 +1,17 @@
+<div class="row cred-row" *ngFor="let cred of records">
+  <div class="col-sm-4">
+    <div class="cred-title">
+      <a class="body-link cred-link" [routerLink]="['/subject', subjectId, 'cred', cred.id] | localize">{{cred.credentialType.description}}</a>
+    </div>
+    <div class="cred-date" *ngIf="cred.startDate">
+      <span class="claim-info date">{{cred.startDate}}</span>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="cred-issuer">
+      <a class="body-link issuer-link" [routerLink]="['/issuer', cred.issuer.id] | localize">{{cred.issuer.name}}</a>
+    </div>
+  </div>
+  <div class="col-sm-4">
+  </div>
+</div>

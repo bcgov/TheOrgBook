@@ -157,7 +157,7 @@ build-api() {
     -e "HTTP_PROXY=${HTTP_PROXY}" \
 	  -e "HTTPS_PROXY=${HTTPS_PROXY}" \
     '../tob-api' \
-    'andrewwhitehead/von-image:py36-indy1.3.1-dev-441-ew-s2i' \
+    'bcgovimages/von-image:py36-1.0rc3-s2i' \
     'django'
 }
 
@@ -256,6 +256,7 @@ configureEnvironment () {
   export DEBUG=${DEBUG}
   export DJANGO_SECRET_KEY=wpn1GZrouOryH2FshRrpVHcEhMfMLtmTWMC2K5Vhx8MAi74H5y
   export DJANGO_DEBUG=True
+  export DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL-INFO}
   export SOLR_SERVICE_NAME="tob-solr"
   export SOLR_CORE_NAME=${CORE_NAME}
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}

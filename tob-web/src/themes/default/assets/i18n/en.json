@@ -1,4 +1,7 @@
 {
+  "ROUTES": {
+    "home": "home"
+  },
   "app": {
     "breadcrumb": "Home",
     "title": "TheOrgBook Demo",
@@ -14,25 +17,31 @@
       "contact": "Contact Us"
     }
   },
-  "cert": {
-    "breadcrumb": "Permit and Licence Info",
-    "effective-date": "Effective Date",
-    "expiry-date": "Expiry Date",
-    "inactive-message": "This credential is inactive:",
+  "address": {
+    "registered-office": "Registered Office"
+  },
+  "contact": {
+    "email": "Email Address",
+    "phone": "Phone",
+    "phone-business": "Business Phone",
+    "skype": "Skype Address",
+    "website": "Website Address"
+  },
+  "cred": {
+    "addresses": "Addresses",
+    "breadcrumb": "Credential Information",
+    "contact": "Contact",
+    "end-date": "End Date",
+    "history-link": "See history",
     "issuer": "Issuer",
-    "issuer-website": "Issuer Website",
-    "related-certs": "Related Credentials",
-    "requesting-proof": "Requesting proof of credential ...",
-    "return-link": "Back to Permit and Licence Info",
+    "last-updated": "Last Updated",
+    "names": "Names",
+    "people": "People",
+    "start-date": "Effective Date",
     "verify-button-label": "Verify Credential",
+    "view-link": "View credential",
     "whats-this-link": "What's this?",
     "verify-status": "Verification Status:"
-  },
-  "dashboard": {
-    "breadcrumb": "Search",
-    "title": "Welcome to British Columbia's Verifiable Organizations",
-    "title-orgs": "organizations",
-    "title-certs": "permits and licences"
   },
   "general": {
     "none": "None",
@@ -41,12 +50,22 @@
     "prev-link": "Previous",
     "verified": "Verified"
   },
+  "home": {
+    "breadcrumb": "Search",
+    "title": "Welcome to British Columbia's Verifiable Organizations",
+    "title-orgs": "organizations",
+    "title-certs": "permits and licences"
+  },
   "issuer": {
     "breadcrumb": "Issuer Service",
-    "cert-types": "Permit and Licence Types",
-    "effective-date": "Effective Date",
-    "expiry-date": "Expiry Date",
+    "cred-types": "Credential Types",
+    "end-date": "End Date",
+    "start-date": "Effective Date",
     "website": "Issuer Website"
+  },
+  "name": {
+    "doing-business-as": "Doing Business As",
+    "legal-name": "Legal Name"
   },
   "not-found": {
     "breadcrumb": "Not Found",
@@ -54,16 +73,8 @@
     "error": "This page could not be located. Please check the URL or follow the link below.",
     "return-link-title": "Return to the home page"
   },
-  "org": {
-    "breadcrumb": "Organization Info",
-    "certs-title": "Permits and Licences",
-    "dba": "Doing Business As",
-    "effective-date": "Effective Date",
-    "identifier": "Organization Identifier",
-    "location": "Location",
-    "locations": "Locations",
-    "return-link": "Back to Organization Info",
-    "type": "Organization Type"
+  "person": {
+    "director": "Director"
   },
   "recipe": {
     "breadcrumb": "Recipe",
@@ -74,6 +85,10 @@
     "org-view-link": "View organization record",
     "register-link": "Register your Organization",
     "title": "Recipe"
+  },
+  "subject": {
+    "breadcrumb": "Subject Information",
+    "return-link": "Back to Subject"
   },
   "search": {
     "by-name": "Search by Name",
