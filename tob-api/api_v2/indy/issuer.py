@@ -6,6 +6,12 @@ from api_v2.models.Schema import Schema
 
 from api.auth import create_issuer_user, verify_signature, VerifierException
 
+from api_v2.serializers import (
+    IssuerSerializer,
+    SchemaSerializer,
+    CredentialTypeSerializer,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,31 +46,10 @@ class IssuerManager:
         # TODO: use a serializer to return consistent data with REST API?
         #       Do this at the view layer instead of this manager?
         result = {
-            "issuer": {
-                "id": issuer.id,
-                "did": issuer.did,
-                "name": issuer.name,
-                "abbreviation": issuer.abbreviation,
-                "email": user.email,
-                "url": issuer.url,
-            },
-            "schemas": [
-                {
-                    "id": schema.id,
-                    "name": schema.name,
-                    "version": schema.version,
-                    "origin_did": schema.origin_did,
-                }
-                for schema in schemas
-            ],
+            "issuer": IssuerSerializer(issuer).data,
+            "schemas": [SchemaSerializer(schema).data for schema in schemas],
             "credential_types": [
-                {
-                    "id": credential_type.id,
-                    "schema_id": credential_type.schema.id,
-                    "issuer_id": credential_type.issuer.id,
-                    "description": credential_type.description,
-                    "processor_config": credential_type.processor_config,
-                }
+                CredentialTypeSerializer(credential_type).data
                 for credential_type in credential_types
             ],
         }
@@ -128,17 +113,22 @@ class IssuerManager:
 
             # Get or create credential type
             credential_type_description = credential_type_def.get("name")
-            credential_type_topic = credential_type_def.get("topic")
-            credential_type_processor_config = credential_type_def.get(
+            credential_type_processor_config = {}
+            credential_type_processor_config[
                 "mapping"
-            )
+            ] = credential_type_def.get("mapping")
+            credential_type_processor_config[
+                "topic"
+            ] = credential_type_def.get("topic")
+            credential_type_processor_config[
+                "cardinality_fields"
+            ] = credential_type_def.get("cardinality_fields")
 
             credential_type, _ = CredentialType.objects.get_or_create(
                 schema=schema, issuer=issuer
             )
 
             credential_type.description = credential_type_description
-            credential_type.topic = credential_type_topic
             credential_type.processor_config = credential_type_processor_config
 
             credential_type.save()

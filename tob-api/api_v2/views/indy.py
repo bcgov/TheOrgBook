@@ -1,19 +1,23 @@
 import json
 import logging
 
+import coreapi
+
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
     permission_classes,
+    schema,
 )
 from rest_framework import permissions
+from rest_framework.schemas import AutoSchema
+
 from rest_framework.response import Response
 from django.http import JsonResponse
 from django.http import Http404
 
 from api_v2.models.Credential import Credential as CredentialModel
-
-from api_v2.serializers import CredentialSerializer
+from api_v2.models.Topic import Topic
 
 from api.indy import eventloop
 from api.indy.agent import Verifier
@@ -120,12 +124,9 @@ def store_credential(request, *args, **kwargs):
         credential, credential_request_metadata
     )
 
-    credential_id = credential_manager.process()
+    credential_wallet_id = credential_manager.process()
 
-    credential = CredentialModel.objects.get(pk=credential_id)
-    credential_serializer = CredentialSerializer(credential)
-
-    return Response({"success": True, "result": credential_serializer.data})
+    return Response({"success": True, "result": credential_wallet_id})
 
 
 @api_view(["POST"])
@@ -145,112 +146,162 @@ def register_issuer(request, *args, **kwargs):
     ```json
     {
         "issuer": {
-            "did": "issuer DID",
-            "name": "issuer name (english)",
-            "abbreviation": "issuer TLA (english)",
-            "email": "administrator email",
-            "url": "url for issuer details"
+            "did": "6qnvgJtqwK44D8LFYnV5Yf", // required
+            "name": "BC Corporate Registry", // required
+            "abbreviation": "BCReg",
+            "email": "bcreg.test.issuer@example.ca",
+            "url": "http://localhost:5000"
         },
         "credential_types": [
             {
-                "schema": "schema name",
-                "version": "schema version",
-                "description": "schema display name (english)",
-                "endpoint": "url for issuing claims",
-                "topic": {
-                    "parent_source_id_claim": "parent_source_id",
-                    "parent_source_name_claim": "parent_source_name",
-                    "source_id_claim": "parent_source_id",
-                    "parent_source_id_claim": "parent_source_id"
+            "name": "Incorporation",
+            "schema": "incorporation.bc_registries",
+            "version": "1.0.31",
+            "endpoint": "http://localhost:5000/bcreg/incorporation",
+            "topic": {
+                "source_id": {
+                    "input": "corp_num",
+                    "from": "claim"
                 },
-                "mapping": [
-                    {
-                        "model": "name",
-                        "fields": {
-                            "text": {
-                                "input": "legal_name",
-                                "from": "claim"
-                            },
-                            "type": {
-                                "input": "legal_name",
-                                "from": "value"
-                            }
-                        }
+                "type": {
+                    "input": "incorporation",
+                    "from": "value"
+                }
+            },
+            "mapping": [
+                {
+                "model": "name",
+                "fields": {
+                    "text": {
+                        "input": "legal_name",
+                        "from": "claim"
                     },
-                    {
-                        "model": "address",
-                        "fields": {
-                            "addressee": {
-                                "input": "addressee",
-                                "from": "claim"
-                            },
-                            "civic_address": {
-                                "input": "address_line_1",
-                                "from": "claim"
-                            },
-                            "city": {
-                                "input": "city",
-                                "from": "claim"
-                            },
-                            "province": {
-                                "input": "province",
-                                "from": "claim"
-                            },
-                            "postal_code": {
-                                "input": "postal_code",
-                                "from": "claim"
-                            },
-                            "country": {
-                                "input": "country",
-                                "from": "claim"
-                            },
-                            "address_type": {
-                                "input": "operating",
-                                "from": "value"
-                            }
-                        }
+                    "type": {
+                        "input": "legal_name",
+                        "from": "value"
+                    }
+                }
+                }
+            ]
+            },
+            {
+            "name": "Doing Business As",
+            "schema": "doing_business_as.bc_registries",
+            "version": "1.0.31",
+            "endpoint": "http://localhost:5000/bcreg/dba",
+            "topic": {
+                "parent_source_id": {
+                    "input": "org_registry_id",
+                    "from": "claim"
+                },
+                "parent_type": {
+                    "input": "incorporation",
+                    "from": "value"
+                },
+                "source_id": {
+                    "input": "dba_corp_num",
+                    "from": "claim"
+                },
+                "type": {
+                    "input": "doing_business_as",
+                    "from": "value"
+                }
+            },
+            "mapping": [
+                {
+                "model": "name",
+                "fields": {
+                    "text": {
+                        "input": "dba_name",
+                        "from": "claim"
                     },
-                    {
-                        "model": "address",
-                        "fields": {
-                            "addressee": {
-                                "input": "addressee",
-                                "from": "claim"
-                            },
-                            "civic_address": {
-                                "input": "address_line_1",
-                                "from": "claim",
-                                "processor": [
-                                    "string_helpers.uppercase",
-                                    "string_helper.lowercase"
-                                ]
-                            },
-                            "city": {
-                                "input": "city",
-                                "from": "claim"
-                            },
-                            "province": {
-                                "input": "province",
-                                "from": "claim"
-                            },
-                            "postal_code": {
-                                "input": "postal_code",
-                                "from": "claim"
-                            },
-                            "country": {
-                                "input": "country",
-                                "from": "claim"
-                            },
-                            "address_type": {
-                                "input": "operating",
-                                "from": "value"
-                            }
+                    "type": {
+                        "input": "dba_name",
+                        "from": "value"
+                    }
+                }
+                }
+            ]
+            },
+            {
+            "name": "Corporate Address",
+            "schema": "address.bc_registries",
+            "version": "1.0.31",
+            "endpoint": "http://localhost:5000/bcreg/address",
+            "topic": [
+                {
+                    "parent_source_id": {
+                        "input": "org_registry_id",
+                        "from": "claim"
+                    },
+                    "parent_type": {
+                        "input": "incorporation",
+                        "from": "value"
+                    },
+                    "source_id": {
+                        "input": "dba_corp_num",
+                        "from": "claim"
+                    },
+                    "type": {
+                        "input": "doing_business_as",
+                        "from": "value"
+                    }
+                },
+                {
+                    "source_id": {
+                        "input": "org_registry_id",
+                        "from": "claim"
+                    },
+                    "type": {
+                        "input": "incorporation",
+                        "from": "value"
+                    }
+                }
+            ],
+            "cardinality_fields": ["addr_type"],
+            "mapping": [
+                {
+                    "model": "address",
+                    "fields": {
+                        "addressee": {
+                            "input": "addressee",
+                            "from": "claim"
+                        },
+                        "civic_address": {
+                            "input": "local_address",
+                            "from": "claim"
+                        },
+                        "city": {
+                            "input": "municipality",
+                            "from": "claim"
+                        },
+                        "province": {
+                            "input": "province",
+                            "from": "claim"
+                        },
+                        "postal_code": {
+                            "input": "postal_code",
+                            "from": "claim",
+                            "processor": ["string_helpers.uppercase"]
+                        },
+                        "country": {
+                            "input": "country",
+                            "from": "claim"
+                        },
+                        "type": {
+                            "input": "addr_type",
+                            "from": "claim"
+                        },
+                        "end_date": {
+                            "input": "end_date",
+                            "from": "claim"
                         }
                     }
-                ]
+                }
+            ]
             }
         ]
-    }
+        }
     ```
 
     returns:
@@ -304,9 +355,9 @@ def register_issuer(request, *args, **kwargs):
     logger.warn(">>> Register issuer")
     try:
         issuer_manager = IssuerManager()
-        logger.info(json.dumps(request.data, indent=2))
         updated = issuer_manager.register_issuer(request, request.data)
         response = {"success": True, "result": updated}
+        logger.info(json.dumps(response, indent=2))
     except IssuerException as e:
         logger.exception("Issuer request not accepted:")
         response = {"success": False, "result": str(e)}
@@ -344,6 +395,18 @@ def construct_proof(request, *args, **kwargs):
 @api_view(["GET"])
 @authentication_classes(())
 @permission_classes((permissions.AllowAny,))
+@schema(
+    AutoSchema(
+        manual_fields=[
+            coreapi.Field(
+                "topic_type",
+                required=True,
+                location="query",
+                description="The topic type to retrieve for this credential. e.g., 'incorporation'",
+            )
+        ]
+    )
+)
 def verify_credential(request, *args, **kwargs):
     """  
     Constructs a proof request for a credential stored in the
@@ -362,8 +425,17 @@ def verify_credential(request, *args, **kwargs):
     """
     logger.warn(">>> Verify Credential")
     credential_id = kwargs.get("id")
+    topic_type = request.query_params.get("topic_type")
     if not credential_id:
         raise Http404
+
+    if not topic_type:
+        return JsonResponse(
+            {
+                "success": False,
+                "result": "Request must include topic_type query parameter",
+            }
+        )
 
     try:
         credential = CredentialModel.objects.get(id=credential_id)
@@ -374,9 +446,9 @@ def verify_credential(request, *args, **kwargs):
     proof_request = ProofRequest(name="the-org-book", version="1.0.0")
     proof_request.build_from_credential(credential)
 
-    proof_manager = ProofManager(
-        proof_request.dict, credential.subject.source_id
-    )
+    topic = Topic.objects.get(credentials=credential, type=topic_type)
+
+    proof_manager = ProofManager(proof_request.dict, topic.source_id)
     proof = proof_manager.construct_proof()
 
     async def verify():
