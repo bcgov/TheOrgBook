@@ -15,6 +15,7 @@
   },
   "home": {
     "title": "Ontario's Verifiable Businesses",
-    "message": "This service allows you to search for registrations, certificates, licenses, or permits that an Ontario business may have, and verify authenticity of each using Distributed Ledger Technology (blockchain). The service is currently offered in beta mode, with all the records sourced from Ontario Business Information System (ONBIS), Ontario's official record of information on business entities and not-for-profit organizations operating in Ontario."
+    "message":
+      "This service allows you to search for registrations, certificates, licenses, or permits that an Ontario business may have, and verify authenticity of each using Distributed Ledger Technology (blockchain). The service is currently offered in beta mode, with all the records sourced from Ontario Business Information System (ONBIS), Ontario's official record of information on business entities and not-for-profit organizations operating in Ontario."
   }
 }

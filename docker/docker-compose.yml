@@ -111,6 +111,7 @@ services:
       - WEB_CONCURRENCY=${WEB_CONCURRENCY}
       - RUST_LOG=${RUST_LOG}
       - RUST_BACKTRACE=${RUST_BACKTRACE}
+      - TOB_THEME=${TOB_THEME}
     volumes:
       - ../tob-api/api:/home/indy/api
       - ../tob-api/api_v2:/home/indy/api_v2
@@ -125,7 +126,7 @@ services:
       - tob-wallet
       - tob-solr
     command: >
-      /bin/bash -c "
+        /bin/bash -c "
         echo sleeping ...;
         sleep 20;
         if [ $DEBUG ] && [ "$DEBUG" == "true" ]; then
