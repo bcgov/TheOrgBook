@@ -20,13 +20,10 @@ router.register(r"contact", rest.ContactViewSet, "Contact")
 router.register(r"name", rest.NameViewSet, "Name")
 router.register(r"person", rest.PersonViewSet, "Person")
 
-
 # Indy endpoints
 urlpatterns = [
     url(r"^$", SwaggerSchemaView.as_view()),
-    url(
-        r"^indy/generate-credential-request$", indy.generate_credential_request
-    ),
+    url(r"^indy/generate-credential-request$", indy.generate_credential_request),
     url(r"^indy/store-credential$", indy.store_credential),
     url(r"^indy/register-issuer$", indy.register_issuer),
     url(r"^indy/construct-proof$", indy.construct_proof),
