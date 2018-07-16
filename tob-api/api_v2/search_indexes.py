@@ -1,0 +1,46 @@
+# TODO: Figure out how to configure haystack to register indices in
+#       ./indices/<IndexName> instead of this default file...
+
+from haystack import indexes
+from django.utils import timezone
+
+from api_v2.models.Name import Name as NameModel
+from api_v2.models.Topic import Topic as TopicModel
+
+
+class NameIndex(indexes.SearchIndex, indexes.Indexable):
+    text = indexes.CharField(document=True, use_template=True)
+    name = indexes.CharField(model_attr="text")
+
+    autocomplete = indexes.EdgeNgramField()
+
+    @staticmethod
+    def prepare_autocomplete(obj):
+        return " ".join((obj.text))
+
+    def get_model(self):
+        return NameModel
+
+    def index_queryset(self, using=None):
+        return self.get_model().objects.filter(
+            create_timestamp__lte=timezone.now()
+        )
+
+
+class TopicIndex(indexes.SearchIndex, indexes.Indexable):
+    text = indexes.CharField(document=True, use_template=True)
+    # source_id = indexes.CharField(model_attr="text")
+
+    autocomplete = indexes.EdgeNgramField()
+
+    @staticmethod
+    def prepare_autocomplete(obj):
+        return " ".join((obj.source_id))
+
+    def get_model(self):
+        return TopicModel
+
+    def index_queryset(self, using=None):
+        return self.get_model().objects.filter(
+            create_timestamp__lte=timezone.now()
+        )
