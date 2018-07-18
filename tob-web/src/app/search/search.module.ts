@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CredSearchClient } from './cred-search.client';
-import { CredTypeSearchClient } from './cred-type-search.client';
+import { IssuerClient } from './issuer.client';
 import { NameSearchClient } from './name-search.client';
 import { TopicSearchClient } from './topic-search.client';
 import { SearchService } from './search.service';
@@ -17,7 +17,7 @@ import { SearchNavComponent } from './nav.component';
   ],
   providers: [
     CredSearchClient,
-    CredTypeSearchClient,
+    IssuerClient,
     NameSearchClient,
     TopicSearchClient,
     SearchService,
