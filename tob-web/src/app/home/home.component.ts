@@ -1,8 +1,9 @@
 import { Component, AfterViewInit, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { SearchInputComponent } from '../search/input.component';
-import { NameListComponent } from '../cred/name-list.component';
-import { NameResult } from '../data-types';
-import { NameSearchClient } from '../search/name-search.client';
+import { GeneralDataService } from 'app/general-data.service';
+import { TopicListComponent } from '../cred/topic-list.component';
+import { TopicResult } from '../data-types';
+import { TopicSearchClient } from '../search/topic-search.client';
 import { SearchResults } from '../search/results.model';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -14,20 +15,26 @@ import { Subscription } from 'rxjs/Subscription';
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('searchInput') search: SearchInputComponent;
-  @ViewChild('nameList') nameList: NameListComponent;
-  protected _results: SearchResults<NameResult>;
+  @ViewChild('topicList') nameList: TopicListComponent;
+  protected _results: SearchResults<TopicResult>;
   protected _searching = false;
   protected _sub: Subscription;
   public inited = true;
-  public recordCounts = {orgs: 100, certs: 900};
+  public recordCounts = {orgs: 0, certs: 0};
+  public filterType = 'name';
 
   constructor(
-    private _searchClient: NameSearchClient,
+    private _searchClient: TopicSearchClient,
+    private _dataService: GeneralDataService
   ) {}
 
   ngOnInit() {
     this._searchClient.init();
     this._sub = this._searchClient.subscribe(this._receiveStatus.bind(this));
+    this._dataService.quickLoad().then(() => {
+      this.recordCounts.orgs = this._dataService.getRecordCount('topic')
+      this.recordCounts.certs = this._dataService.getRecordCount('credential')
+    })
   }
 
   ngAfterViewInit() {
@@ -38,11 +45,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this._sub.unsubscribe();
   }
 
-  get names(): NameResult[] {
+  get topics(): TopicResult[] {
     return this._results && this._results.rows;
   }
 
-  get results(): SearchResults<NameResult> {
+  get results(): SearchResults<TopicResult> {
     return this._results;
   }
 
@@ -55,9 +62,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this._searching = loading;
   }
 
+  setFilterType(filter: string) {
+    this.filterType = filter;
+    this._searchClient.clearSearch();
+    this.search.value = '';
+    return false;
+  }
+
   updateQuery(value: string) {
     if(value !== null && value.length) {
-      this._searchClient.updateParams({query: value});
+      this._searchClient.updateParams({query: value, filter: this.filterType});
       this._searchClient.performSearch();
     } else {
       this._searchClient.clearSearch();

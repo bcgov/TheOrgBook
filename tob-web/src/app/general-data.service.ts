@@ -19,7 +19,8 @@ export class GeneralDataService {
   }
 
   getRequestUrl(path: string) : string {
-    let root = (<any>window).testApiUrl || this.apiUrl;
+    // let root = (<any>window).testApiUrl || this.apiUrl;
+    let root = 'http://localhost:8081/api/v2'
     if(root) {
       if(! root.endsWith('/')) root += '/';
       return root + path;
@@ -104,7 +105,7 @@ export class GeneralDataService {
 
   verifyCred (credId: string) {
     return new Promise((resolve, reject) => {
-      reject('Not implemented')
+      return resolve(this.loadFromApi(`credential/${credId}/verify`).toPromise());
     });
   }
 

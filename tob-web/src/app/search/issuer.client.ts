@@ -1,20 +1,20 @@
 import { Injectable, Inject } from '@angular/core';
 import { SearchClient } from './search.client';
 import { SearchService } from './search.service';
-import { NameResult } from '../data-types';
+import { IssuerResult } from '../data-types';
 
 
 @Injectable()
-export class NameSearchClient extends SearchClient<NameResult> {
+export class IssuerClient extends SearchClient<IssuerResult> {
 
-  public resource = 'names';
+  public resource = 'issuer';
 
   constructor(@Inject(SearchService) _service: SearchService) {
       super(_service);
   }
 
-  loadResult(result: any): NameResult {
-    return (new NameResult()).load(result);
+  loadResult(result: any): IssuerResult {
+    return (new IssuerResult()).load(result);
   }
 
 }
