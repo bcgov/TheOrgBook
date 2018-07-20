@@ -13,7 +13,5 @@
 # IpFilterRules=
 # APPLICATION_DOMAIN=angular-on-nginx-devex-von-bc-tob-dev.pathfinder.gov.bc.ca
 # TAG_NAME=dev
-# HTTP_BASIC=
-# HTTP_BASIC_USERNAME=
-# HTTP_BASIC_PASSWORD=
+# HTTP_BASIC=auth_basic 'restricted';
 # TOB_THEME=bcgov
