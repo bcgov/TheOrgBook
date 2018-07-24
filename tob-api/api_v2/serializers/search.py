@@ -1,3 +1,5 @@
+# TODO: migrate most of these serializers to a UI specific serializer module
+
 from drf_haystack.serializers import (
     HaystackSerializerMixin,
     HaystackSerializer,
@@ -17,6 +19,7 @@ from api_v2.serializers.rest import (
     PersonSerializer,
     TopicSerializer,
     CredentialSerializer,
+    IssuerSerializer,
 )
 
 from api_v2.search_indexes import TopicIndex
@@ -58,12 +61,18 @@ class CustomCredentialSerializer(CredentialSerializer):
     # topics = CustomTopicSerializer(read_only=True, many=True)
 
     class Meta(CredentialSerializer.Meta):
-        depth = 1
+        # depth =
         fields = ("id", "start_date", "end_date")
+
+
+class CustomIssuerSerializer(IssuerSerializer):
+    class Meta(IssuerSerializer.Meta):
+        fields = ("id", "did", "name", "abbreviation", "email", "url")
 
 
 class CustomAddressSerializer(AddressSerializer):
     last_updated = SerializerMethodField()
+    # issuer = SerializerMethodField()
 
     class Meta(AddressSerializer.Meta):
         fields = (
@@ -76,24 +85,47 @@ class CustomAddressSerializer(AddressSerializer):
             "province",
             "postal_code",
             "country",
+            # "type"
+            # "issuer"
         )
 
     def get_last_updated(self, obj):
         return obj.credential.start_date
 
+    def get_issuer(self, obj):
+        serializer = CustomIssuerSerializer(
+            instance=obj.credential.credential_type.issuer
+        )
+        return serializer.data
+
 
 class CustomNameSerializer(NameSerializer):
     last_updated = SerializerMethodField()
+    issuer = SerializerMethodField()
 
     class Meta(NameSerializer.Meta):
-        fields = ("id", "credential", "last_updated", "text", "language")
+        fields = (
+            "id",
+            "credential",
+            "last_updated",
+            "text",
+            "language",
+            "issuer",
+        )
 
     def get_last_updated(self, obj):
         return obj.credential.start_date
 
+    def get_issuer(self, obj):
+        serializer = CustomIssuerSerializer(
+            instance=obj.credential.credential_type.issuer
+        )
+        return serializer.data
+
 
 class CustomContactSerializer(ContactSerializer):
     last_updated = SerializerMethodField()
+    # issuer = SerializerMethodField()
 
     class Meta(ContactSerializer.Meta):
         fields = ("id", "credential", "last_updated", "text", "type")
@@ -101,15 +133,28 @@ class CustomContactSerializer(ContactSerializer):
     def get_last_updated(self, obj):
         return obj.credential.start_date
 
+    def get_issuer(self, obj):
+        serializer = CustomIssuerSerializer(
+            instance=obj.credential.credential_type.issuer
+        )
+        return serializer.data
+
 
 class CustomPersonSerializer(PersonSerializer):
     last_updated = SerializerMethodField()
+    # issuer = SerializerMethodField()
 
     class Meta(PersonSerializer.Meta):
         fields = ("id", "credential", "last_updated", "full_name")
 
     def get_last_updated(self, obj):
         return obj.credential.start_date
+
+    def get_issuer(self, obj):
+        serializer = CustomIssuerSerializer(
+            instance=obj.credential.credential_type.issuer
+        )
+        return serializer.data
 
 
 class CustomTopicSerializer(TopicSerializer):
@@ -179,6 +224,6 @@ class TopicSearchSerializer(HaystackSerializerMixin, CustomTopicSerializer):
 class TopicSearchResultsSerializer(HaystackSerializer):
     class Meta:
         # index_classes = [TopicIndex]
-        list_serializer_class = SearchResultsListSerializer
+        # list_serializer_class = SearchResultsListSerializer
         search_fields = ("name", "location")
         serializers = {TopicIndex: TopicSearchSerializer}
