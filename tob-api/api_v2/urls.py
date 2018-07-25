@@ -21,7 +21,10 @@ router.register(r"name", rest.NameViewSet, "Name")
 router.register(r"person", rest.PersonViewSet, "Person")
 
 # Search endpoints
-searchPatterns = [url(r"^search/name$", search.NameSearchView.as_view())]
+searchPatterns = [url(r"^search/topic$", search.TopicSearchView.as_view())]
+
+# Misc endpoints
+miscPatterns = [url(r"^quickload$", indy.quickload)]
 
 # Indy endpoints
 indyPatterns = [
@@ -36,5 +39,5 @@ indyPatterns = [
 ]
 
 urlpatterns = format_suffix_patterns(
-    router.urls + searchPatterns + indyPatterns
+    router.urls + searchPatterns + miscPatterns + indyPatterns
 )

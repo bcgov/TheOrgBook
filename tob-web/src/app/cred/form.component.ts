@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GeneralDataService } from 'app/general-data.service';
 import { ActivatedRoute } from '@angular/router';
-import { CredResult, IssuerResult, NameResult } from '../data-types';
-import { SearchResults } from '../search/results.model';
+import { CredResult, IssuerResult, NameResult, PersonResult, ContactResult, AddressResult, CredentialResult } from '../data-types';
+import { CredentialClient } from '../search/cred.client';
+import { SearchResult } from '../search/results.model';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -15,36 +16,69 @@ import { Subscription } from 'rxjs/Subscription';
 export class CredFormComponent implements OnInit, OnDestroy {
   id: number;
   loaded: boolean;
-  record: CredResult;
+  // record: CredResult;
   error: string;
   verifyStatus: string;
   verifyResult: any;
   verifying: boolean = false;
+
+  private _cred: SearchResult<CredentialResult>;
+
   private _idSub: Subscription;
+  private _credSub: Subscription;
 
   constructor(
     private _dataService: GeneralDataService,
-    private _route: ActivatedRoute) { }
+    private _route: ActivatedRoute,
+    private _credClient: CredentialClient) { }
 
   ngOnInit() {
     this._idSub = this._route.params.subscribe(params => {
       this.id = +params['credId'];
-      this._dataService.loadJson('assets/testdata/subjects.json', {t: new Date().getTime()})
-        .subscribe((result) => {
-          let name = (new NameResult()).load(result[0]['names'][0]);
-          name.credential.names.push(name);
-          this.record = name.credential;
-          this.loaded = true;
-        });
+
+      this._credSub = this._credClient.subscribe(this._receiveCred.bind(this))
+      this._credClient.getRelatedById(this.id);
     });
   }
 
   ngOnDestroy() {
     this._idSub.unsubscribe();
+    this._credSub.unsubscribe();
+  }
+
+  // get issuer(): IssuerResult {
+  //   return this.record && this.record.credentialType && this.record.credentialType.issuer;
+  // }
+
+
+  get record(): CredentialResult {
+    return this._cred && this._cred.data;
+  }
+
+  get people(): PersonResult[] {
+    return this.record && this.record.people && this.record.people.length ? this.record.people : [];
+  }
+
+  get contacts(): ContactResult[] {
+    return this.record && this.record.contacts && this.record.contacts.length ? this.record.contacts : [];
+  }
+
+  get addresses(): AddressResult[] {
+    return this.record && this.record.addresses && this.record.addresses.length ? this.record.addresses : [];
+  }
+
+  get names(): NameResult[] {
+    return this.record && this.record.names && this.record.names.length ? this.record.names : [];
   }
 
   get issuer(): IssuerResult {
-    return this.record && this.record.credentialType && this.record.credentialType.issuer;
+    return this.record && this.record.issuer ? this.record.issuer : null;
+  }
+
+  protected _receiveCred(loading: boolean) {
+    console.log(this._credClient.result)
+    this._cred = this._credClient.result;
+    if (this._cred) this.loaded = true;
   }
 
   showVerify() {

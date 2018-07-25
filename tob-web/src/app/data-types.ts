@@ -22,21 +22,19 @@ function load_data<T>(
   return obj;
 }
 
+// TODO: convert response format to camelCase?
 export class AddressResult {
   id: number;
-  credential: CredResult;
   addressee: string;
-  civicAddress: string;
+  civic_address: string;
   city: string;
   province: string;
-  postalCode: string;
+  postal_code: string;
   country: string;
-  addressType: string;
-  startDate: string;
-  endDate: string;
+  address_type: string;
 
   load(result: any) {
-    return load_data(this, result, {credential: CredResult});
+    return load_data(this, result, {});
   }
 }
 
@@ -61,12 +59,37 @@ export class ContactResult {
   }
 }
 
+export class CredentialResult {
+  id: number;
+  credential_type: CredTypeResult;
+  issuer: IssuerResult;
+  start_date: string;
+  end_date: string;
+
+  addresses: AddressResult[];
+  contacts: ContactResult[];
+  names: NameResult[];
+  people: PersonResult[];
+
+  load(result: any) {
+    return load_data(this, result, {
+      credential_type: CredTypeResult,
+      issuer: IssuerResult,
+    }, {
+      addresses: AddressResult,
+      contacts: ContactResult,
+      names: NameResult,
+      people: PersonResult,
+    });
+  }
+}
+
 export class CredResult {
   id: number;
   subject: SubjectResult;
-  credentialType: CredTypeResult;
-  startDate: string;
-  endDate: string;
+  credential_type: CredTypeResult;
+  start_date: string;
+  end_date: string;
 
   // extra API fields
   addresses: AddressResult[];
@@ -86,9 +109,9 @@ export class CredResult {
     });
   }
 
-  get issuer(): IssuerResult {
-    return this.credentialType && this.credentialType.issuer;
-  }
+  // get issuer(): IssuerResult {
+  //   return this.credentialType && this.credentialType.issuer;
+  // }
   get haveAddresses() {
     return this.addresses && this.addresses.length;
   }
@@ -121,11 +144,11 @@ export class CredTypeResult {
 
 export class IssuerResult {
   id: number;
-  // did: string;
+  did: string;
   name: string;
+  abbreviation: string;
+  email: string;
   url: string;
-  startDate: string;
-  endDate: string;
 
   load(result: any) {
     return load_data(this, result);
@@ -141,19 +164,20 @@ export class NameResult {
   endDate: string;
 
   // extra API fields
-  address: AddressResult;
+  // address: AddressResult;
+  issuer: IssuerResult;
 
   load(result: any) {
     return load_data(this, result, {
-      address: AddressResult,
+      issuer: IssuerResult,
       credential: CredResult,
     });
   }
 
-  get issuer(): IssuerResult {
-    return this.credential && this.credential.credentialType &&
-      this.credential.credentialType.issuer;
-  }
+  // get issuer(): IssuerResult {
+  //   return this.credential && this.credential.credentialType &&
+  //     this.credential.credentialType.issuer;
+  // }
 }
 
 export class PersonResult {
@@ -190,3 +214,31 @@ export class SubjectResult {
   }
 }
 
+
+export class TopicResult {
+  id: number;
+  source_id: string;
+  type: string;
+
+  addresses: AddressResult[];
+  names: NameResult[];
+  contacts: ContactResult[];
+  people: PersonResult[];
+
+  load(result: any) {
+    return load_data(this, result, {
+      address: AddressResult,
+    });
+  }
+
+}
+
+export class CredentialTypeResult {
+  id: number;
+  description: string;
+  create_timestamp: string;
+
+  load(result: any) {
+    return load_data(this, result, {});
+  }
+}
