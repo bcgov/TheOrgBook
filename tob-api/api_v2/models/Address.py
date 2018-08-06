@@ -1,0 +1,18 @@
+from django.db import models
+
+from auditable.models import Auditable
+
+from .Credential import Credential
+
+
+class Address(Auditable):
+    credential = models.ForeignKey(Credential, related_name="addresses")
+    addressee = models.TextField(null=True)
+    civic_address = models.TextField(null=True)
+    city = models.TextField(null=True)
+    province = models.TextField(null=True)
+    postal_code = models.TextField(null=True)
+    country = models.TextField(null=True)
+
+    class Meta:
+        db_table = "address"

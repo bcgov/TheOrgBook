@@ -36,13 +36,12 @@ from . import search_views
 from . import indy_views
 
 class SwaggerSchemaView(APIView):
-    permission_classes = [AllowAny]
-    renderer_classes = [
-        renderers.OpenAPIRenderer,
-        renderers.SwaggerUIRenderer
-    ]
-    _ignore_model_permissions = True
-    exclude_from_schema = True  
+    """
+    Utility class for rendering swagger documentation
+    """
+
+    renderer_classes = [renderers.OpenAPIRenderer, renderers.SwaggerUIRenderer]
+
     def get(self, request):
         generator = SchemaGenerator()
         schema = generator.get_schema(request=request)
@@ -54,6 +53,7 @@ urlpatterns = [
 
     url(r'^admin/records/counts', views_custom.recordCounts.as_view()),
     url(r'^quickload$', views_custom.quickLoad.as_view()),
+    url(r'^settings$', views_custom.custom_settings.as_view()),
 
     url(r'^doingbusinessas/bulk$', views.doingbusinessasBulkPost.as_view()),
     url(r'^doingbusinessas$', views.doingbusinessasGet.as_view()),

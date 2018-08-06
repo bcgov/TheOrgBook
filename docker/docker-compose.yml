@@ -94,6 +94,7 @@ services:
       - DEBUG=${DEBUG}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL}
       - SOLR_SERVICE_NAME=${SOLR_SERVICE_NAME}
       - SOLR_CORE_NAME=${SOLR_CORE_NAME}
       - TOB_DB_SERVICE_HOST=${DATABASE_SERVICE_NAME}
@@ -110,8 +111,10 @@ services:
       - WEB_CONCURRENCY=${WEB_CONCURRENCY}
       - RUST_LOG=${RUST_LOG}
       - RUST_BACKTRACE=${RUST_BACKTRACE}
+      - TOB_THEME=${TOB_THEME}
     volumes:
       - ../tob-api/api:/home/indy/api
+      - ../tob-api/api_v2:/home/indy/api_v2
     networks:
       - wallet-tob
       - tob
@@ -123,11 +126,11 @@ services:
       - tob-wallet
       - tob-solr
     command: >
-      /bin/bash -c "
+        /bin/bash -c "
         echo sleeping ...;
         sleep 20;
         if [ $DEBUG ] && [ "$DEBUG" == "true" ]; then
-          python manage.py runserver --noreload --nothreading 0.0.0.0:8080;
+          python manage.py migrate && python manage.py runserver --nothreading 0.0.0.0:8080;
         else
           ${STI_SCRIPTS_PATH}/run;
         fi"

@@ -44,8 +44,7 @@ class bcovrinGenerateClaimRequest(APIView):
     """  
     Generate a claim request from a given claim definition.
     """
-    #permission_classes = (IsSignedRequest,)
-    permission_classes = (permissions.AllowAny,)
+    # permission_classes = (IsSignedRequest,)
 
     def post(self, request, *args, **kwargs):
         """  
@@ -64,16 +63,20 @@ class bcovrinGenerateClaimRequest(APIView):
         returns: indy sdk claim request json
         """
         __logger = logging.getLogger(__name__)
-        __logger.warn('>>> Generate a claim request')
-        claimDef = request.body.decode('utf-8')
+        __logger.warn(">>> Generate a claim request")
+        claimDef = request.body.decode("utf-8")
         claimDefProcesser = ClaimDefProcesser(claimDef)
-        (credential_request,
-         credential_request_metadata) = claimDefProcesser.GenerateClaimRequest()
-        __logger.warn('<<< Generated claim request')
-        return JsonResponse({
-            'credential_request': credential_request,
-            'credential_request_metadata_json': credential_request_metadata
-        })
+        (
+            credential_request,
+            credential_request_metadata,
+        ) = claimDefProcesser.GenerateClaimRequest()
+        __logger.warn("<<< Generated claim request")
+        return JsonResponse(
+            {
+                "credential_request": credential_request,
+                "credential_request_metadata_json": credential_request_metadata,
+            }
+        )
 
 
 # ToDo:
@@ -86,7 +89,6 @@ class bcovrinStoreClaim(APIView):
     Store a verifiable claim.
     """
     # permission_classes = (IsSignedRequest,)  # FIXME - change to IsRegisteredIssuer
-    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
         """  
@@ -108,12 +110,12 @@ class bcovrinStoreClaim(APIView):
         returns: created verifiableClaim model
         """
         __logger = logging.getLogger(__name__)
-        __logger.warn('>>> Store a claim')
-        claim = request.body.decode('utf-8')
+        __logger.warn(">>> Store a claim")
+        claim = request.body.decode("utf-8")
         claimProcesser = ClaimProcesser()
         verifiableOrg = claimProcesser.SaveClaim(claim)
         serializer = serializers.VerifiableOrgSerializer(verifiableOrg)
-        __logger.warn('<<< Stored claim')
+        __logger.warn("<<< Stored claim")
         return Response(serializer.data)
 
 
@@ -121,7 +123,6 @@ class bcovrinConstructProof(APIView):
     """  
     Generates a proof based on a set of filters.
     """
-    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
         """  
@@ -160,7 +161,7 @@ class bcovrinConstructProof(APIView):
         returns: indy sdk proof json
         """
         __logger = logging.getLogger(__name__)
-        proofRequestWithFilters = request.body.decode('utf-8')
+        proofRequestWithFilters = request.body.decode("utf-8")
         proofRequestProcesser = ProofRequestProcesser(proofRequestWithFilters)
         proofResponse = proofRequestProcesser.ConstructProof()
         return JsonResponse(proofResponse)
@@ -170,14 +171,13 @@ class bcovrinVerifyCredential(APIView):
     """  
     Verifies a verifiable claim
     """
-    permission_classes = (permissions.AllowAny,)
 
     def get(self, request, *args, **kwargs):
         """
         Verifies a verifiable claim given a verifiable claim id
         """
         __logger = logging.getLogger(__name__)
-        verifiableClaimId = self.kwargs.get('id')
+        verifiableClaimId = self.kwargs.get("id")
         if verifiableClaimId is not None:
             verifiableClaim = VerifiableClaim.objects.get(id=verifiableClaimId)
 
@@ -186,40 +186,41 @@ class bcovrinVerifyCredential(APIView):
             issuerService = claimType.issuerServiceId
 
             proofRequestBuilder = ProofRequestBuilder(
-                claimType.schemaName,
-                claimType.schemaVersion
+                claimType.schemaName, claimType.schemaVersion
             )
 
             proofRequestBuilder.matchCredential(
                 verifiableClaim.claimJSON,
                 claimType.schemaName,
                 claimType.schemaVersion,
-                issuerService.DID
+                issuerService.DID,
             )
 
             legal_entity_id = None
             try:
-                legal_entity_id = json.loads(verifiableClaim.claimJSON)[
-                    'values']['legal_entity_id']['raw']
-                __logger.debug('Claim for legal_entity_id: %s' %
+                legal_entity_id = json.loads(verifiableClaim.claimJSON)["values"][
+                    "legal_entity_id"
+                ]["raw"]
+                __logger.debug("Claim for legal_entity_id: %s" %
                                legal_entity_id)
             except Error as e:
                 # no-op
-                self.__logger.debug('Claim for NO legal_entity_id')
+                self.__logger.debug("Claim for NO legal_entity_id")
 
             proofRequest = proofRequestBuilder.asDict()
             proofRequestWithFilters = {
-                'filters': {'legal_entity_id': legal_entity_id},
-                'proof_request': proofRequest
+                "filters": {"legal_entity_id": legal_entity_id},
+                "proof_request": proofRequest,
             }
 
             proofRequestProcesser = ProofRequestProcesser(
-                json.dumps(proofRequestWithFilters))
+                json.dumps(proofRequestWithFilters)
+            )
             proofResponse = proofRequestProcesser.ConstructProof()
 
-            return JsonResponse({'success': True, 'proof': proofResponse})
+            return JsonResponse({"success": True, "proof": proofResponse})
 
-        return JsonResponse({'success': False})
+        return JsonResponse({"success": False})
 
 
 class bcovrinRegisterIssuer(APIView):
@@ -228,7 +229,6 @@ class bcovrinRegisterIssuer(APIView):
     """
     # performs its own header verification
     authentication_classes = ()
-    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
         """  
@@ -264,15 +264,15 @@ class bcovrinRegisterIssuer(APIView):
         returns: `{"success": boolean, "result": updated issuer definition}`
         """
         __logger = logging.getLogger(__name__)
-        __logger.warn('>>> Register issuer')
-        issuerDef = request.body.decode('utf-8')
+        __logger.warn(">>> Register issuer")
+        issuerDef = request.body.decode("utf-8")
         issuerJson = json.loads(issuerDef)
         try:
             issuerManager = IssuerManager()
             updated = issuerManager.registerIssuer(request, issuerJson)
-            response = {'success': True, 'result': updated}
+            response = {"success": True, "result": updated}
         except IssuerException as e:
-            __logger.exception('Issuer request not accepted:')
-            response = {'success': False, 'result': str(e)}
-        __logger.warn('<<< Register issuer')
+            __logger.exception("Issuer request not accepted:")
+            response = {"success": False, "result": str(e)}
+        __logger.warn("<<< Register issuer")
         return JsonResponse(response)
