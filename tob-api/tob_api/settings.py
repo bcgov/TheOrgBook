@@ -222,11 +222,6 @@ LOGGING = {
     },
 }
 
-EXCLUDED_FIELDS = {
-    "ongov": {"Location": {"streetAddress", "municipality"}},
-    "default": {},
-}
-
 custom_settings_file = Path(
     os.path.join(
         BASE_DIR,
