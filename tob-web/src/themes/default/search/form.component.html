@@ -1,4 +1,4 @@
-<section id="home">
+<section id="search">
 
   <div class="row mrgn-tp-lg" *ngIf="!inited">
     <div class="col-sm-12 page-load">
@@ -6,27 +6,28 @@
     </div>
   </div>
 
-  <h1 class="home-title text-center" translate *ngIf="inited">home.title</h1>
+  <h1 class="search-title" translate *ngIf="inited">search.title</h1>
 
   <div class="row" *ngIf="inited">
     <div class="col-sm-12">
 
-      <div class="text-center">
-        <ul class="stats">
-          <li class="stat"><span class="numbers">{{recordCounts.orgs | number}}</span> <span class="desc">{{'home.title-orgs' | translate}}</span></li>
-          <li class="stat"><span class="numbers">{{recordCounts.certs | number}}</span> <span class="desc">{{'home.title-certs' | translate}}</span></li>
-        </ul>
-        <div class="search-outer">
-          <div class="search-inner">
-            <div class="search-title">
-              <h2>Find an organization</h2>
-            </div>
-            <search-input #searchInput (accepted)="performSearch($event)"></search-input>
-          </div>
+      <div class="search-head">
+        <div class="search-wrap">
+          <search-input #searchInput (queryChange)="updateQuery($event)" [loading]="searching"></search-input>
+        </div>
+        <div class="search-types">
+          <a routerLink="../name" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='name'}">Names</a>
+          <a routerLink="../location" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='location'}">Locations</a>
+          <a routerLink="../issuer" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='issuer'}">Issuers</a>
+          <a routerLink="../map" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='map'}">Map</a>
         </div>
       </div>
 
-      <div class="row results mrgn-tp-lg" *ngIf="results">
+      <div class="alert alert-danger mrgn-tp-lg" *ngIf="error" translate>
+        search.results-error
+      </div>
+
+      <div class="row results mrgn-tp-lg" *ngIf="results && !error">
         <!-- div class="col-sm-3 facets">
           <label class="control-label">Refine search</label>
           <div class="facet">
@@ -59,8 +60,13 @@
 
         <div class="col-sm-10 col-sm-offset-1 rows">
           <label class="control-label" translate>search.results-title</label>
-          <topic-list [records]="topics"></topic-list>
-          <search-nav [info]="results && results.info"></search-nav>
+          <ng-container *ngIf="topics.length">
+            <topic-list [records]="topics"></topic-list>
+            <search-nav [info]="results && results.info"></search-nav>
+          </ng-container>
+          <div class="alert alert-info" *ngIf="!topics.length" translate>
+            search.no-results
+          </div>
         </div>
       </div>
 
