@@ -7,8 +7,9 @@ import { CredModule } from './cred/cred.module';
 import { HomeComponent } from './home/home.component';
 import { IssuerFormComponent } from './issuer/form.component';
 //import { RoadmapComponent } from './roadmap/roadmap.component';
-import { SubjectFormComponent } from './subject/form.component';
+import { SearchComponent } from './search/form.component';
 import { SearchModule } from './search/search.module';
+import { TopicFormComponent } from './topic/form.component';
 
 export const routes: Routes = [
   {
@@ -18,9 +19,18 @@ export const routes: Routes = [
   },
   {
     path: 'home',
-    component: HomeComponent,
+    component: HomeComponent
+  },
+  {
+    path: 'search',
+    redirectTo: '/search/name',
+    pathMatch: 'full'
+  },
+  {
+    path: 'search/:filterType',
+    component: SearchComponent,
     data: {
-      breadcrumb: 'home.breadcrumb'
+      breadcrumb: 'search.breadcrumb'
     }
   },
   {
@@ -31,7 +41,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: SubjectFormComponent,
+        component: TopicFormComponent,
       },
       {
         path: 'cred/:credId',

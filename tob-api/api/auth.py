@@ -6,7 +6,8 @@ from string import ascii_lowercase, digits
 import base58
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from didauth.base import KeyFinderBase, VerifierException
+from didauth.base import KeyFinderBase
+from didauth.error import VerifierException
 from didauth.headers import HeaderVerifier
 from rest_framework import authentication, exceptions, permissions
 
@@ -185,6 +186,8 @@ def verify_signature(request, key_finder=None):
     qs = request.META['QUERY_STRING']
     if qs:
         path += '?' + qs
+    log = logging.getLogger(__name__)
+    log.debug("didauth %s '%s', headers: %r", request.method, path, raw_headers)
     try:
         verified = verifier.verify(
             raw_headers, path=path, method=request.method)

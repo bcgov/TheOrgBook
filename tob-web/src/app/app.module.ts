@@ -24,7 +24,8 @@ import { HomeComponent } from './home/home.component';
 import { IssuerFormComponent } from './issuer/form.component';
 //import { RoadmapComponent } from './roadmap/roadmap.component';
 //import { RoadmapTreeComponent } from './roadmap/tree.component';
-import { SubjectFormComponent } from './subject/form.component';
+import { SearchComponent } from './search/form.component';
+import { TopicFormComponent } from './topic/form.component';
 
 
 const ROUTE_PREFIX : string = 'ROUTES.';
@@ -64,7 +65,8 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
     IssuerFormComponent,
     //RoadmapComponent,
     //RoadmapTreeComponent,
-    SubjectFormComponent,
+    SearchComponent,
+    TopicFormComponent,
   ],
   imports: [
     BrowserModule,
