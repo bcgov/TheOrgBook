@@ -1,15 +1,20 @@
 from django.db import models
+from django.db.models import Prefetch
 
 from auditable.models import Auditable
 
 from .Credential import Credential
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Topic(Auditable):
     source_id = models.TextField()
     type = models.TextField()
 
-    def direct_credentials(self):
+    def direct_credentials(self, filter_args={}):
         """
         Returns credentials that are directly related to
         this topic and not related due a "child" topic
@@ -19,24 +24,45 @@ class Topic(Auditable):
 
         # TODO: allow an issuer to register its topic
         #       formation and make this dynamic
+        direct_credential_ids = []
+        credentials = self.credentials.all()
+
         if self.type == "doing_business_as":
-            credentials = self.credentials.all()
+
             topic_ids = set()
             for credential in credentials:
-                topics = credential.topics.all()
-                for topic in topics:
-                    topic_ids.add(topic.id)
+                # distinct
+                topic_ids.update(
+                    list(credential.topics.values_list("id", flat=True))
+                )
+        # type == incorporation
         else:
             topic_ids = {self.id}
 
-        query = Credential.objects.annotate(
-            count=models.Count("topics")
-        ).filter(count=len(topic_ids))
+        # Run several smaller queries and process results in application
+        # to avoid expensive join
+        for credential in credentials:
+            c_topic_ids = set(credential.topics.values_list("id", flat=True))
+            if c_topic_ids == topic_ids:
+                direct_credential_ids.append(credential.id)
 
-        for _id in topic_ids:
-            query = query.filter(**{"topics": _id})
+        # Give me credentials that have exactly the set of topics `topic_ids``
+        # query = (
+        #     Credential.objects.annotate(count=models.Count("topics"))
+        #     .filter(count=len(topic_ids))
+        # )
+        # for _id in topic_ids:
+        #     query = query.filter(**{"topics": _id})
 
-        return query
+        # query = query.prefetch_related(
+        #     Prefetch(
+        #         "topics",
+        #         queryset=query,
+        #         to_attr="topics",
+        #     )
+        # )
+
+        return Credential.objects.filter(pk__in=direct_credential_ids)
 
     class Meta:
         db_table = "topic"

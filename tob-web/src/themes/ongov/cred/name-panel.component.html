@@ -1,0 +1,63 @@
+<div class="panel name-panel" *ngIf="record && name">
+    <h3 class="panel-title"> <strong>{{name.text }}</strong></h3>
+
+  <div class="panel-body form-body">
+
+      <div class="row form-group">
+          <label class="col-sm-3 control-label" translate>cred.type</label>
+          <div class="form-field">
+                <div  *ngFor="let category of categories">
+                        <div  *ngIf="category.type === 'topic_type'">
+                                <div *ngIf="category.value" >
+                                        {{('business_type.' + category.value) | translate}}
+                                </div>
+                        </div>
+                </div>
+          </div>
+      </div>
+
+      <div class="row form-group">
+            <label class="col-sm-3 control-label" translate>cred.corp-num</label>
+            <div class="form-field">
+               {{record.source_id}}
+            </div>
+      </div>
+
+      <div class="row form-group">
+            <label class="col-sm-3 control-label" translate>cred.status</label>
+            <div class="form-field">
+                    <div  *ngFor="let category of categories">
+                            <div  *ngIf="category.type === 'topic_status'">
+                                <div *ngIf="category.value" >
+                                    {{('business_status.' + category.value) | translate}}
+                                </div>
+                            </div>
+                    </div>
+            </div>
+      </div>
+
+      <div class="row form-group" *ngIf="addresses.length > 0">
+          <label class="col-sm-3 control-label" translate>cred.municipality</label>
+          <div class="form-field">
+             {{addresses[0].city | titlecase }}
+          </div>
+      </div>
+
+      <div class="row form-group" *ngIf="addresses.length > 0">
+          <label class="col-sm-3 control-label" translate>cred.jurisdiction</label>
+          <div class="form-field">
+              {{addresses[0].province}}
+          </div>
+      </div>
+
+      <div class="disclaimer" translate>
+          <b translate>topic.note</b>
+          topic.disclaimer
+          <a href='' style="text-decoration: underline;" translate>topic.click-here</a>
+      </div>
+    
+    
+  </div>
+
+  
+</div>

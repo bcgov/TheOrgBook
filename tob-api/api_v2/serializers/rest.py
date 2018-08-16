@@ -9,7 +9,8 @@ from api_v2.models.Claim import Claim
 from api_v2.models.Contact import Contact
 from api_v2.models.Name import Name
 from api_v2.models.Person import Person
-
+from api_v2.models.Category import Category
+from api_v2 import utils
 
 class IssuerSerializer(ModelSerializer):
     class Meta:
@@ -44,7 +45,9 @@ class CredentialSerializer(ModelSerializer):
 class AddressSerializer(ModelSerializer):
     class Meta:
         model = Address
-        fields = "__all__"
+        #fields = "__all__"
+        fields = list(utils.fetch_custom_settings('serializers', 'Address', 'includeFields'))
+   
 
 
 class ClaimSerializer(ModelSerializer):
@@ -68,4 +71,9 @@ class NameSerializer(ModelSerializer):
 class PersonSerializer(ModelSerializer):
     class Meta:
         model = Person
+        fields = "__all__"
+
+class CategorySerializer(ModelSerializer):
+    class Meta:
+        model = Category
         fields = "__all__"
