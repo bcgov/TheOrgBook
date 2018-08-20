@@ -39,7 +39,7 @@ SUPPORTED_CATEGORIES = ["topic_status", "topic_type"]
 # TODO: Allow issuer to dynamically register topic types
 # Currently we only support 2 topic types. We only understand
 # a predefined relationship: incorporation --< doing_business_as
-SUPPORTED_TOPIC_TYPES = ["incorporation", "doing_business_as"]
+SUPPORTED_TOPIC_TYPES = ["incorporation", "doing_business_as", "registration"]
 
 
 class CredentialException(Exception):
@@ -454,17 +454,20 @@ class CredentialManager(object):
 
         # Recurisvely associate parent topic and all of it's related topics
         # (all related credentials' topics)
-        related_topic_ids = []
+        known_topic_ids = []
 
         def associate_related_topics(topic):
             credential.topics.add(topic)
-            for related_credential in topic.credentials.all():
-                for credential_topic in related_credential.topics.distinct():
+            for related_topic in (
+                Topic.objects.filter(credentials__in=topic.credentials.all())
+                .exclude(
                     # Don't traverse known relationships
-                    if credential_topic.id not in related_topic_ids:
-                        related_topic_ids.append(credential_topic.id)
-                        credential.topics.add(credential_topic)
-                        associate_related_topics(credential_topic)
+                    id__in=known_topic_ids
+                )
+                .distinct()
+            ):
+                known_topic_ids.append(related_topic.id)
+                associate_related_topics(related_topic)
 
         if parent_topic is not None:
             associate_related_topics(parent_topic)
