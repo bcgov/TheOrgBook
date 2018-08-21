@@ -457,7 +457,11 @@ class CredentialManager(object):
         known_topic_ids = []
 
         def associate_related_topics(topic):
+            if topic in known_topic_ids:
+                return
+            
             credential.topics.add(topic)
+            known_topic_ids.append(topic.id)
             for related_topic in (
                 Topic.objects.filter(credentials__in=topic.credentials.all())
                 .exclude(
@@ -466,7 +470,6 @@ class CredentialManager(object):
                 )
                 .distinct()
             ):
-                known_topic_ids.append(related_topic.id)
                 associate_related_topics(related_topic)
 
         if parent_topic is not None:
