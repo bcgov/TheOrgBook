@@ -361,17 +361,14 @@ class CredentialManager(object):
                 )
 
             # Get parent topic if possible
-            if parent_topic_name is not None:
+            if parent_topic_name:
                 try:
                     parent_topic = Topic.objects.get(
                         credentials__names__text=parent_topic_name
                     )
                 except Topic.DoesNotExist:
                     continue
-            elif (
-                parent_topic_source_id is not None
-                and parent_topic_type is not None
-            ):
+            elif parent_topic_source_id and parent_topic_type:
                 try:
                     parent_topic = Topic.objects.get(
                         source_id=parent_topic_source_id,
@@ -381,14 +378,14 @@ class CredentialManager(object):
                     continue
 
             # Current topic if possible
-            if topic_name is not None:
+            if topic_name:
                 try:
                     topic = Topic.objects.get(
                         credentials__names__text=topic_name
                     )
                 except Topic.DoesNotExist:
                     continue
-            elif topic_source_id is not None and topic_type is not None:
+            elif topic_source_id and topic_type:
                 # Special Case:
                 # Create a new topic if our query comes up empty
                 try:
@@ -460,7 +457,11 @@ class CredentialManager(object):
         known_topic_ids = []
 
         def associate_related_topics(topic):
+            if topic in known_topic_ids:
+                return
+
             credential.topics.add(topic)
+            known_topic_ids.append(topic.id)
             for related_topic in (
                 Topic.objects.filter(credentials__in=topic.credentials.all())
                 .exclude(
@@ -469,7 +470,6 @@ class CredentialManager(object):
                 )
                 .distinct()
             ):
-                known_topic_ids.append(related_topic.id)
                 associate_related_topics(related_topic)
 
         if parent_topic is not None:
