@@ -2,12 +2,14 @@ import json as _json
 import logging
 from importlib import import_module
 
+from django.db import transaction
 from django.utils import timezone
 
-from api.indy.agent import Holder
-from api.indy import eventloop
+from von_anchor.util import schema_key
 
-from von_agent.util import schema_key
+from tob_anchor.boot import indy_client, indy_holder_id
+from vonx.common.eventloop import run_coro
+from vonx.indy.messages import Credential as VonxCredential
 
 from api_v2.models.Issuer import Issuer
 from api_v2.models.Schema import Schema
@@ -22,7 +24,7 @@ from api_v2.models.Person import Person
 from api_v2.models.Contact import Contact
 from api_v2.models.Category import Category
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 PROCESSOR_FUNCTION_BASE_PATH = "api_v2.processor"
 
@@ -48,7 +50,7 @@ class CredentialException(Exception):
 
 class Credential(object):
     """A python-idiomatic representation of an indy credential
-    
+
     Claim values are made available as class members.
 
     for example:
@@ -105,7 +107,7 @@ class Credential(object):
     @property
     def raw(self) -> dict:
         """Accessor for raw credential data
-        
+
         Returns:
             dict -- Python dict representation of raw credential data
         """
@@ -114,7 +116,7 @@ class Credential(object):
     @property
     def json(self) -> str:
         """Accessor for json credential data
-        
+
         Returns:
             str -- JSON representation of raw credential data
         """
@@ -123,7 +125,7 @@ class Credential(object):
     @property
     def origin_did(self) -> str:
         """Accessor for schema origin did
-        
+
         Returns:
             str -- origin did
         """
@@ -132,7 +134,7 @@ class Credential(object):
     @property
     def schema_name(self) -> str:
         """Accessor for schema name
-        
+
         Returns:
             str -- schema name
         """
@@ -141,7 +143,7 @@ class Credential(object):
     @property
     def schema_version(self) -> str:
         """Accessor for schema version
-        
+
         Returns:
             str -- schema version
         """
@@ -150,7 +152,7 @@ class Credential(object):
     @property
     def claim_attributes(self) -> list:
         """Accessor for claim attributes
-        
+
         Returns:
             list -- claim attributes
         """
@@ -164,15 +166,15 @@ class CredentialManager(object):
     """
 
     def __init__(
-        self, credential: Credential, credential_definition_metadata: dict
+        self, credential: Credential, request_metadata: dict
     ) -> None:
         self.credential = credential
-        self.credential_definition_metadata = credential_definition_metadata
+        self.credential_request_metadata = request_metadata
 
-    def process(self):
+    def process(self, credential_wallet_id):
         """
         Processes incoming credential data and returns newly created credential
-        
+
         Returns:
             Credential -- newly created credential in application database
         """
@@ -205,10 +207,11 @@ class CredentialManager(object):
             schema=schema, issuer=issuer
         )
 
-        credential_wallet_id = eventloop.do(self.store())
-        self.populate_application_database(
-            credential_type, credential_wallet_id
-        )
+        #credential_wallet_id = run_coro(self.store())
+        with transaction.atomic():
+           self.populate_application_database(
+               credential_type, credential_wallet_id
+           )
 
         return credential_wallet_id
 
@@ -506,10 +509,12 @@ class CredentialManager(object):
 
         return topic
 
-    async def store(self):
+    async def store(self) -> str:
         # Store credential in wallet
-        async with Holder() as holder:
-            return await holder.store_cred(
-                self.credential.json,
-                _json.dumps(self.credential_definition_metadata),
-            )
+        stored = await indy_client().store_credential(indy_holder_id(),
+            VonxCredential(
+                self.credential.raw,
+                self.credential_request_metadata,
+                None, # revocation ID
+            ))
+        return stored.cred_id

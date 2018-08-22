@@ -78,7 +78,7 @@ exit 1
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="tob-db tob-wallet-db tob-solr tob-wallet tob-api schema-spy tob-web"
+DEFAULT_CONTAINERS="tob-db tob-solr tob-api schema-spy tob-web"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ build-api() {
     -e "HTTP_PROXY=${HTTP_PROXY}" \
 	  -e "HTTPS_PROXY=${HTTPS_PROXY}" \
     '../tob-api' \
-    'bcgovimages/von-image:py36-1.0rc3-s2i' \
+    'bcgovimages/von-image:py36-1.6-0-s2i' \
     'django'
 }
 
@@ -217,7 +217,7 @@ configureEnvironment () {
 
   export INDY_WALLET_SEED=${seed}
   export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
-  export RUST_LOG=${RUST_LOG:-debug}
+  export RUST_LOG=${RUST_LOG:-warn}
   export RUST_BACKTRACE=${RUST_BACKTRACE:-full}
 
   # tob-db
@@ -234,19 +234,9 @@ configureEnvironment () {
   # tob-solr
   export CORE_NAME="the_org_book"
 
-  # tob-wallet
-  export WALLET_HTTP_PORT=${WALLET_HTTP_PORT-6000}
-  export WALLET_DB_SERVICE_NAME="tob-wallet-db"
-  export DATABASE_ENGINE="postgresql"
-  export DATABASE_NAME=${POSTGRESQL_DATABASE}
-  export DATABASE_USER=${POSTGRESQL_USER}
-  export DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
-  export WALLET_USER_ID=${WALLET_USER_ID:-wall-e}
-  export WALLET_USER_PASSWORD=${WALLET_USER_PASSWORD:-pass1234}
-  export WALLET_ADMIN_USER_ID=${WALLET_ADMIN_USER_ID:-wall-e-admin}
-  export WALLET_ADMIN_PASSWORD=${WALLET_ADMIN_PASSWORD:-pass123456789}
-
   # tob-api
+  export APP_CONFIG=${APP_CONFIG:-}
+  export APP_MODULE=tob_anchor.boot:init_app
   export API_HTTP_PORT=${API_HTTP_PORT:-8081}
   export DATABASE_SERVICE_NAME="tob-db"
   export DATABASE_ENGINE="postgresql"
@@ -260,6 +250,8 @@ configureEnvironment () {
   export SOLR_SERVICE_NAME="tob-solr"
   export SOLR_CORE_NAME=${CORE_NAME}
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
+  export SQL_DEBUG=${SQL_DEBUG:-}
+  export WEB_CONCURRENCY=${WEB_CONCURRENCY:-5}
 
   # wallet type a command-line parameter (like seed) default to "remote" if not specified
   export INDY_WALLET_URL=http://tob-wallet:8080/api/v1/

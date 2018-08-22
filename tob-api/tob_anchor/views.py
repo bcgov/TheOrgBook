@@ -1,15 +1,14 @@
 import logging
 
-from rest_framework.decorators import (
-    api_view,
-    authentication_classes,
-    permission_classes,
-)
-from rest_framework import permissions
+from aiohttp import web
+from vonx.indy.messages import \
+    ProofRequest as VonxProofRequest, \
+    ConstructedProof as VonxConstructedProof
+import vonx.web.views as vonx_views
 
-from rest_framework.response import Response
-from django.http import JsonResponse
-from django.http import Http404
+from tob_anchor.boot import indy_client, indy_holder_id, indy_verifier_id
+
+from api.models.User import User
 
 from api_v2.models.Address import Address
 from api_v2.models.Claim import Claim
@@ -34,19 +33,43 @@ from api_v2.jsonschema.credential_offer import CREDENTIAL_OFFER_JSON_SCHEMA
 from api_v2.jsonschema.credential import CREDENTIAL_JSON_SCHEMA
 from api_v2.jsonschema.construct_proof import CONSTRUCT_PROOF_JSON_SCHEMA
 
-from tob_anchor.boot import indy_client, indy_verifier_id
-from vonx.common.eventloop import run_coro
-from vonx.indy.messages import \
-    ProofRequest as VonxProofRequest, \
-    ConstructedProof as VonxConstructedProof
+from vonx.web.headers import KeyFinderBase, IndyKeyFinder, verify_headers, VerifierException
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-@api_view(["POST"])
-#@permission_classes((IsSignedRequest,))
-@validate(CREDENTIAL_OFFER_JSON_SCHEMA)
-def generate_credential_request(request, *args, **kwargs):
+class DjangoKeyFinder(KeyFinderBase):
+    async def lookup_key(self, key_id: str, key_type: str) -> bytes:
+        try:
+            user = User.objects.get(DID=key_id)
+            if user.verkey:
+                verkey = bytes(user.verkey)
+                LOGGER.debug(
+                    "Found verkey for DID '{}' in users table: '{}'".format(
+                        key_id, verkey
+                    )
+                )
+                return verkey
+        except User.DoesNotExist:
+            pass
+
+
+VERIFIER = IndyKeyFinder(indy_client(), indy_verifier_id(), DjangoKeyFinder())
+
+
+async def _check_signature(request, use_cache: bool = True):
+    try:
+        result = await verify_headers(
+            request.headers, VERIFIER, request.method, request.path_qs, use_cache)
+    except VerifierException:
+        LOGGER.exception("Signature validation error:")
+        result = None
+    request['didauth'] = result
+    return result
+
+
+#@validate(CREDENTIAL_OFFER_JSON_SCHEMA)
+async def generate_credential_request(request):
     """
     Processes a credential definition and responds with a credential request
     which can then be used to submit a credential.
@@ -70,31 +93,18 @@ def generate_credential_request(request, *args, **kwargs):
     ```
     """
 
-    logger.warn(">>> Generate credential request")
+    if not await _check_signature(request):
+        return web.Response(text="Signature required", status=400)
 
-    credential_offer = request.data["credential_offer"]
-    credential_definition_id = request.data["credential_definition_id"]
-    credential_offer_manager = CredentialOfferManager(
-        credential_offer, credential_definition_id
-    )
+    LOGGER.warn(">>> Generate credential request")
+    result = await vonx_views.generate_credential_request(request, indy_holder_id())
+    LOGGER.warn("<<< Generate credential request")
 
-    credential_request, credential_request_metadata = (
-        credential_offer_manager.generate_credential_request()
-    )
-
-    result = {
-        "credential_request": credential_request,
-        "credential_request_metadata": credential_request_metadata,
-    }
-
-    logger.warn("<<< Generate credential request")
-    return JsonResponse({"success": True, "result": result})
+    return result
 
 
-@api_view(["POST"])
-#@permission_classes((IsSignedRequest,))
-@validate(CREDENTIAL_JSON_SCHEMA)
-def store_credential(request, *args, **kwargs):
+#@validate(CREDENTIAL_JSON_SCHEMA)
+async def store_credential(request):
     """
     Stores a verifiable credential in wallet.
 
@@ -114,29 +124,28 @@ def store_credential(request, *args, **kwargs):
 
     returns: created verified credential model
     """
-    logger.warn(">>> Store Credential")
 
-    credential_data = request.data["credential_data"]
-    credential_request_metadata = request.data["credential_request_metadata"]
+    if not await _check_signature(request):
+        return web.Response(text="Signature required", status=400)
 
-    logger.info(credential_data)
+    LOGGER.warn(">>> Store credential")
+    result = await vonx_views.store_credential(request, indy_holder_id())
+    if result["stored"]:
+        stored = result["stored"]
+        credential = Credential(stored.cred.cred_data)
+        credential_manager = CredentialManager(
+            credential, stored.cred.cred_req_metadata
+        )
+        credential_manager.process(stored.cred_id)
+    LOGGER.warn("<<< Store credential")
 
-    credential = Credential(credential_data)
-    credential_manager = CredentialManager(
-        credential, credential_request_metadata
-    )
-
-    credential_wallet_id = credential_manager.process()
-
-    return Response({"success": True, "result": credential_wallet_id})
+    return result
 
 
-@api_view(["POST"])
-#@permission_classes((IsSignedRequest,))
-@validate(ISSUER_JSON_SCHEMA)
+#@validate(ISSUER_JSON_SCHEMA)
 # TODO: Clean up abstraction. IssuerManager writes only –
 #       use serializer in view to return created models?
-def register_issuer(request, *args, **kwargs):
+async def register_issuer(request):
     """
     Processes an issuer definition and creates or updates the
     corresponding records. Responds with the updated issuer
@@ -353,22 +362,25 @@ def register_issuer(request, *args, **kwargs):
     ```
     """
 
-    logger.warn(">>> Register issuer")
+    # not using lookup on users table
+    if not await _check_signature(request, False):
+        return web.Response(text="Signature required", status=400)
+
+    LOGGER.warn(">>> Register issuer")
     try:
+        data = await request.json()
         issuer_manager = IssuerManager()
-        updated = issuer_manager.register_issuer(request, request.data)
+        updated = issuer_manager.register_issuer(request['didauth'], data)
         response = {"success": True, "result": updated}
     except IssuerException as e:
-        logger.exception("Issuer request not accepted:")
+        LOGGER.exception("Issuer request not accepted:")
         response = {"success": False, "result": str(e)}
-    logger.warn("<<< Register issuer")
-    return JsonResponse(response)
+    LOGGER.warn("<<< Register issuer")
+    return web.json_response(response)
 
 
-@api_view(["POST"])
-#@permission_classes((IsSignedRequest,))
-@validate(CONSTRUCT_PROOF_JSON_SCHEMA)
-def construct_proof(request, *args, **kwargs):
+#@validate(CONSTRUCT_PROOF_JSON_SCHEMA)
+async def construct_proof(request):
     """
     Constructs a proof given a proof request
 
@@ -380,27 +392,18 @@ def construct_proof(request, *args, **kwargs):
 
     returns: HL Indy proof data
     """
-    logger.warn(">>> Construct Proof")
 
-    proof_request = request.data.get("proof_request")
-    cred_ids = request.data.get("credential_ids")
+    if not await _check_signature(request):
+        return web.Response(text="Signature required", status=400)
 
-    if isinstance(cred_ids, str):
-        cred_ids = (c.strip() for c in 'a, b'.split(','))
-    if isinstance(cred_ids, list):
-        cred_ids = set(filter(None, cred_ids))
-    else:
-        cred_ids = None
+    LOGGER.warn(">>> Construct proof")
+    result = await vonx_views.construct_proof(request, indy_holder_id())
+    LOGGER.warn("<<< Construct proof")
 
-    proof_manager = ProofManager(proof_request, cred_ids)
-    proof = proof_manager.construct_proof()
-
-    return JsonResponse({"success": True, "result": proof})
+    return result
 
 
-@api_view(["GET"])
-#@permission_classes((IsSignedRequest,))
-def verify_credential(request, *args, **kwargs):
+async def verify_credential(request):
     """
     Constructs a proof request for a credential stored in the
     application database, constructs a proof for that proof
@@ -416,34 +419,32 @@ def verify_credential(request, *args, **kwargs):
     }
     ```
     """
-    logger.warn(">>> Verify Credential")
-    credential_id = kwargs.get("id")
+    LOGGER.warn(">>> Verify credential")
+    credential_id = request.match_info.get("id")
 
     if not credential_id:
-        raise Http404
+        return web.Response(text="Credential ID not provided", status=404)
 
     try:
         credential = CredentialModel.objects.get(id=credential_id)
-    except CredentialModel.DoesNotExist as error:
-        logger.warn(error)
-        raise Http404
+    except CredentialModel.DoesNotExist:
+        LOGGER.exception("Credential not found:")
+        return web.Response(text="Credential not found", status=404)
 
     proof_request = ProofRequest(name="the-org-book", version="1.0.0")
     proof_request.build_from_credential(credential)
 
     proof_manager = ProofManager(proof_request.dict, {credential.wallet_id})
-    proof = proof_manager.construct_proof()
+    proof = await proof_manager.construct_proof_async()
 
-    async def verify():
-        return await indy_client().verify_proof(
+    verified = await indy_client().verify_proof(
             indy_verifier_id(),
             VonxProofRequest(proof_request.dict),
             VonxConstructedProof(proof))
-    verified = run_coro(verify())
-
     verified = verified.verified
+    LOGGER.warn("<<< Verify credential")
 
-    return JsonResponse(
+    return web.json_response(
         {
             "success": verified,
             "result": {
@@ -454,30 +455,7 @@ def verify_credential(request, *args, **kwargs):
         }
     )
 
-# TODO: move this to a different view module? 'misc'?
-@api_view(["GET"])
-@authentication_classes(())
-@permission_classes((permissions.AllowAny,))
-def quickload(request, *args, **kwargs):
-    return JsonResponse(
-        {
-            "counts": {
-                "address": Address.objects.count(),
-                "claim": Claim.objects.count(),
-                "contact": Contact.objects.count(),
-                "credential": CredentialModel.objects.count(),
-                "credentialtype": CredentialType.objects.count(),
-                "issuer": Issuer.objects.count(),
-                "name": Name.objects.count(),
-                "person": Person.objects.count(),
-                "schema": Schema.objects.count(),
-                "topic": Topic.objects.count(),
-            }
-        }
-    )
 
-@api_view(["GET"])
-def status(request, *args, **kwargs):
-    async def get_status():
-        return await indy_client().get_status()
-    return JsonResponse(run_coro(get_status()))
+async def status(request, *args, **kwargs):
+    result = await indy_client().get_status()
+    return web.json_response(result)
