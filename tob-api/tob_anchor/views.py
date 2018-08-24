@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from aiohttp import web
@@ -10,30 +11,24 @@ from tob_anchor.boot import indy_client, indy_holder_id, indy_verifier_id
 
 from api.models.User import User
 
-from api_v2.models.Address import Address
-from api_v2.models.Claim import Claim
-from api_v2.models.Contact import Contact
 from api_v2.models.Credential import Credential as CredentialModel
-from api_v2.models.CredentialType import CredentialType
-from api_v2.models.Issuer import Issuer
-from api_v2.models.Name import Name
-from api_v2.models.Person import Person
-from api_v2.models.Schema import Schema
-from api_v2.models.Topic import Topic
 
 from api_v2.indy.issuer import IssuerManager, IssuerException
-from api_v2.indy.credential_offer import CredentialOfferManager
 from api_v2.indy.credential import Credential, CredentialManager
 from api_v2.indy.proof_request import ProofRequest
 from api_v2.indy.proof import ProofManager
 
-from api_v2.decorators.jsonschema import validate
 from api_v2.jsonschema.issuer import ISSUER_JSON_SCHEMA
 from api_v2.jsonschema.credential_offer import CREDENTIAL_OFFER_JSON_SCHEMA
 from api_v2.jsonschema.credential import CREDENTIAL_JSON_SCHEMA
 from api_v2.jsonschema.construct_proof import CONSTRUCT_PROOF_JSON_SCHEMA
 
-from vonx.web.headers import KeyFinderBase, IndyKeyFinder, verify_headers, VerifierException
+from vonx.web.headers import (
+    KeyFinderBase,
+    IndyKeyFinder,
+    VerifierException,
+    verify_headers,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -66,6 +61,9 @@ async def _check_signature(request, use_cache: bool = True):
         result = None
     request['didauth'] = result
     return result
+
+def _run_thread(proc, *args) -> asyncio.Future:
+    return asyncio.get_event_loop().run_in_executor(None, proc, *args)
 
 
 #@validate(CREDENTIAL_OFFER_JSON_SCHEMA)
@@ -131,12 +129,14 @@ async def store_credential(request):
     LOGGER.warn(">>> Store credential")
     result = await vonx_views.store_credential(request, indy_holder_id())
     if result["stored"]:
-        stored = result["stored"]
-        credential = Credential(stored.cred.cred_data)
-        credential_manager = CredentialManager(
-            credential, stored.cred.cred_req_metadata
-        )
-        credential_manager.process(stored.cred_id)
+        def process(stored):
+            credential = Credential(stored.cred.cred_data)
+            credential_manager = CredentialManager(
+                credential, stored.cred.cred_req_metadata
+            )
+            credential_manager.process(stored.cred_id)
+        # run in a separate thread to avoid blocking the async loop
+        await _run_thread(process, result["stored"])
     LOGGER.warn("<<< Store credential")
 
     return result
@@ -367,14 +367,18 @@ async def register_issuer(request):
         return web.Response(text="Signature required", status=400)
 
     LOGGER.warn(">>> Register issuer")
-    try:
-        data = await request.json()
-        issuer_manager = IssuerManager()
-        updated = issuer_manager.register_issuer(request['didauth'], data)
-        response = {"success": True, "result": updated}
-    except IssuerException as e:
-        LOGGER.exception("Issuer request not accepted:")
-        response = {"success": False, "result": str(e)}
+    data = await request.json()
+
+    def process(request, data):
+        try:
+            issuer_manager = IssuerManager()
+            updated = issuer_manager.register_issuer(request['didauth'], data)
+            return {"success": True, "result": updated}
+        except IssuerException as e:
+            LOGGER.exception("Issuer request not accepted:")
+            return {"success": False, "result": str(e)}
+    response = await _run_thread(process, request, data)
+
     LOGGER.warn("<<< Register issuer")
     return web.json_response(response)
 
@@ -425,10 +429,14 @@ async def verify_credential(request):
     if not credential_id:
         return web.Response(text="Credential ID not provided", status=404)
 
-    try:
-        credential = CredentialModel.objects.get(id=credential_id)
-    except CredentialModel.DoesNotExist:
-        LOGGER.exception("Credential not found:")
+    def fetch_cred(credential_id):
+        try:
+            return CredentialModel.objects.get(id=credential_id)
+        except CredentialModel.DoesNotExist:
+            return None
+    credential = await _run_thread(fetch_cred, credential_id)
+    if not credential:
+        LOGGER.warn("Credential not found: %s", credential_id)
         return web.Response(text="Credential not found", status=404)
 
     proof_request = ProofRequest(name="the-org-book", version="1.0.0")
