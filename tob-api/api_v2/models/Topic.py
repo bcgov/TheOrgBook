@@ -58,5 +58,22 @@ class Topic(Auditable):
 
         return Credential.objects.filter(pk__in=direct_credential_ids)
 
+    def related_topics(self, filter_args={}):
+        """
+        Returns topics that are related to this one via one or more credentials
+        """
+
+        cred_ids = self.credentials.values_list("id", flat=True)
+        logger.info("Cred ids: %s", cred_ids)
+
+        topic_ids = Credential.topics.through.objects.filter(
+                credential__in=cred_ids
+            ).exclude(topic_id=self.id).distinct().values_list("topic_id", flat=True)
+        logger.info("Topic ids: %s", topic_ids)
+
+        topics = Topic.objects.filter(id__in=topic_ids)
+        return topics
+
+
     class Meta:
         db_table = "topic"
