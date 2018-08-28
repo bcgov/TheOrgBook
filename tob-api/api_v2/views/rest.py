@@ -157,6 +157,21 @@ class TopicViewSet(ViewSet):
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @detail_route(url_path="related")
+    def list_related_topics(self, request, pk=None):
+        parent_queryset = Topic.objects.all()
+        item = get_object_or_404(parent_queryset, pk=pk)
+        queryset = item.related_topics.all()
+        serializer = CustomTopicSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @detail_route(url_path="has_relation")
+    def list_has_relation_topics(self, request, pk=None):
+        parent_queryset = Topic.objects.all()
+        item = get_object_or_404(parent_queryset, pk=pk)
+        queryset = item.has_relation_to.all()
+        serializer = CustomTopicSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 class CredentialViewSet(ViewSet):
     def list(self, request):
