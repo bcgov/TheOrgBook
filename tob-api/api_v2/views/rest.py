@@ -35,6 +35,8 @@ from api_v2.models.Name import Name
 from api_v2.models.Person import Person
 from api_v2.models.Category import Category
 
+from api_v2 import utils
+
 
 class IssuerViewSet(ViewSet):
     def list(self, request):
@@ -85,6 +87,7 @@ class CredentialTypeViewSet(ViewSet):
 class ExpandedCredentialSerializer(CredentialSerializer):
     credential_type = SerializerMethodField()
     issuer = SerializerMethodField()
+    topic = TopicSerializer()
 
     class Meta(CredentialSerializer.Meta):
         depth = 1
@@ -156,21 +159,6 @@ class TopicViewSet(ViewSet):
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(url_path="related")
-    def list_related_topics(self, request, pk=None):
-        parent_queryset = Topic.objects.all()
-        item = get_object_or_404(parent_queryset, pk=pk)
-        queryset = item.related_topics.all()
-        serializer = CustomTopicSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @detail_route(url_path="has_relation")
-    def list_has_relation_topics(self, request, pk=None):
-        parent_queryset = Topic.objects.all()
-        item = get_object_or_404(parent_queryset, pk=pk)
-        queryset = item.has_relation_to.all()
-        serializer = CustomTopicSerializer(queryset, many=True)
-        return Response(serializer.data)
 
 class CredentialViewSet(ViewSet):
     def list(self, request):
@@ -280,3 +268,10 @@ class CategoryViewSet(ViewSet):
         item = get_object_or_404(queryset, pk=pk)
         serializer = CategorySerializer(item)
         return Response(serializer.data)
+
+
+# Add environment specific endpoints
+try:
+    utils.apply_custom_methods(TopicViewSet, "views", "TopicViewSet", "includeMethods")
+except:
+    pass
