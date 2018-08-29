@@ -3,12 +3,16 @@ import json as _json
 import logging
 from importlib import import_module
 
+from django.db import transaction
 from django.utils import timezone
 
-from api.indy.agent import Holder
-from api.indy import eventloop
+from django.db.utils import IntegrityError
 
-from von_agent.util import schema_key
+from von_anchor.util import schema_key
+
+from tob_anchor.boot import indy_client, indy_holder_id
+from vonx.common.eventloop import run_coro
+from vonx.indy.messages import Credential as VonxCredential
 
 from api_v2.models.Issuer import Issuer
 from api_v2.models.Schema import Schema
@@ -22,8 +26,9 @@ from api_v2.models.Address import Address
 from api_v2.models.Person import Person
 from api_v2.models.Contact import Contact
 from api_v2.models.Category import Category
+from api_v2.models.TopicRelationship import TopicRelationship
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 PROCESSOR_FUNCTION_BASE_PATH = "api_v2.processor"
 
@@ -37,11 +42,6 @@ SUPPORTED_MODELS_MAPPING = {
 
 SUPPORTED_CATEGORIES = ["topic_status", "topic_type"]
 
-# TODO: Allow issuer to dynamically register topic types
-# Currently we only support 2 topic types. We only understand
-# a predefined relationship: incorporation --< doing_business_as
-SUPPORTED_TOPIC_TYPES = ["incorporation", "doing_business_as", "registration"]
-
 
 class CredentialException(Exception):
     pass
@@ -49,7 +49,7 @@ class CredentialException(Exception):
 
 class Credential(object):
     """A python-idiomatic representation of an indy credential
-    
+
     Claim values are made available as class members.
 
     for example:
@@ -106,7 +106,7 @@ class Credential(object):
     @property
     def raw(self) -> dict:
         """Accessor for raw credential data
-        
+
         Returns:
             dict -- Python dict representation of raw credential data
         """
@@ -115,7 +115,7 @@ class Credential(object):
     @property
     def json(self) -> str:
         """Accessor for json credential data
-        
+
         Returns:
             str -- JSON representation of raw credential data
         """
@@ -124,7 +124,7 @@ class Credential(object):
     @property
     def origin_did(self) -> str:
         """Accessor for schema origin did
-        
+
         Returns:
             str -- origin did
         """
@@ -133,7 +133,7 @@ class Credential(object):
     @property
     def schema_name(self) -> str:
         """Accessor for schema name
-        
+
         Returns:
             str -- schema name
         """
@@ -142,7 +142,7 @@ class Credential(object):
     @property
     def schema_version(self) -> str:
         """Accessor for schema version
-        
+
         Returns:
             str -- schema version
         """
@@ -151,7 +151,7 @@ class Credential(object):
     @property
     def claim_attributes(self) -> list:
         """Accessor for claim attributes
-        
+
         Returns:
             list -- claim attributes
         """
@@ -164,16 +164,14 @@ class CredentialManager(object):
     database based on rules provided by issuer are registration.
     """
 
-    def __init__(
-        self, credential: Credential, credential_definition_metadata: dict
-    ) -> None:
+    def __init__(self, credential: Credential, request_metadata: dict) -> None:
         self.credential = credential
-        self.credential_definition_metadata = credential_definition_metadata
+        self.credential_request_metadata = request_metadata
 
-    def process(self):
+    def process(self, credential_wallet_id):
         """
         Processes incoming credential data and returns newly created credential
-        
+
         Returns:
             Credential -- newly created credential in application database
         """
@@ -202,20 +200,15 @@ class CredentialManager(object):
                 + " does not exist."
             )
 
-        credential_type = CredentialType.objects.get(
-            schema=schema, issuer=issuer
-        )
+        credential_type = CredentialType.objects.get(schema=schema, issuer=issuer)
 
-        credential_wallet_id = eventloop.do(self.store())
-        self.populate_application_database(
-            credential_type, credential_wallet_id
-        )
+        # credential_wallet_id = run_coro(self.store())
+        with transaction.atomic():
+            self.populate_application_database(credential_type, credential_wallet_id)
 
         return credential_wallet_id
 
-    def populate_application_database(
-        self, credential_type, credential_wallet_id
-    ):
+    def populate_application_database(self, credential_type, credential_wallet_id):
 
         # Takes our mapping rules and returns a value from credential
         def process_mapping(rules):
@@ -273,15 +266,11 @@ class CredentialManager(object):
                     # Does the file exist?
                     try:
                         function_module = import_module(
-                            "{}.{}".format(
-                                PROCESSOR_FUNCTION_BASE_PATH, function_path
-                            )
+                            "{}.{}".format(PROCESSOR_FUNCTION_BASE_PATH, function_path)
                         )
                     except ModuleNotFoundError as error:
                         raise CredentialException(
-                            "No processor module named '{}'".format(
-                                function_path
-                            )
+                            "No processor module named '{}'".format(function_path)
                         )
 
                     # Does the function exist?
@@ -325,52 +314,31 @@ class CredentialManager(object):
         # Issuer can register multiple topic selectors to fall back on
         # We use the first valid topic and related parent if applicable
         for topic_def in topic_defs:
-            parent_topic = None
+            related_topic = None
             topic = None
 
-            parent_topic_name = process_mapping(topic_def.get("parent_name"))
-            parent_topic_source_id = process_mapping(
-                topic_def.get("parent_source_id")
+            related_topic_name = process_mapping(topic_def.get("related_name"))
+            related_topic_source_id = process_mapping(
+                topic_def.get("related_source_id")
             )
-            parent_topic_type = process_mapping(topic_def.get("parent_type"))
+            related_topic_type = process_mapping(topic_def.get("related_type"))
 
             topic_name = process_mapping(topic_def.get("name"))
             topic_source_id = process_mapping(topic_def.get("source_id"))
             topic_type = process_mapping(topic_def.get("type"))
 
-            if (
-                topic_type is not None
-                and topic_type not in SUPPORTED_TOPIC_TYPES
-            ):
-                raise CredentialException(
-                    "Supported topic types are 'incorporation' and 'doing_business_as' but received topic '{}'".format(
-                        topic_type
-                    )
-                )
-
-            if (
-                parent_topic_type is not None
-                and parent_topic_type not in SUPPORTED_TOPIC_TYPES
-            ):
-                raise CredentialException(
-                    "Supported topic types are 'incorporation' and 'doing_business_as' but received parent topic '{}'".format(
-                        parent_topic_type
-                    )
-                )
-
             # Get parent topic if possible
-            if parent_topic_name:
+            if related_topic_name:
                 try:
-                    parent_topic = Topic.objects.get(
-                        credentials__names__text=parent_topic_name
+                    related_topic = Topic.objects.get(
+                        credentials__names__text=related_topic_name
                     )
                 except Topic.DoesNotExist:
                     continue
-            elif parent_topic_source_id and parent_topic_type:
+            elif related_topic_source_id and related_topic_type:
                 try:
-                    parent_topic = Topic.objects.get(
-                        source_id=parent_topic_source_id,
-                        type=parent_topic_type,
+                    related_topic = Topic.objects.get(
+                        source_id=related_topic_source_id, type=related_topic_type
                     )
                 except Topic.DoesNotExist:
                     continue
@@ -378,9 +346,7 @@ class CredentialManager(object):
             # Current topic if possible
             if topic_name:
                 try:
-                    topic = Topic.objects.get(
-                        credentials__names__text=topic_name
-                    )
+                    topic = Topic.objects.get(credentials__names__text=topic_name)
                 except Topic.DoesNotExist:
                     continue
             elif topic_source_id and topic_type:
@@ -416,9 +382,7 @@ class CredentialManager(object):
 
         credential_config = processor_config.get("credential")
         if credential_config:
-            effective_date = process_mapping(
-                credential_config.get("effective_date")
-            )
+            effective_date = process_mapping(credential_config.get("effective_date"))
 
             try:
                 # effective_date could be seconds since epoch
@@ -441,35 +405,21 @@ class CredentialManager(object):
                 credential=credential, name=claim_attribute, value=claim_value
             )
 
-        # Recurisvely associate parent topic and all of it's related topics
-        # (all related credentials' topics)
-        known_topic_ids = []
-
-        def associate_related_topics(topic):
-            if topic in known_topic_ids:
-                return
-
-            credential.topics.add(topic)
-            known_topic_ids.append(topic.id)
-            for related_topic in (
-                Topic.objects.filter(credentials__in=topic.credentials.all())
-                .exclude(
-                    # Don't traverse known relationships
-                    id__in=known_topic_ids
+        if related_topic is not None:
+            try:
+                TopicRelationship.objects.create(
+                    credential=credential, topic=topic, related_topic=related_topic
                 )
-                .distinct()
-            ):
-                associate_related_topics(related_topic)
-
-        if parent_topic is not None:
-            associate_related_topics(parent_topic)
+            except IntegrityError:
+                raise CredentialException(
+                    "Relationship between topics '{}' and '{}' already exist.".format(
+                        topic.id, related_topic.id
+                    )
+                )
 
         # We search for existing credentials by cardinality_fields
         # to revoke credentials occuring before latest credential
-        existing_credential_query = {
-            "credential_type__id": credential_type.id,
-            "topics__id": topic.id,
-        }
+        existing_credential_query = {"credential_type": credential_type, "topic": topic}
         for cardinality_field in cardinality_fields:
             try:
                 existing_credential_query["claims__name"] = cardinality_field
@@ -523,10 +473,7 @@ class CredentialManager(object):
                 setattr(model, field, process_mapping(field_mapper))
 
             # Validate category type
-            if (
-                model_name == "category"
-                and model.type not in SUPPORTED_CATEGORIES
-            ):
+            if model_name == "category" and model.type not in SUPPORTED_CATEGORIES:
                 raise CredentialException(
                     "Invalid category type '{}'. ".format(model.type)
                     + "Valid categories are: {}".format(
@@ -539,10 +486,14 @@ class CredentialManager(object):
 
         return topic
 
-    async def store(self):
+    async def store(self) -> str:
         # Store credential in wallet
-        async with Holder() as holder:
-            return await holder.store_cred(
-                self.credential.json,
-                _json.dumps(self.credential_definition_metadata),
-            )
+        stored = await indy_client().store_credential(
+            indy_holder_id(),
+            VonxCredential(
+                self.credential.raw,
+                self.credential_request_metadata,
+                None,  # revocation ID
+            ),
+        )
+        return stored.cred_id
