@@ -35,6 +35,8 @@ from api_v2.models.Name import Name
 from api_v2.models.Person import Person
 from api_v2.models.Category import Category
 
+from api_v2 import utils
+
 
 class IssuerViewSet(ViewSet):
     def list(self, request):
@@ -85,13 +87,14 @@ class CredentialTypeViewSet(ViewSet):
 class ExpandedCredentialSerializer(CredentialSerializer):
     credential_type = SerializerMethodField()
     issuer = SerializerMethodField()
+    topic = TopicSerializer()
 
     class Meta(CredentialSerializer.Meta):
         depth = 1
         fields = (
             "id",
-            "start_date",
-            "end_date",
+            "effective_date",
+            "revoked",
             "credential_type",
             "issuer",
             "addresses",
@@ -99,7 +102,7 @@ class ExpandedCredentialSerializer(CredentialSerializer):
             "names",
             "contacts",
             "people",
-            "topics"
+            "topic",
         )
 
     def get_credential_type(self, obj):
@@ -144,7 +147,7 @@ class TopicViewSet(ViewSet):
     def list_active_credentials(self, request, pk=None):
         parent_queryset = Topic.objects.all()
         item = get_object_or_404(parent_queryset, pk=pk)
-        queryset = item.credentials.filter(end_date=None)
+        queryset = item.credentials.filter(revoked=False)
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -152,33 +155,7 @@ class TopicViewSet(ViewSet):
     def list_historical_credentials(self, request, pk=None):
         parent_queryset = Topic.objects.all()
         item = get_object_or_404(parent_queryset, pk=pk)
-        # End date not null
-        queryset = item.credentials.filter(~Q(end_date=None))
-        serializer = ExpandedCredentialSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @detail_route(url_path="directcredential")
-    def list_direct_credentials(self, request, pk=None):
-        parent_queryset = Topic.objects.all()
-        item = get_object_or_404(parent_queryset, pk=pk)
-        queryset = item.direct_credentials()
-        serializer = ExpandedCredentialSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @detail_route(url_path="directcredential/active")
-    def list_active_direct_credentials(self, request, pk=None):
-        depth = 2
-        parent_queryset = Topic.objects.all()
-        item = get_object_or_404(parent_queryset, pk=pk)
-        queryset = item.direct_credentials().filter(end_date=None)
-        serializer = ExpandedCredentialSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @detail_route(url_path="directcredential/historical")
-    def list_historical_direct_credentials(self, request, pk=None):
-        parent_queryset = Topic.objects.all()
-        item = get_object_or_404(parent_queryset, pk=pk)
-        queryset = item.direct_credentials().filter(~Q(end_date=None))
+        queryset = item.credentials.filter(~Q(revoked=False))
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -204,13 +181,13 @@ class CredentialViewSet(ViewSet):
 
     @list_route(url_path="active")
     def list_active(self, request, pk=None):
-        queryset = Credential.objects.filter(end_date=None)
+        queryset = Credential.objects.filter(revoked=False)
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @list_route(url_path="historical")
     def list_historical(self, request, pk=None):
-        queryset = Credential.objects.filter(~Q(end_date=None))
+        queryset = Credential.objects.filter(~Q(revoked=False))
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -279,6 +256,7 @@ class PersonViewSet(ViewSet):
         serializer = PersonSerializer(item)
         return Response(serializer.data)
 
+
 class CategoryViewSet(ViewSet):
     def list(self, request):
         queryset = Category.objects.all()
@@ -290,3 +268,10 @@ class CategoryViewSet(ViewSet):
         item = get_object_or_404(queryset, pk=pk)
         serializer = CategorySerializer(item)
         return Response(serializer.data)
+
+
+# Add environment specific endpoints
+try:
+    utils.apply_custom_methods(TopicViewSet, "views", "TopicViewSet", "includeMethods")
+except:
+    pass

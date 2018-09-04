@@ -69,7 +69,7 @@ class CustomCredentialSerializer(CredentialSerializer):
 
     class Meta(CredentialSerializer.Meta):
         # depth =
-        fields = ("id", "start_date", "end_date")
+        fields = ("id", "effective_date", "revoked")
 
 
 class CustomIssuerSerializer(IssuerSerializer):
@@ -90,7 +90,7 @@ class CustomAddressSerializer(AddressSerializer):
         fields.append("last_updated")
 
     def get_last_updated(self, obj):
-        return obj.credential.start_date
+        return obj.credential.effective_date
 
     def get_issuer(self, obj):
         serializer = CustomIssuerSerializer(
@@ -114,7 +114,7 @@ class CustomNameSerializer(NameSerializer):
         )
 
     def get_last_updated(self, obj):
-        return obj.credential.start_date
+        return obj.credential.effective_date
 
     def get_issuer(self, obj):
         serializer = CustomIssuerSerializer(
@@ -131,7 +131,7 @@ class CustomContactSerializer(ContactSerializer):
         fields = ("id", "credential", "last_updated", "text", "type")
 
     def get_last_updated(self, obj):
-        return obj.credential.start_date
+        return obj.credential.effective_date
 
     def get_issuer(self, obj):
         serializer = CustomIssuerSerializer(
@@ -148,7 +148,7 @@ class CustomPersonSerializer(PersonSerializer):
         fields = ("id", "credential", "last_updated", "full_name")
 
     def get_last_updated(self, obj):
-        return obj.credential.start_date
+        return obj.credential.effective_date
 
     def get_issuer(self, obj):
         serializer = CustomIssuerSerializer(
@@ -164,7 +164,7 @@ class CustomCategorySerializer(CategorySerializer):
         fields = ("id", "credential", "last_updated", "type", "value")
 
     def get_last_updated(self, obj):
-        return obj.credential.start_date
+        return obj.credential.effective_date
 
 
 class CustomTopicSerializer(TopicSerializer):
@@ -191,40 +191,38 @@ class CustomTopicSerializer(TopicSerializer):
     def get_credential_ids(self, obj):
         if not self.credential_ids:
             self.credential_ids = list(
-                obj.direct_credentials()
-                .filter(end_date=None)
+                obj.credentials
+                .filter(revoked=False)
                 .values_list("id", flat=True)
             )
 
         return self.credential_ids
 
     def get_names(self, obj):
-        credential_ids = self.get_credential_ids(obj)
-        names = Name.objects.filter(credential__id__in=credential_ids)
+        names = Name.objects.filter(credential__topic=obj)
         serializer = CustomNameSerializer(instance=names, many=True)
         return serializer.data
 
     def get_addresses(self, obj):
-        credential_ids = self.get_credential_ids(obj)
-        addresses = Address.objects.filter(credential__id__in=credential_ids)
+        addresses = Address.objects.filter(credential__topic=obj)
         serializer = CustomAddressSerializer(instance=addresses, many=True)
         return serializer.data
 
     def get_contacts(self, obj):
         credential_ids = self.get_credential_ids(obj)
-        contacts = Contact.objects.filter(credential__id__in=credential_ids)
+        contacts = Contact.objects.filter(credential__topic=obj)
         serializer = CustomContactSerializer(instance=contacts, many=True)
         return serializer.data
 
     def get_people(self, obj):
         credential_ids = self.get_credential_ids(obj)
-        people = Person.objects.filter(credential__id__in=credential_ids)
+        people = Person.objects.filter(credential__topic=obj)
         serializer = CustomPersonSerializer(instance=people, many=True)
         return serializer.data
 
     def get_categories(self, obj):
         credential_ids = self.get_credential_ids(obj)
-        categories = Category.objects.filter(credential__id__in=credential_ids)
+        categories = Category.objects.filter(credential__topic=obj)
         serializer = CustomCategorySerializer(instance=categories, many=True)
         return serializer.data
 
@@ -238,8 +236,8 @@ class TopicSearchSerializer(HaystackSerializerMixin, CustomTopicSerializer):
     def get_credential_ids(self, obj):
         if not self.credential_ids:
             self.credential_ids = list(
-                obj.direct_credentials()
-                .filter(end_date=None)
+                obj.credentials
+                .filter(revoked=False)
                 .values_list("id", flat=True)
             )
 
