@@ -61,6 +61,7 @@
     "no-results": "Aucun résultat",
     "placeholder": "recherche",
     "results-title": "Résultats de la recherche",
-    "return-link": "Back to Search"
+    "return-link": "Back to Search",
+    "records-prefix": "Des dossiers "
   }
 }
