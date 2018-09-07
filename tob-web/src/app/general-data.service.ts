@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { environment } from '../environments/environment';
 import 'rxjs/add/operator/map';
@@ -20,21 +20,26 @@ export class GeneralDataService {
 
   getRequestUrl(path: string) : string {
     let root = (<any>window).testApiUrl || this.apiUrl;
-    //  let root = 'http://localhost:8081/api/v2'
+   //let root = 'http://localhost:8081/api/v2'
     if(root) {
       if(! root.endsWith('/')) root += '/';
       return root + path;
     }
   }
 
-  loadFromApi(path: string): Observable<Object> {
+  loadJson(url, params?) : Observable<Object> {
+    console.log(params);
+    return this._http.get(url, {params: params})
+      .catch(error => {
+        console.error("JSON load error", error);
+        return Observable.throw(error);
+      });
+  }
+
+  loadFromApi(path: string, params?) : Observable<Object> {
     let url = this.getRequestUrl(path);
     if(url) {
-      return this._http.get(url)
-        .catch(error => {
-            console.error(error);
-            return Observable.throw(error);
-        });
+      return this.loadJson(url, params);
     }
   }
 
@@ -79,13 +84,14 @@ export class GeneralDataService {
     return this.recordCounts[type] || 0;
   }
 
-  loadJson(url, params?) : Observable<Object> {
-    let req = this._http.get(url, {params: params})
-      .catch(error => {
-        console.error("JSON load error", error);
-        return Observable.throw(error);
-      });
-    return req;
+  autocomplete(term) : Observable<Object> {
+    if(term === '' || typeof(term) !== 'string') {
+      return Observable.of([]);
+    }
+    console.log(term);
+    let params = new HttpParams().set('q', term);
+    return this.loadFromApi('search/autocomplete', params)
+      .map(response => response["result"]);
   }
 
   deleteRecord (mod: string, id: string) {
