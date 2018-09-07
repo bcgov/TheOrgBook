@@ -60,8 +60,6 @@
     "by-location": "Recherche par lieu",
     "no-results": "Aucun résultat",
     "placeholder": "recherche",
-    "results-title": "Résultats de la recherche",
-    "return-link": "Back to Search",
-    "records-prefix": "Des dossiers "
+    "results-title": "Résultats de la recherche"
   }
 }
