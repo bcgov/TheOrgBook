@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
+from rest_framework.exceptions import NotFound
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -12,7 +13,6 @@ from api_v2.serializers.rest import (
     TopicSerializer,
     CredentialSerializer,
     AddressSerializer,
-    ClaimSerializer,
     ContactSerializer,
     NameSerializer,
     CategorySerializer,
@@ -29,7 +29,6 @@ from api_v2.models.CredentialType import CredentialType
 from api_v2.models.Topic import Topic
 from api_v2.models.Credential import Credential
 from api_v2.models.Address import Address
-from api_v2.models.Claim import Claim
 from api_v2.models.Contact import Contact
 from api_v2.models.Name import Name
 from api_v2.models.Person import Person
@@ -168,7 +167,14 @@ class CredentialViewSet(ViewSet):
 
     def retrieve(self, request, pk=None):
         queryset = Credential.objects.all()
-        item = get_object_or_404(queryset, pk=pk)
+        try:
+            # Overload to allow querying by wallet_id
+            item = Credential.objects.get(wallet_id=pk)
+        except Credential.DoesNotExist:
+            try:
+                item = get_object_or_404(queryset, pk=pk)
+            except ValueError:
+                raise NotFound()
         serializer = CredentialSerializer(item)
         return Response(serializer.data)
 
@@ -203,20 +209,6 @@ class AddressViewSet(ViewSet):
         item = get_object_or_404(queryset, pk=pk)
         serializer = AddressSerializer(item)
         return Response(serializer.data)
-
-
-class ClaimViewSet(ViewSet):
-    def list(self, request):
-        queryset = Claim.objects.all()
-        serializer = ClaimSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = Claim.objects.all()
-        item = get_object_or_404(queryset, pk=pk)
-        serializer = ClaimSerializer(item)
-        return Response(serializer.data)
-
 
 class ContactViewSet(ViewSet):
     def list(self, request):

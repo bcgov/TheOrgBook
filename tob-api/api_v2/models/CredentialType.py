@@ -12,6 +12,8 @@ class CredentialType(Auditable):
     issuer = models.ForeignKey(Issuer, related_name="credential_types")
     description = models.TextField(blank=True, null=True)
     processor_config = contrib.JSONField(blank=True, null=True)
+    credential_def_id = models.TextField(db_index=True, null=True)
+    logo_b64 = models.TextField(null=True)
 
     class Meta:
         db_table = "credential_type"
