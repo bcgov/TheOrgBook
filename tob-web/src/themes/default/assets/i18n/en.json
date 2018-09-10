@@ -100,7 +100,9 @@
   },
   "topic": {
     "breadcrumb": "Topic Information",
-    "return-link": "Back to Topic"
+    "related-to": "Related To",
+    "return-link": "Back to Topic",
+    "view-link": "Show Details"
   },
   "search": {
     "breadcrumb": "Search",
