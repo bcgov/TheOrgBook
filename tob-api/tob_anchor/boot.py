@@ -89,7 +89,8 @@ def run_django(proc, *args) -> asyncio.Future:
 
 def run_reindex():
     from django.core.management import call_command
-    call_command("update_index", "--max-retries=5")
+    batch_size = os.getenv("SOLR_BATCH_SIZE", 500)
+    call_command("update_index", "--max-retries=5", "--batch-size={}".format(batch_size))
 
 def run_migration():
     from django.core.management import call_command
@@ -104,7 +105,6 @@ def pre_init(proc=False):
 
 async def register_services():
 
-    import asyncio
     await asyncio.sleep(2) # temp fix for messages being sent before exchange has started
 
     wallet_seed = os.environ.get('INDY_WALLET_SEED')

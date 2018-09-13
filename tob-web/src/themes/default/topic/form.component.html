@@ -11,11 +11,11 @@
       </div>
     </div>
 
-    <div class="row" *ngIf="loaded">
+    <div class="row mrgn-bttm-md" *ngIf="loaded">
       <div class="col-sm-12">
         <h1 class="topic-name">{{title}}</h1>
 
-        <a [routerLink]="'/home' | localize" class="title-back-link mrgn-bttm-md"><span class="fa fa-arrow-left"></span> {{'search.return-link' | translate}}</a>
+        <a [routerLink]="'/search' | localize" class="title-back-link mrgn-bttm-md"><span class="fa fa-arrow-left"></span> {{'search.return-link' | translate}}</a>
 
         <div class="row">
           <div class="col-sm-12 name-info">
@@ -75,6 +75,8 @@
       </div -->
 
     </div>
+
+    <related-topics [topicId]="id" defaultFormat="compact" *ngIf="loaded" [related-from]="true" [title]="'topic.related-to' | translate"></related-topics>
 
     <related-topics [topicId]="id" defaultFormat="cards" *ngIf="loaded" [title]="'name.doing-business-as' | translate"></related-topics>
 

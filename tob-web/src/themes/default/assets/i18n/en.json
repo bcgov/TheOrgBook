@@ -71,13 +71,15 @@
     "cred-types": "Credential Types",
     "did": "DID",
     "end-date": "End Date",
+    "logo-image": "Logo Image",
     "start-date": "Effective Date",
     "website": "Issuer Website"
   },
   "name": {
     "doing-business-as": "Doing Business As",
     "incorporation": "Incorporation",
-    "legal-name": "Legal Name"
+    "legal-name": "Legal Name",
+    "registration": "Registration"
   },
   "not-found": {
     "breadcrumb": "Not Found",
@@ -100,7 +102,9 @@
   },
   "topic": {
     "breadcrumb": "Topic Information",
-    "return-link": "Back to Topic"
+    "related-to": "Related To",
+    "return-link": "Back to Topic",
+    "view-link": "Show Details"
   },
   "search": {
     "breadcrumb": "Search",
