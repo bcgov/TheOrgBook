@@ -27,7 +27,7 @@
           <label class="control-label" translate>search.results-title</label>
           <ng-container *ngIf="topics.length">
             <search-nav (nav)="handleNav($event)" [info]="results && results.info"></search-nav>
-            <topic-list [records]="topics"></topic-list>
+            <cred-list [records]="creds" format="search"></cred-list>
             <search-nav (nav)="handleNav($event)" [info]="results && results.info"></search-nav>
           </ng-container>
           <div class="alert alert-info" *ngIf="!topics.length" translate>
