@@ -113,7 +113,15 @@ async def register_services():
     if not wallet_seed or len(wallet_seed) is not 32:
         raise Exception('INDY_WALLET_SEED must be set and be 32 characters long.')
 
-    # wallet-db
+    # wallet configuration
+    # - your choice of postgres or sqlite at the moment
+    # - defaults to sqlite for compatibility
+    wallet_type = os.environ.get('WALLET_TYPE')
+    if not wallet_type:
+        wallet_type = 'sqlite'
+    wallet_type = wallet_type.lower()
+
+    # postgresql wallet-db configuration
     wallet_host = os.environ.get('POSTGRESQL_WALLET_HOST')
     if not wallet_host or len(wallet_seed) is not 32:
         raise Exception('POSTGRESQL_WALLET_HOST must be set.')
@@ -127,7 +135,7 @@ async def register_services():
     if not wallet_password or len(wallet_seed) is not 32:
         raise Exception('POSTGRESQL_WALLET_PASSWORD must be set.')
     wallet_admin_user = 'postgres'
-    wallet_admin_password = os.environ.get('POSTGRESQL_ADMIN_PASSWORD')
+    wallet_admin_password = os.environ.get('POSTGRESQL_WALLET_ADMIN_PASSWORD')
 
     stg_config = {"url": wallet_host + ':' + wallet_port}
     stg_creds = {"account": wallet_user, "password": wallet_password}
@@ -136,15 +144,26 @@ async def register_services():
         stg_creds["admin_password"] = wallet_admin_password
 
     LOGGER.info("Registering holder service")
-    client = indy_client()
-    holder_wallet_id = await client.register_wallet({
-        "name": "tob_holder",
-        "seed": wallet_seed,
-        "type": "postgres",
-        "params": {"storage_config": stg_config},
-        "access_creds": {"key": "key", "storage_credentials": stg_creds, "key_derivation_method": "ARGON2I_MOD"},
-    })
+    client = indy_client()    
+    if wallet_type == 'postgres':
+        LOGGER.info("Using Postgres storage ...")
+        holder_wallet_id = await client.register_wallet({
+            "name": "tob_holder",
+            "seed": wallet_seed,
+            "type": "postgres",
+            "params": {"storage_config": stg_config},
+            "access_creds": {"key": "key", "storage_credentials": stg_creds, "key_derivation_method": "ARGON2I_MOD"},
+        })
+    elif wallet_type == 'sqlite':
+        LOGGER.info("Using Sqlite storage ...")
+        holder_wallet_id = await client.register_wallet({
+            "name": "TheOrgBook_Holder_Wallet",
+            "seed": wallet_seed,
+        })
+    else:
+        raise Exception('Unknown WALLET_TYPE: {}'.format(wallet_type))
     LOGGER.debug("Indy holder wallet id: %s", holder_wallet_id)
+
     holder_id = await client.register_holder(holder_wallet_id, {
         "id": indy_holder_id(),
         "name": "TheOrgBook Holder",
@@ -157,6 +176,7 @@ async def register_services():
         "seed": "tob-verifier-wallet-000000000001",
     })
     LOGGER.debug("Indy verifier wallet id: %s", verifier_wallet_id)
+    
     verifier_id = await client.register_verifier(verifier_wallet_id, {
         "id": indy_verifier_id(),
         "name": "TheOrgBook Verifier",
