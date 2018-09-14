@@ -45,6 +45,12 @@ services:
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - WALLET_TYPE=${WALLET_TYPE}
+      - POSTGRESQL_WALLET_HOST=${POSTGRESQL_WALLET_HOST}
+      - POSTGRESQL_WALLET_PORT=${POSTGRESQL_WALLET_PORT}
+      - POSTGRESQL_WALLET_USER=${POSTGRESQL_USER}
+      - POSTGRESQL_WALLET_PASSWORD=${POSTGRESQL_PASSWORD}
+      - POSTGRESQL_WALLET_ADMIN_PASSWORD=${POSTGRESQL_ADMIN_PASSWORD}
       - DEBUG=${DEBUG}
       - SQL_DEBUG=${SQL_DEBUG}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
@@ -77,6 +83,7 @@ services:
       - 3000:3000
     depends_on:
       - tob-db
+      - wallet-db
       - tob-solr
     command: >
         /bin/bash -c "
@@ -147,9 +154,29 @@ services:
     volumes:
       - tob-data:/var/lib/pgsql/data     
 
+  # 
+  # wallet-db
+  # 
+  wallet-db:
+    image: registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5
+    environment:
+      - POSTGRESQL_USER=${POSTGRESQL_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
+      - POSTGRESQL_ADMIN_PASSWORD=${POSTGRESQL_ADMIN_PASSWORD}
+    networks:
+      - tob
+    ports:
+      - 5433:5432
+    volumes:
+      - tob-wallet-db:/var/lib/pgsql/data     
+    #command:
+    #  postgres -c 'log_statement=all' -c 'logging_collector=on' -c 'log_destination=stderr'
+
 networks:
   tob:
 
 volumes:
   tob-data:
   tob-wallet:
+  tob-wallet-db:
