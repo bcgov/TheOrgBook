@@ -67,7 +67,7 @@
     "title-certs": "permits and licences",
     "title": "Ontario's Verifiable Businesses",
     "message":
-      "This service allows you to search for registrations certificates, licenses, or permits that an Ontario business may have, and verify authenticity of each using Distributed Ledger Technology (blockchain). The service is currently offered in beta mode, with all the records sourced from Ontario Business Registration System, Ontario's official record of information on business entities and not-for-profit organizations operating in Ontario.",
+      "This service allows you to search for registrations, certificates, licenses, or permits that an Ontario business may have, and verify authenticity of each using Distributed Ledger Technology (blockchain). The service is currently offered in beta mode, with all the records sourced from Ontario Business Registration System, Ontario's official record of information on business entities and not-for-profit organizations operating in Ontario.",
     "search-input": "Enter Business Name"
   },
   "issuer": {
@@ -105,7 +105,7 @@
     "breadcrumb": "Organization Information",
     "return-link": "Back to Organization Information",  
     "note": "Note:",
-    "disclaimer": "The business information above is not real-time and intended for informational purposes only.  This is not a substitute for an official report from the Public Record maintained by the Ministry of Government and Consumer Services. To find out how to search the official Public Record,",
+    "disclaimer": "The business information above is not real-time and is not a substitute for a Ministry of Government and Consumer Services generated report. To find out how to search the official Public Record,",
     "click-here": "click here",
     "incorporation": "Incorporation",
     "doing_business_as": "Business Name registered by a corporation"

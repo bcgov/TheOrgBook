@@ -15,7 +15,7 @@
   <div class="row" *ngIf="loaded">
     <div class="col-md-12">
         <div class="col-sm-12">
-            <a [routerLink]="'../../' | localize" class="title-back-link mrgn-bttm-md">
+            <a [routerLink]="'../../' | localize" class="title-back-link mrgn-bttm-md">!!!!!
               <span class="fa fa-arrow-left"></span> {{'topic.return-link' | translate}}</a>
             
               <div class="panel name-panel">
@@ -83,11 +83,11 @@
                             </div>
                         </div>
                     </div>
-                   
+                    {{addresses.length}}!!!!
                     <div class="row form-group"  *ngIf="record.addresses.length > 0">
                         <label class="col-sm-3 control-label" translate>cred.jurisdiction</label>
                         <div class="form-field">
-                            <span *ngIf="record.effective_date"></span>
+                            {{record.address[0].province}}
                         </div>
                     </div>
 
