@@ -96,7 +96,17 @@
                           <button type="button" [class]="'btn btn-primary btn-verify' + (verifying ? ' loading' : '')" (click)="verifyCred($event)">
                             <span class="fa fa-accept"></span> {{'cred.verify-button-label' | translate}}</button>
                         </div>
-                      </div>  
+                    </div>  
+                    
+                    <div class="row form-group">
+                      <div class="disclaimer" translate>
+                            <b translate>cred.note</b>
+                            cred.disclaimer
+                            <a href="https://www.ontario.ca/page/public-record-search" class="disclaimer-link" 
+                            target="_blank" 
+                            translate>topic.click-here</a>
+                        </div>
+                    </div>
 
                       <div class="row cred-verify" *ngIf="verifyResult || verifying">
                           <div class="col-sm-12" *ngIf="verifying">
