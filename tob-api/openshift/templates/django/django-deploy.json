@@ -213,6 +213,45 @@
                     }
                   },
                   {
+                    "name": "WALLET_TYPE",
+                    "value": "${WALLET_TYPE}"
+                  },
+                  {
+                    "name": "POSTGRESQL_WALLET_HOST",
+                    "value": "${POSTGRESQL_WALLET_HOST}"
+                  },
+                  {
+                    "name": "POSTGRESQL_WALLET_PORT",
+                    "value": "${POSTGRESQL_WALLET_PORT}"
+                  },
+                  {
+                    "name": "POSTGRESQL_WALLET_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${POSTGRESQL_WALLET_HOST}",
+                        "key": "database-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_WALLET_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${POSTGRESQL_WALLET_HOST}",
+                        "key": "database-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_WALLET_ADMIN_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${POSTGRESQL_WALLET_HOST}",
+                        "key": "admin-password"
+                      }
+                    }
+                  },
+                  {
                     "name": "APP_CONFIG",
                     "value": "${APP_CONFIG}"
                   },
@@ -349,6 +388,27 @@
       "value": "TheOrgBook_Database"
     },
     {
+      "name": "WALLET_TYPE",
+      "displayName": "Wallet Storage Type",
+      "description": "The wallet storage type.  Your choice of 'postgres' or 'sqlite' at the moment.  If not defined, defaults to 'sqlite' for compatibility",
+      "required": false,
+      "value": ""
+    },
+    {
+      "name": "POSTGRESQL_WALLET_HOST",
+      "displayName": "PostgreSql Wallet Hostname",
+      "required": true,
+      "description": "Hostname of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgre.",
+      "value": "wallet-db"
+    },
+    {
+      "name": "POSTGRESQL_WALLET_PORT",
+      "displayName": "PostgreSql Wallet Port",
+      "required": true,
+      "description": "The port number of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgre.",
+      "value": "5432"
+    },
+    {
       "name": "APP_CONFIG",
       "displayName": "Application Configuration File Path",
       "description": "Relative path to Gunicorn configuration file (optional)."
@@ -426,7 +486,7 @@
     {
       "name": "INDY_WALLET_TYPE",
       "displayName": "Indy Wallet Type",
-      "description": "The wallet type to use; remote (enterprise) or virtual (local), defaults to virtual.",
+      "description": "DEPRICATED - The wallet type to use; remote (enterprise) or virtual (local), defaults to virtual.",
       "required": true,
       "value": "virtual"
     },
