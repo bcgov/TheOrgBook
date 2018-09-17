@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { IssuerResult, CredentialTypeResult } from '../data-types';
-import { IssuerClient } from '../search/issuer.client';
-import { IssuerCredentialTypeClient } from '../search/credential-type.client';
+import { Fetch, Model } from '../data-types';
+import { GeneralDataService } from '../general-data.service';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -13,57 +12,50 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class IssuerFormComponent implements OnInit, OnDestroy {
   id: number;
-  loaded: boolean;
-  credentialTypesLoaded: boolean;
-  record: IssuerResult;
-  credentialTypeRecords: CredentialTypeResult[];
-  error: string;
+
+  private _loader = new Fetch.ModelLoader(Model.Issuer);
+  private _credTypes = new Fetch.ModelListLoader(Model.IssuerCredentialType);
   private _idSub: Subscription;
-  private _issuerSub: Subscription;
-  private _issuerCredentialTypeSub: Subscription;
 
   constructor(
+    private _dataService: GeneralDataService,
     private _route: ActivatedRoute,
-    private _issuerClient: IssuerClient,
-    private _issuerCredentialTypeClient: IssuerCredentialTypeClient,
     private _sanitizer: DomSanitizer,
   ) { }
 
   ngOnInit() {
+    this._loader.ready.subscribe(result => {
+      this._dataService.loadList(this._credTypes, {parentId: this.id});
+    });
     this._idSub = this._route.params.subscribe(params => {
       this.id = +params['issuerId'];
-
-      this._issuerSub = this._issuerClient.subscribe(this._receiveIssuer.bind(this))
-      this._issuerClient.getById(this.id);
-
-      this._issuerCredentialTypeSub = this._issuerCredentialTypeClient.subscribe(this._receiveCredentialTypes.bind(this))
-      this._issuerCredentialTypeClient.getRelatedById(this.id);
+      this._dataService.loadRecord(this._loader, this.id);
     });
   }
 
   ngOnDestroy() {
     this._idSub.unsubscribe();
-    this._issuerSub.unsubscribe();
-    this._issuerCredentialTypeSub.unsubscribe();
+    this._loader.complete();
+    this._credTypes.complete();
+  }
+
+  get result() {
+    return this._loader.result;
+  }
+
+  get result$() {
+    return this._loader.stream;
+  }
+
+  get credTypes$() {
+    return this._credTypes.stream;
   }
 
   get safeImg() {
-    if(this.record.logo_b64) {
-      let src = 'data:image/*;base64,' + this.record.logo_b64;
+    if(this.result.data.logo_b64) {
+      let src = 'data:image/*;base64,' + this.result.data.logo_b64;
       return this._sanitizer.bypassSecurityTrustUrl(src);
     }
-  }
-
-  protected _receiveIssuer(loading: boolean) {
-    if (!this._issuerClient.result) return;
-    this.record = this._issuerClient.result.data;
-    this.loaded = true;
-  }
-
-  protected _receiveCredentialTypes(loading: boolean) {
-    if (!this._issuerCredentialTypeClient.results) return;
-    this.credentialTypeRecords = this._issuerCredentialTypeClient.results.rows;
-    this.credentialTypesLoaded = true;
   }
 
 }
