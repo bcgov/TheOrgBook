@@ -2,7 +2,6 @@
     <h3 class="panel-title"> <strong>{{name.text }}</strong></h3>
 
   <div class="panel-body form-body">
-
       <div class="row form-group">
           <label class="col-sm-3 control-label" translate>cred.type</label>
           <div class="form-field">
@@ -17,13 +16,6 @@
       </div>
 
       <div class="row form-group">
-            <label class="col-sm-3 control-label" translate>cred.corp-num</label>
-            <div class="form-field">
-               {{record.source_id}}
-            </div>
-      </div>
-
-      <div class="row form-group">
             <label class="col-sm-3 control-label" translate>cred.status</label>
             <div class="form-field">
                     <div  *ngFor="let category of categories">
@@ -35,7 +27,7 @@
                     </div>
             </div>
       </div>
-
+     
       <div class="row form-group" *ngIf="addresses.length > 0">
           <label class="col-sm-3 control-label" translate>cred.municipality</label>
           <div class="form-field">
@@ -43,17 +35,11 @@
           </div>
       </div>
 
-      <div class="row form-group" *ngIf="addresses.length > 0">
-          <label class="col-sm-3 control-label" translate>cred.jurisdiction</label>
-          <div class="form-field">
-              {{addresses[0].province}}
-          </div>
-      </div>
-
       <div class="disclaimer" translate>
           <b translate>topic.note</b>
           topic.disclaimer
-          <a href='https://www.ontario.ca/page/public-record-search' style="text-decoration: underline;" translate>topic.click-here</a>
+          <a class="disclaimer-link" href="https://www.ontario.ca/page/public-record-search" target="_blank" 
+          translate>topic.click-here</a>
       </div>
     
     

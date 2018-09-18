@@ -68,6 +68,10 @@ a {
   position: relative;
 }
 
+.disclaimer-link{
+  color: #06c;
+  text-decoration: underline;
+}
 .btn {
   text-decoration: none;
 }
@@ -150,4 +154,7 @@ footer li {
 footer .navbar-nav > li > a {
   padding-top: 0;
   padding-bottom: 0;
+}
+.section-title {
+  margin-left: 15px;
 }

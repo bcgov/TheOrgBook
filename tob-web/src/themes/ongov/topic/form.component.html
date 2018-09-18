@@ -18,6 +18,7 @@
   </div>
 
   <div class="row" *ngIf="result.loaded">
+      <h4><strong class="section-title" translate>cred.breadcrumb</strong></h4>
     <div class="col-sm-12" *ngIf="(creds$ | async) as creds">
       <loading-indicator [loading]="creds.loading"></loading-indicator>
       <error-message [error]="creds.error"></error-message>
