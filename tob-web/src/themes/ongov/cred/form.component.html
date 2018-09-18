@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     <div class="row form-group">
-                            <div class="disclaimer" translate>
+                            <div class="disclaimer-cred" translate>
                                   <b translate>cred.note</b>
                                   cred.disclaimer
                                   <a href="https://www.ontario.ca/page/public-record-search" class="disclaimer-link" 
@@ -103,7 +103,7 @@
                           <p translate>cred.verifying-record</p>
                         </section>
                       </div>
-                      <error-message [error]="verify.error"></error-message>
+                      <error-message [error]="verify.error"></error-message>***
                       <div class="col-sm-12" *ngIf="verify.data as verifyResult">
                         <div [class]="'verify-result panel panel-' + (verifyResult.success ? 'success' : 'warning')">
                           <div class="panel-heading">
