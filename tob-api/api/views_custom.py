@@ -4,7 +4,7 @@
     TheOrgBook is a repository for Verifiable Claims made about Organizations related to a known foundational Verifiable Claim. See https://github.com/bcgov/VON
 
     OpenAPI spec version: v1
-        
+
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ from rest_framework.views import APIView
 from django.http.response import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import permissions 
+from rest_framework import permissions
 from rest_framework import mixins
 from rest_framework import generics
 from rest_framework_bulk import BulkCreateModelMixin
@@ -50,9 +50,10 @@ from django.conf import settings
 # Custom views.  This file is hand edited.
 
 class verifiableOrgsIdVerifiableclaimsGet(APIView):
+  permission_classes = (permissions.AllowAny,)
   def get(self, request, id):
-    """  
-    Returns the Claims for a verifiable Organization  
+    """
+    Returns the Claims for a verifiable Organization
     """
     org = VerifiableOrg.objects.get(id=id)
     claims = VerifiableClaim.objects.filter(verifiableOrgId=org)
@@ -60,9 +61,10 @@ class verifiableOrgsIdVerifiableclaimsGet(APIView):
     return Response(serializer.data)
 
 class verifiableOrgsIdDoingBusinessAsGet(APIView):
+  permission_classes = (permissions.AllowAny,)
   def get(self, request, id):
-    """  
-    Returns the Doing Business As information for a verifiable Organization  
+    """
+    Returns the Doing Business As information for a verifiable Organization
     """
     org = VerifiableOrg.objects.get(id=id)
     dbas = DoingBusinessAs.objects.filter(verifiableOrgId=org)
@@ -70,9 +72,10 @@ class verifiableOrgsIdDoingBusinessAsGet(APIView):
     return Response(serializer.data)
 
 class verifiableOrgsIdLocationsGet(APIView):
+  permission_classes = (permissions.AllowAny,)
   def get(self, request, id):
-    """  
-    Returns the locations for a verifiable Organization  
+    """
+    Returns the locations for a verifiable Organization
     """
     org = VerifiableOrg.objects.get(id=id)
     locations = Location.objects.filter(verifiableOrgId=org)
@@ -80,6 +83,7 @@ class verifiableOrgsIdLocationsGet(APIView):
     return Response(serializer.data)
 
 class quickLoad(APIView):
+  permission_classes = (permissions.AllowAny,)
   def get(self, request):
     """
     Used to initialize a client application.
@@ -109,8 +113,9 @@ class quickLoad(APIView):
     response['records']['verifiableorgtypes'] = serializers.VerifiableOrgTypeSerializer(orgTypes, many=True).data
 
     return JsonResponse(response)
-  
+
 class recordCounts(APIView):
+  permission_classes = (permissions.AllowAny,)
   @staticmethod
   def get_recordCounts():
     return {
@@ -125,21 +130,22 @@ class recordCounts(APIView):
       'verifiableorgs': VerifiableOrg.objects.count(),
       'verifiableorgtypes': VerifiableOrgType.objects.count(),
     }
-  
+
   def get(self, request):
-    """  
+    """
     Returns record count information.
     """
     response = {
       'counts': self.get_recordCounts()
     }
-    
+
     return JsonResponse(response)
 
 class custom_settings(APIView):
-  """  
+  """
     Returns contents of an active custom DJANGO settings file as raw JSON
     """
+  permission_classes = (permissions.AllowAny,)
   def get(self, request):
 
     data = {}
