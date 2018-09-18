@@ -273,6 +273,10 @@
                     "value": "${SOLR_CORE_NAME}"
                   },
                   {
+                    "name": "SKIP_INDEXING_ON_STARTUP",
+                    "value": "${SKIP_INDEXING_ON_STARTUP}"
+                  },
+                  {
                     "name": "INDY_WALLET_SEED",
                     "value": "${INDY_WALLET_SEED}"
                   },
@@ -343,6 +347,24 @@
             ]
           }
         }
+      }
+    },
+    {
+      "kind": "HorizontalPodAutoscaler",
+      "apiVersion": "autoscaling/v1",
+      "metadata": {
+        "name": "${NAME}",
+        "labels": {
+          "app": "${NAME}"
+        }
+      },
+      "spec": {
+        "scaleTargetRef": {
+          "kind": "DeploymentConfig",
+          "name": "${NAME}"
+        },
+        "minReplicas": 1,
+        "maxReplicas": 4
       }
     }
   ],
@@ -450,6 +472,13 @@
       "value": "the_org_book"
     },
     {
+      "name": "SKIP_INDEXING_ON_STARTUP",
+      "displayName": "Skip Indexing On Startup",
+      "description": "Set this flag to `true` to skip indexing on startup as part of the database migration; set to `false` otherwise.  When there are a large number of records to index, indexing at startup can cause startup delays and issues.",
+      "required": true,
+      "value": "true"
+    },
+    {
       "name": "TAG_NAME",
       "displayName": "Environment TAG name",
       "description": "The TAG name for this environment, e.g., dev, test, prod",
@@ -545,30 +574,30 @@
       "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
     },
     {
-      "name": "CPU_LIMIT",
-      "displayName": "Resources CPU Limit",
-      "description": "The resources CPU limit (in cores) for this build.",
-      "required": true,
-      "value": "1"
-    },
-    {
-      "name": "MEMORY_LIMIT",
-      "displayName": "Resources Memory Limit",
-      "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
-      "required": true,
-      "value": "1.5Gi"
-    },   
-    {
       "name": "CPU_REQUEST",
       "displayName": "Resources CPU Request",
       "description": "The resources CPU request (in cores) for this build.",
       "required": true,
-      "value": "250m"
+      "value": "100m"
+    },
+    {
+      "name": "CPU_LIMIT",
+      "displayName": "Resources CPU Limit",
+      "description": "The resources CPU limit (in cores) for this build.",
+      "required": true,
+      "value": "750m"
     },
     {
       "name": "MEMORY_REQUEST",
       "displayName": "Resources Memory Request",
       "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
+      "required": true,
+      "value": "256Mi"
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "displayName": "Resources Memory Limit",
+      "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
       "required": true,
       "value": "512Mi"
     }
