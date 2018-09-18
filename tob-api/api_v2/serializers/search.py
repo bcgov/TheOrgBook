@@ -1,16 +1,16 @@
 # TODO: migrate most of these serializers to a UI specific serializer module
 
-from drf_haystack.serializers import (
-    HaystackSerializerMixin,
-    HaystackSerializer,
-)
-
-from rest_framework.serializers import ListSerializer, SerializerMethodField
+from collections import OrderedDict
+from datetime import datetime, timedelta
+import logging
 
 from django.db.models.manager import Manager
 
-from collections import OrderedDict
+from rest_framework.serializers import ListSerializer, SerializerMethodField
 from rest_framework.utils.serializer_helpers import ReturnDict
+from drf_haystack.serializers import (
+    HaystackSerializerMixin, HaystackSerializer, HaystackFacetSerializer,
+)
 
 from api_v2.serializers.rest import (
     AddressSerializer,
@@ -19,11 +19,10 @@ from api_v2.serializers.rest import (
     PersonSerializer,
     TopicSerializer,
     CredentialSerializer,
+    CredentialTypeSerializer,
     IssuerSerializer,
     CategorySerializer,
 )
-
-from api_v2.search_indexes import TopicIndex
 
 from api_v2.models.Name import Name
 from api_v2.models.Address import Address
@@ -32,7 +31,7 @@ from api_v2.models.Contact import Contact
 from api_v2.models.Category import Category
 from api_v2 import utils
 
-import logging
+from api_v2.search_indexes import CredentialIndex
 
 logger = logging.getLogger(__name__)
 
@@ -79,24 +78,12 @@ class CustomIssuerSerializer(IssuerSerializer):
 
 class CustomAddressSerializer(AddressSerializer):
     last_updated = SerializerMethodField()
-    # issuer = SerializerMethodField()
 
     class Meta(AddressSerializer.Meta):
-        fields = list(
-            utils.fetch_custom_settings(
-                "serializers", "Address", "includeFields"
-            )
-        )
-        fields.append("last_updated")
+        fields = tuple(AddressSerializer.Meta.fields) + ("credential_id", "last_updated")
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
-
-    def get_issuer(self, obj):
-        serializer = CustomIssuerSerializer(
-            instance=obj.credential.credential_type.issuer
-        )
-        return serializer.data
 
 
 class CustomNameSerializer(NameSerializer):
@@ -104,14 +91,7 @@ class CustomNameSerializer(NameSerializer):
     issuer = SerializerMethodField()
 
     class Meta(NameSerializer.Meta):
-        fields = (
-            "id",
-            "credential",
-            "last_updated",
-            "text",
-            "language",
-            "issuer",
-        )
+        fields = ("id", "credential_id", "last_updated", "text", "language", "issuer")
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
@@ -125,43 +105,29 @@ class CustomNameSerializer(NameSerializer):
 
 class CustomContactSerializer(ContactSerializer):
     last_updated = SerializerMethodField()
-    # issuer = SerializerMethodField()
 
     class Meta(ContactSerializer.Meta):
-        fields = ("id", "credential", "last_updated", "text", "type")
+        fields = ("id", "credential_id", "last_updated", "text", "type")
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
-
-    def get_issuer(self, obj):
-        serializer = CustomIssuerSerializer(
-            instance=obj.credential.credential_type.issuer
-        )
-        return serializer.data
 
 
 class CustomPersonSerializer(PersonSerializer):
     last_updated = SerializerMethodField()
-    # issuer = SerializerMethodField()
 
     class Meta(PersonSerializer.Meta):
-        fields = ("id", "credential", "last_updated", "full_name")
+        fields = ("id", "credential_id", "last_updated", "full_name")
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
-
-    def get_issuer(self, obj):
-        serializer = CustomIssuerSerializer(
-            instance=obj.credential.credential_type.issuer
-        )
-        return serializer.data
 
 
 class CustomCategorySerializer(CategorySerializer):
     last_updated = SerializerMethodField()
 
     class Meta(CategorySerializer.Meta):
-        fields = ("id", "credential", "last_updated", "type", "value")
+        fields = ("id", "credential_id", "last_updated", "type", "value")
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
@@ -188,41 +154,34 @@ class CustomTopicSerializer(TopicSerializer):
             "categories",
         )
 
-    def get_credential_ids(self, obj):
-        if not self.credential_ids:
-            self.credential_ids = list(
-                obj.credentials
-                .filter(revoked=False)
-                .values_list("id", flat=True)
-            )
-
-        return self.credential_ids
-
     def get_names(self, obj):
-        names = Name.objects.filter(credential__topic=obj)
+        names = Name.objects.filter(credential__topic=obj, credential__revoked=False)
         serializer = CustomNameSerializer(instance=names, many=True)
         return serializer.data
 
     def get_addresses(self, obj):
-        addresses = Address.objects.filter(credential__topic=obj)
+        addresses = Address.objects.filter(
+            credential__topic=obj, credential__revoked=False
+        )
         serializer = CustomAddressSerializer(instance=addresses, many=True)
         return serializer.data
 
     def get_contacts(self, obj):
-        credential_ids = self.get_credential_ids(obj)
-        contacts = Contact.objects.filter(credential__topic=obj)
+        contacts = Contact.objects.filter(
+            credential__topic=obj, credential__revoked=False
+        )
         serializer = CustomContactSerializer(instance=contacts, many=True)
         return serializer.data
 
     def get_people(self, obj):
-        credential_ids = self.get_credential_ids(obj)
-        people = Person.objects.filter(credential__topic=obj)
+        people = Person.objects.filter(credential__topic=obj, credential__revoked=False)
         serializer = CustomPersonSerializer(instance=people, many=True)
         return serializer.data
 
     def get_categories(self, obj):
-        credential_ids = self.get_credential_ids(obj)
-        categories = Category.objects.filter(credential__topic=obj)
+        categories = Category.objects.filter(
+            credential__topic=obj, credential__revoked=False
+        )
         serializer = CustomCategorySerializer(instance=categories, many=True)
         return serializer.data
 
@@ -233,20 +192,83 @@ class TopicSearchSerializer(HaystackSerializerMixin, CustomTopicSerializer):
     class Meta(CustomTopicSerializer.Meta):
         pass
 
-    def get_credential_ids(self, obj):
-        if not self.credential_ids:
-            self.credential_ids = list(
-                obj.credentials
-                .filter(revoked=False)
-                .values_list("id", flat=True)
-            )
 
-        return self.credential_ids
+class CredentialAddressSerializer(AddressSerializer):
+    class Meta(AddressSerializer.Meta):
+        fields = tuple(f for f in AddressSerializer.Meta.fields if f != "credential")
+
+class CredentialCategorySerializer(CategorySerializer):
+    class Meta(CategorySerializer.Meta):
+        fields = None
+        exclude = ("credential",)
+
+class CredentialNameSerializer(NameSerializer):
+    class Meta(NameSerializer.Meta):
+        fields = None
+        exclude = ("credential",)
+
+class CredentialTopicSerializer(TopicSerializer):
+    class Meta(TopicSerializer.Meta):
+        fields = (
+            "id", "create_timestamp", "update_timestamp",
+            "source_id", "type",
+        )
 
 
-class TopicSearchResultsSerializer(HaystackSerializer):
+class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
+    addresses = CredentialAddressSerializer(many=True)
+    categories = CredentialCategorySerializer(many=True)
+    credential_type = CredentialTypeSerializer()
+    names = CredentialNameSerializer(many=True)
+    topic = CredentialTopicSerializer()
+
+    class Meta(CredentialSerializer.Meta):
+        fields = (
+            "id", "create_timestamp", "update_timestamp",
+            "credential_type", "effective_date",
+            "addresses", "categories", "names",
+            "revoked", "topic",
+        )
+        search_fields = (
+            "name", "location", "category",
+            "effective_date", "revoked",
+            "topic_id", "topic_type", "topic_source_id",
+            "credential_type_id", "issuer_id",
+        )
+
+
+class CredentialFacetSerializer(HaystackFacetSerializer):
+    serialize_objects = True
     class Meta:
-        # index_classes = [TopicIndex]
-        # list_serializer_class = SearchResultsListSerializer
-        search_fields = ("name", "location")
-        serializers = {TopicIndex: TopicSearchSerializer}
+        index_classes = [CredentialIndex]
+        fields = [
+            "effective_date", "topic_type", "issuer_id",
+            # "credential_type_id",
+        ]
+        field_options = {
+            "topic_type": {},
+            "issuer_id": {},
+# date faceting isn't working, needs to use Solr range faceting
+# https://github.com/django-haystack/django-haystack/issues/1572
+#             "effective_date": {
+#                 "start_date": datetime.now() - timedelta(days=50000),
+#                 "end_date": datetime.now(),
+#                 "gap_by": "month",
+#                 "gap_amount": 3
+#             },
+        }
+
+    def get_objects(self, instance):
+        """
+        Overriding default behaviour to use more standard pagination info
+        """
+        view = self.context["view"]
+        queryset = self.context["objects"]
+
+        page = view.paginate_queryset(queryset)
+        if page is not None:
+            serializer = view.get_facet_objects_serializer(page, many=True)
+            response = view.paginator.get_paginated_response(serializer.data)
+            return response.data # unwrap value
+
+        return super(CredentialFacetSerializer, self).get_objects()

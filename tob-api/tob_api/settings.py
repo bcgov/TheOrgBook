@@ -72,7 +72,13 @@ INSTALLED_APPS = [
 
 HAYSTACK_CONNECTIONS = {"default": haystack.config()}
 
-# HAYSTACK_SIGNAL_PROCESSOR = "api_v2.signals.RelatedRealtimeSignalProcessor"
+if os.getenv("ENABLE_REALTIME_INDEXING"):
+    print("Enabling realtime indexing ...")
+    HAYSTACK_SIGNAL_PROCESSOR = "api_v2.signals.RelatedRealtimeSignalProcessor"
+else:
+    print("Realtime indexing has been disabled ...")
+
+HAYSTACK_DOCUMENT_FIELD = "document"
 
 MIDDLEWARE_CLASSES = [
     "django.middleware.security.SecurityMiddleware",
@@ -169,7 +175,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = "/api/static/"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 

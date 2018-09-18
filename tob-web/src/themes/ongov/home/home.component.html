@@ -10,7 +10,9 @@
         {{'general.other-error' | translate}}
       </div>
 
-  <h1 class="home-title text-left" translate *ngIf="inited">home.title</h1>
+      <span><h1 class="home-title text-left" translate *ngIf="inited">home.title<span class="beta">beta</span><img class="beaker"
+    tabindex="1" 
+    [src]="'assets/beaker.png'"></h1></span>
 
   <div class="row" *ngIf="inited && !loadError">
     <div class="col-sm-12">

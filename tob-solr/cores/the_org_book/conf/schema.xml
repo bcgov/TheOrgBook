@@ -48,6 +48,21 @@
 <schema name="haystack-schema" version="1.6">
 
     <!--
+    ### Autocomplete support - added manually, not using the generator
+    -->
+    <field name="name_suggest" type="keyword_tokens" indexed="true" stored="true" multiValued="true"/>
+
+    <copyField source="name" dest="name_suggest"/>
+
+	<fieldType name="keyword_tokens" class="solr.TextField" positionIncrementGap="100">
+		<analyzer>
+			<tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.TrimFilterFactory"/>
+		</analyzer>
+	</fieldType>
+
+    <!--
     ######################## django-haystack specifics begin ########################
     -->
 
@@ -81,29 +96,33 @@
     <field name="django_ct" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="django_id" type="string" indexed="true" stored="true" multiValued="false"/>
 
-    <field name="text" type="text_en" indexed="true" stored="true" multiValued="false" />
+    <field name="credential_type_id" type="long" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="document" type="text_en" indexed="true" stored="true" multiValued="false" />
+     
+    <field name="credential_type_id_exact" type="long" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="topic_type_exact" type="string" indexed="true" stored="true" multiValued="false" />
 
-    <field name="dbaName" type="text_en" indexed="true" stored="true" multiValued="false" />
+    <field name="topic_id" type="long" indexed="true" stored="true" multiValued="false" />
 
-    <field name="name" type="text_en" indexed="true" stored="true" multiValued="false" />
+    <field name="category" type="text_en" indexed="true" stored="true" multiValued="true" />
 
-    <field name="autocomplete" type="edge_ngram" indexed="true" stored="true" multiValued="false" />
-
-    <field name="addressee" type="text_en" indexed="true" stored="true" multiValued="false" />
-
-    <field name="municipality" type="text_en" indexed="true" stored="true" multiValued="false" />
-
-    <field name="postalCode" type="text_en" indexed="true" stored="true" multiValued="false" />
-
-    <field name="province" type="text_en" indexed="true" stored="true" multiValued="false" />
-
-    <field name="streetAddress" type="text_en" indexed="true" stored="true" multiValued="false" />
-
-    <field name="orgId" type="text_en" indexed="true" stored="true" multiValued="false" />
-
-    <field name="legalName" type="text_en" indexed="true" stored="true" multiValued="false" />
-
-    <field name="location" type="text_en" indexed="true" stored="true" multiValued="false" />
+    <field name="location" type="text_en" indexed="true" stored="true" multiValued="true" />
+     
+    <field name="name" type="text_en" indexed="true" stored="true" multiValued="true" />
+     
+    <field name="effective_date_exact" type="date" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="topic_type" type="text_en" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="effective_date" type="date" indexed="true" stored="true" multiValued="false" />
+        
+    <field name="revoked" type="boolean" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="issuer_id" type="long" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="source_id" type="text_en" indexed="true" stored="true" multiValued="false" />
 
     <uniqueKey>id</uniqueKey>
 
@@ -439,7 +458,7 @@
             -->
             <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_en.txt" />
             <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="15" />
+            <!-- filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="15" / -->
             <filter class="solr.EnglishPossessiveFilterFactory"/>
             <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
             <!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:

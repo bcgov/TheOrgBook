@@ -20,7 +20,6 @@ import { AdminModule } from './admin/admin.module';
 import { SearchBoxDirective } from './search-box/search-box.directive';
 
 import { HomeComponent } from './home/home.component';
-import { IssuerFormComponent } from './issuer/form.component';
 
 import { CredModule } from './cred/cred.module';
 import { SearchModule } from './search/search.module';
@@ -59,16 +58,14 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
     AppFooterComponent,
     SearchBoxDirective,
     BreadcrumbComponent,
-
     HomeComponent,
-    IssuerFormComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpClientModule,
     AppRoutingModule,
-    NgbModule,
+    NgbModule.forRoot(),
     AdminModule,
     CredModule,
     SearchModule,
