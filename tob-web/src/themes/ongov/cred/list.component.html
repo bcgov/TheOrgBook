@@ -29,7 +29,7 @@
                   <!-- TODO: Create mapping for type: human_readable. Hard coded? Issuer-registered? -->
                   <a [routerLink]="['/topic',  cred.topic.id] | localize"
                     class="body-link cred-link name">{{cred.names[0].text}}</a>
-                  <br>***
+                  <br>
                   <label *ngIf="cred.categories.length > 0">
                     <div  *ngFor="let category of cred.categories">
                        <div  *ngIf="category.type === 'topic_type'">
