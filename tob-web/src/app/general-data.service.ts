@@ -20,16 +20,12 @@ export class GeneralDataService {
   }
 
   getRequestUrl(path: string) : string {
-<<<<<<< HEAD
-   //let root = (<any>window).testApiUrl || this.apiUrl;
-   let root = 'http://localhost:8081/api/v2/'
-=======
     if(typeof path === 'string' && path.match(/^(\/\/|\w+:\/\/)\w/)) {
       // absolute URL
       return path;
     }
     let root = (<any>window).testApiUrl || this.apiUrl;
->>>>>>> upstream/master
+
     if(root) {
       if(! root.endsWith('/')) root += '/';
       return root + path;
