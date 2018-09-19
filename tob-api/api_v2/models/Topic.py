@@ -5,9 +5,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from auditable.models import Auditable
 
-import logging
-
-logger = logging.getLogger(__name__)
+from .Address import Address
+from .Category import Category
+from .Contact import Contact
+from .Name import Name
+from .Person import Person
 
 
 class Topic(Auditable):
@@ -24,6 +26,12 @@ class Topic(Auditable):
         symmetrical=False,
     )
 
+    _active_cred_ids = None
+
+    class Meta:
+        db_table = "topic"
+        unique_together = (("source_id", "type"),)
+
     def save(self, *args, **kwargs):
         """
         Call full_clean to apply form validation on save.
@@ -32,6 +40,38 @@ class Topic(Auditable):
         self.full_clean()
         super(Topic, self).save(*args, **kwargs)
 
-    class Meta:
-        db_table = "topic"
-        unique_together = (("source_id", "type"),)
+    def get_active_credential_ids(self):
+        if self._active_cred_ids is None:
+            self._active_cred_ids = set(self.credentials.filter(revoked=False)\
+                .only('id', 'topic_id').values_list('id', flat=True))
+        return self._active_cred_ids
+
+    def get_active_addresses(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            return Address.objects.filter(credential_id__in=creds)
+        return []
+
+    def get_active_categories(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            return Category.objects.filter(credential_id__in=creds)
+        return []
+
+    def get_active_contacts(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            return Contact.objects.filter(credential_id__in=creds)
+        return []
+
+    def get_active_names(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            return Name.objects.filter(credential_id__in=creds)
+        return []
+
+    def get_active_people(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            return Person.objects.filter(credential_id__in=creds)
+        return []
