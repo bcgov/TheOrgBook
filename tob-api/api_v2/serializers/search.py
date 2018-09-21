@@ -73,7 +73,7 @@ class CustomCredentialSerializer(CredentialSerializer):
 
     class Meta(CredentialSerializer.Meta):
         # depth =
-        fields = ("id", "effective_date", "revoked")
+        fields = ("id", "effective_date", "inactive", "revoked")
 
 
 class CustomIssuerSerializer(IssuerSerializer):
@@ -148,27 +148,37 @@ class CustomTopicSerializer(TopicSerializer):
         )
 
     def get_names(self, obj):
-        names = Name.objects.filter(credential__topic=obj, credential__revoked=False)
+        names = Name.objects.filter(
+            credential__topic=obj,
+            credential__inactive=False,
+            credential__revoked=False,
+        )
         serializer = CustomNameSerializer(instance=names, many=True)
         return serializer.data
 
     def get_addresses(self, obj):
         addresses = Address.objects.filter(
-            credential__topic=obj, credential__revoked=False
+            credential__topic=obj,
+            credential__inactive=False,
+            credential__revoked=False,
         )
         serializer = CustomAddressSerializer(instance=addresses, many=True)
         return serializer.data
 
     def get_attributes(self, obj):
         attributes = Attribute.objects.filter(
-            credential__topic=obj, credential__revoked=False
+            credential__topic=obj,
+            credential__inactive=False,
+            credential__revoked=False,
         )
         serializer = CustomAttributeSerializer(instance=attributes, many=True)
         return serializer.data
 
     def get_categories(self, obj):
         categories = Category.objects.filter(
-            credential__topic=obj, credential__revoked=False
+            credential__topic=obj,
+            credential__inactive=False,
+            credential__revoked=False,
         )
         serializer = CustomCategorySerializer(instance=categories, many=True)
         return serializer.data
@@ -187,11 +197,11 @@ class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
             "id", "create_timestamp", "update_timestamp",
             "credential_type", "effective_date",
             "addresses", "attributes", "categories", "names",
-            "revoked", "topic",
+            "inactive", "revoked", "topic",
         )
         search_fields = (
             "category", "location", "name",
-            "effective_date", "revoked",
+            "effective_date", "inactive", "revoked",
             "topic_id", "topic_type", "topic_source_id",
             "credential_type_id", "issuer_id",
         )
@@ -209,7 +219,7 @@ class CredentialTopicSearchSerializer(CredentialSearchSerializer):
             "id", "create_timestamp", "update_timestamp",
             "credential_type", "effective_date",
             "names",
-            "revoked", "topic",
+            "inactive", "revoked", "topic",
         )
 
 

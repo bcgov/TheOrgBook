@@ -106,14 +106,14 @@ class TopicViewSet(ModelViewSet):
     @detail_route(url_path="credential/active")
     def list_active_credentials(self, request, pk=None):
         item = self.get_object()
-        queryset = item.credentials.filter(revoked=False)
+        queryset = item.credentials.filter(revoked=False, inactive=False)
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @detail_route(url_path="credential/historical")
     def list_historical_credentials(self, request, pk=None):
         item = self.get_object()
-        queryset = item.credentials.filter(~Q(revoked=False))
+        queryset = item.credentials.filter(Q(revoked=True) | Q(inactive=True))
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -146,29 +146,40 @@ class CredentialViewSet(ModelViewSet):
     serializer_class = CredentialSerializer
     queryset = Credential.objects.all()
 
-    def retrieve(self, request, pk=None):
-        queryset = self.queryset.filter(Q(wallet_id=pk) | Q(pk=pk))
-        item = get_object_or_404(queryset)
-        serializer = CredentialSerializer(item)
-        return Response(serializer.data)
-
     @detail_route(url_path="formatted")
     def retrieve_formatted(self, request, pk=None):
-        item = get_object_or_404(self.queryset, pk=pk)
+        item = self.get_object()
         serializer = ExpandedCredentialSerializer(item)
         return Response(serializer.data)
 
     @list_route(url_path="active")
     def list_active(self, request, pk=None):
-        queryset = self.queryset.filter(revoked=False)
+        queryset = self.queryset.filter(revoked=False, inactive=False)
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @list_route(url_path="historical")
     def list_historical(self, request, pk=None):
-        queryset = self.queryset.filter(~Q(revoked=False))
+        queryset = self.queryset.filter(Q(revoked=True) | Q(inactive=True))
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    def get_object(self):
+        pk = self.kwargs.get("pk")
+        if not pk:
+            raise Http404()
+        filter = {"wallet_id": pk}
+        try:
+            filter = {"pk": int(pk)}
+        except (ValueError, TypeError):
+            pass
+
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = get_object_or_404(queryset, **filter)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class AddressViewSet(ModelViewSet):

@@ -157,7 +157,7 @@ build-api() {
     -e "HTTP_PROXY=${HTTP_PROXY}" \
     -e "HTTPS_PROXY=${HTTPS_PROXY}" \
     '../tob-api' \
-    'bcgovimages/von-image:py36-1.6-ew-s2i' \
+    'bcgovimages/von-image:py36-1.6-ew-2-s2i' \
     'django'
 }
 
@@ -214,6 +214,7 @@ configureEnvironment() {
 
   # wallet-db
   export WALLET_TYPE="postgres"
+  export WALLET_ENCRYPTION_KEY="key"
   export POSTGRESQL_WALLET_HOST="wallet-db"
   export POSTGRESQL_WALLET_PORT="5432"
   export POSTGRESQL_ADMIN_USER="postgres"
@@ -241,6 +242,7 @@ configureEnvironment() {
   export DJANGO_SECRET_KEY=wpn1GZrouOryH2FshRrpVHcEhMfMLtmTWMC2K5Vhx8MAi74H5y
   export DJANGO_DEBUG=True
   export DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL-INFO}
+  export INDY_DISABLED=${INDY_DISABLED-}
   export SOLR_SERVICE_NAME="tob-solr"
   export SOLR_CORE_NAME=${CORE_NAME}
   export SKIP_INDEXING_ON_STARTUP=${SKIP_INDEXING_ON_STARTUP-}
