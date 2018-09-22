@@ -133,7 +133,7 @@ class CustomTopicSerializer(TopicSerializer):
     names = SerializerMethodField()
     addresses = SerializerMethodField()
     attributes = SerializerMethodField()
-    categories = SerializerMethodField()
+    #categories = SerializerMethodField()
 
     class Meta(TopicSerializer.Meta):
         depth = 1
@@ -144,7 +144,7 @@ class CustomTopicSerializer(TopicSerializer):
             "names",
             "addresses",
             "attributes",
-            "categories",
+            #"categories",
         )
 
     def get_names(self, obj):
@@ -187,7 +187,7 @@ class CustomTopicSerializer(TopicSerializer):
 class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
     addresses = CredentialAddressSerializer(many=True)
     attributes = CredentialAttributeSerializer(many=True)
-    categories = CredentialCategorySerializer(many=True)
+    #categories = CredentialCategorySerializer(many=True)
     credential_type = CredentialTypeSerializer()
     names = CredentialNameSerializer(many=True)
     topic = CredentialTopicSerializer()
@@ -196,7 +196,8 @@ class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
         fields = (
             "id", "create_timestamp", "update_timestamp",
             "credential_type", "effective_date",
-            "addresses", "attributes", "categories", "names",
+            "addresses", "attributes", "names",
+            #"categories",
             "inactive", "revoked", "topic",
         )
         search_fields = (
@@ -209,7 +210,7 @@ class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
 
 class CredentialTopicSearchSerializer(CredentialSearchSerializer):
     """
-    Return credentials with addresses and categories removed, but
+    Return credentials with addresses and attributes removed, but
     added for the related topic instead
     """
     topic = CredentialTopicExtSerializer()
