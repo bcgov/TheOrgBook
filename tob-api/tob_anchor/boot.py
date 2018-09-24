@@ -194,7 +194,9 @@ def indy_holder_wallet_config(wallet_cfg: dict):
     }
 
 def indy_verifier_wallet_config(wallet_cfg: dict):
-    verifier_seed = "tob-verifier-wallet-000000000001"
+    verifier_seed = os.environ.get('INDY_VER_WALLET_SEED') # "TestBCGovSeedforSLNTOBV000000000"
+    if not verifier_seed or len(verifier_seed) is not 32:
+        raise ValueError('INDY_VER_WALLET_SEED must be set and be 32 characters long.')
 
     if wallet_cfg['type'] == 'postgres':
         return {
