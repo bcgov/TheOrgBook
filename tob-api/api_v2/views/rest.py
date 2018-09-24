@@ -17,10 +17,9 @@ from api_v2.serializers.rest import (
     CredentialSerializer,
     ExpandedCredentialSerializer,
     AddressSerializer,
-    ContactSerializer,
-    NameSerializer,
+    AttributeSerializer,
     CategorySerializer,
-    PersonSerializer,
+    NameSerializer,
     CredentialTopicExtSerializer,
 )
 
@@ -34,10 +33,9 @@ from api_v2.models.CredentialType import CredentialType
 from api_v2.models.Topic import Topic
 from api_v2.models.Credential import Credential
 from api_v2.models.Address import Address
-from api_v2.models.Contact import Contact
-from api_v2.models.Name import Name
-from api_v2.models.Person import Person
+from api_v2.models.Attribute import Attribute
 from api_v2.models.Category import Category
+from api_v2.models.Name import Name
 
 from api_v2 import utils
 
@@ -108,14 +106,14 @@ class TopicViewSet(ModelViewSet):
     @detail_route(url_path="credential/active")
     def list_active_credentials(self, request, pk=None):
         item = self.get_object()
-        queryset = item.credentials.filter(revoked=False)
+        queryset = item.credentials.filter(revoked=False, inactive=False)
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @detail_route(url_path="credential/historical")
     def list_historical_credentials(self, request, pk=None):
         item = self.get_object()
-        queryset = item.credentials.filter(~Q(revoked=False))
+        queryset = item.credentials.filter(Q(revoked=True) | Q(inactive=True))
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -156,13 +154,13 @@ class CredentialViewSet(ModelViewSet):
 
     @list_route(url_path="active")
     def list_active(self, request, pk=None):
-        queryset = self.queryset.filter(revoked=False)
+        queryset = self.queryset.filter(revoked=False, inactive=False)
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @list_route(url_path="historical")
     def list_historical(self, request, pk=None):
-        queryset = self.queryset.filter(~Q(revoked=False))
+        queryset = self.queryset.filter(Q(revoked=True) | Q(inactive=True))
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -189,19 +187,14 @@ class AddressViewSet(ModelViewSet):
     queryset = Address.objects.all()
 
 
-class ContactViewSet(ModelViewSet):
-    serializer_class = ContactSerializer
-    queryset = Contact.objects.all()
+class AttributeViewSet(ModelViewSet):
+    serializer_class = AttributeSerializer
+    queryset = Attribute.objects.all()
 
 
 class NameViewSet(ModelViewSet):
     serializer_class = NameSerializer
     queryset = Name.objects.all()
-
-
-class PersonViewSet(ModelViewSet):
-    serializer_class = PersonSerializer
-    queryset = Person.objects.all()
 
 
 class CategoryViewSet(ModelViewSet):

@@ -6,10 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 from auditable.models import Auditable
 
 from .Address import Address
+from .Attribute import Attribute
 from .Category import Category
-from .Contact import Contact
 from .Name import Name
-from .Person import Person
 
 
 class Topic(Auditable):
@@ -52,26 +51,20 @@ class Topic(Auditable):
             return Address.objects.filter(credential_id__in=creds)
         return []
 
+    def get_active_attributes(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            return Attribute.objects.filter(credential_id__in=creds)
+        return []
+
     def get_active_categories(self):
         creds = self.get_active_credential_ids()
         if creds:
             return Category.objects.filter(credential_id__in=creds)
         return []
 
-    def get_active_contacts(self):
-        creds = self.get_active_credential_ids()
-        if creds:
-            return Contact.objects.filter(credential_id__in=creds)
-        return []
-
     def get_active_names(self):
         creds = self.get_active_credential_ids()
         if creds:
             return Name.objects.filter(credential_id__in=creds)
-        return []
-
-    def get_active_people(self):
-        creds = self.get_active_credential_ids()
-        if creds:
-            return Person.objects.filter(credential_id__in=creds)
         return []
