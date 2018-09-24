@@ -6,10 +6,9 @@ from api_v2.models.Topic import Topic
 from api_v2.models.Credential import Credential
 from api_v2.models.Address import Address
 from api_v2.models.Claim import Claim
-from api_v2.models.Contact import Contact
 from api_v2.models.Name import Name
-from api_v2.models.Person import Person
 from api_v2.models.Category import Category
+from api_v2.models.Attribute import Attribute
 from api_v2 import utils
 
 
@@ -61,27 +60,21 @@ class ClaimSerializer(ModelSerializer):
         fields = "__all__"
 
 
-class ContactSerializer(ModelSerializer):
-    class Meta:
-        model = Contact
-        fields = "__all__"
-
-
 class NameSerializer(ModelSerializer):
     class Meta:
         model = Name
         fields = "__all__"
 
 
-class PersonSerializer(ModelSerializer):
-    class Meta:
-        model = Person
-        fields = "__all__"
-
-
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
+        fields = "__all__"
+
+
+class AttributeSerializer(ModelSerializer):
+    class Meta:
+        model = Attribute
         fields = "__all__"
 
 
@@ -96,21 +89,17 @@ class CredentialAddressSerializer(AddressSerializer):
             {*AddressSerializer.Meta.fields, "credential_id"} - {"credential"}
         )
 
+class CredentialAttributeSerializer(AttributeSerializer):
+    class Meta(AttributeSerializer.Meta):
+        fields = ("id", "type", "format", "value", "credential_id")
+
 class CredentialCategorySerializer(CategorySerializer):
     class Meta(CategorySerializer.Meta):
         fields = ("id", "type", "value", "credential_id")
 
-class CredentialContactSerializer(ContactSerializer):
-    class Meta(ContactSerializer.Meta):
-        fields = ("id", "type", "text", "credential_id")
-
 class CredentialNameSerializer(NameSerializer):
     class Meta(NameSerializer.Meta):
         fields = ("id", "text", "language", "credential_id")
-
-class CredentialPersonSerializer(PersonSerializer):
-    class Meta(PersonSerializer.Meta):
-        fields = ("id", "full_name", "credential_id")
 
 class CredentialTopicSerializer(TopicSerializer):
     class Meta(TopicSerializer.Meta):
@@ -122,25 +111,24 @@ class CredentialTopicSerializer(TopicSerializer):
 
 class CredentialTopicExtSerializer(TopicSerializer):
     addresses = CredentialAddressSerializer(source='get_active_addresses', many=True)
-    categories = CredentialCategorySerializer(source='get_active_categories', many=True)
-    #contacts = CredentialContactSerializer(source='get_active_contacts', many=True)
+    attributes = CredentialAttributeSerializer(source='get_active_attributes', many=True)
+    #categories = CredentialCategorySerializer(source='get_active_categories', many=True)
     names = CredentialNameSerializer(source='get_active_names', many=True)
-    #people = CredentialPersonSerializer(source='get_active_people', many=True)
 
     class Meta(TopicSerializer.Meta):
         fields = (
             "id", "create_timestamp", "update_timestamp",
             "source_id", "type",
-            "addresses", "categories", "names",
+            "addresses", "attributes", "names",
+            #"categories",
         )
 
 class ExpandedCredentialSerializer(CredentialSerializer):
     addresses = CredentialAddressSerializer(many=True)
-    categories = CredentialCategorySerializer(many=True)
-    contacts = CredentialContactSerializer(many=True)
+    attributes = CredentialAttributeSerializer(many=True)
+    #categories = CredentialCategorySerializer(many=True)
     credential_type = CredentialTypeSerializer()
     names = CredentialNameSerializer(many=True)
-    people = CredentialPersonSerializer(many=True)
     topic = CredentialTopicExtSerializer()
 
     class Meta(CredentialSerializer.Meta):
@@ -148,13 +136,13 @@ class ExpandedCredentialSerializer(CredentialSerializer):
         fields = (
             "id",
             "effective_date",
+            "inactive",
             "revoked",
             "wallet_id",
             "credential_type",
             "addresses",
-            "categories",
+            "attributes",
+            #"categories",
             "names",
-            "contacts",
-            "people",
             "topic",
         )

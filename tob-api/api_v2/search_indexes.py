@@ -23,6 +23,7 @@ class CredentialIndex(indexes.SearchIndex, indexes.Indexable):
     topic_id = indexes.IntegerField(model_attr="topic_id")
     topic_type = indexes.CharField(faceted=True, model_attr="topic__type")
     source_id = indexes.CharField(model_attr="topic__source_id")
+    inactive = indexes.BooleanField(model_attr="inactive")
     revoked = indexes.BooleanField(model_attr="revoked")
     effective_date = indexes.DateTimeField(faceted=True, model_attr="effective_date")
     credential_type_id = indexes.IntegerField(faceted=True, model_attr="credential_type_id")
@@ -34,7 +35,10 @@ class CredentialIndex(indexes.SearchIndex, indexes.Indexable):
 
     @staticmethod
     def prepare_category(obj):
-        return ["{}::{}".format(cat.type, cat.value) for cat in obj.categories.all()]
+        return [
+            "{}::{}".format(cat.type, cat.value)
+            for cat in obj.attributes.all()
+            if cat.format == "category"]
 
     @staticmethod
     def prepare_location(obj):
@@ -58,7 +62,7 @@ class CredentialIndex(indexes.SearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         prefetch = (
             "addresses",
-            "categories",
+            "attributes",
             "names",
         )
         select = (
