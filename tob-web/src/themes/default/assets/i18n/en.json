@@ -30,11 +30,13 @@
   },
   "cred": {
     "addresses": "Addresses",
+    "attributes": "Attributes",
     "breadcrumb": "Credential Information",
-    "contact": "Contact",
     "claims-proven": "Claims Proven and Verified",
+    "contact": "Contact",
     "cred-type": "Credential Type",
     "crypto-data": "Cryptographic Proof Data",
+    "empty-attribute": "–",
     "end-date": "End Date",
     "expired": "Expired",
     "expired-message": "This credential is expired and no longer verifiable.",
@@ -54,8 +56,8 @@
     "verify-button-label": "Verify Credential",
     "view-link": "View credential",
     "whats-this-link": "What's this?",
-    "verify-status": "Verification Status:",
-    "verified": "Verified"
+    "verified": "Verified",
+    "verify-status": "Verification Status:"
   },
   "general": {
     "date-entered": "Date Entered",
