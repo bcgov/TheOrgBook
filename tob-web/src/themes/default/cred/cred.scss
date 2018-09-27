@@ -105,5 +105,30 @@ div.claim-info {
   font-size: 1.5rem;
 }
 
+.attributes-outer {
+  max-width: 600px;
+}
+.attribute-table {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  margin-bottom: 0;
+  .attribute-type {
+    margin-bottom: 0;
+  }
+  .attribute-row:nth-child(even) {
+    background-color: #f3f3f3;
+  }
+}
+
+.form-field + .control-label, .form-field + .form-field {
+  margin-top: 10px;
+}
+
+.claim-meta {
+  padding-left: 3em;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
 //place all overrides for a specific theme in this file inside your theme/cred directory
 @import "../../_active/cred/cred.custom";
