@@ -1,22 +1,20 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from api_v2.models.Name import Name
 from api_v2.models.Address import Address
-from api_v2.models.Person import Person
-from api_v2.models.Contact import Contact
+from api_v2.models.Attribute import Attribute
 from api_v2.models.Category import Category
 from api_v2.models.Credential import Credential
+from api_v2.models.Name import Name
 
 from api_v2.indy.credential import CredentialManager
 
 
 MODEL_TYPE_MAP = {
-    "name": Name,
     "address": Address,
-    "person": Person,
-    "contact": Contact,
-    "category": Category,
+    "attribute": Attribute,
+    "category": Attribute,
+    "name": Name,
 }
 
 
@@ -58,6 +56,15 @@ class Command(BaseCommand):
                             field,
                             CredentialManager.process_mapping(field_mapper, credential),
                         )
+                    if model_name == "category":
+                        model.format = "category"
+
+                    # skip blank values
+                    if model_name == "name" and (model.text is None or model.text is ""):
+                        continue
+                    if (model_name == "category" or model_name == "attribute") and \
+                            (not model.type or model.value is None or model.value is ""):
+                        continue
 
                     model.credential = credential
                     model.save()

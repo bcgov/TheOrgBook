@@ -8,17 +8,17 @@ function load_data<T>(
     attr_map?: {[key: string]: any},
     list_map?: {[key: string]: any}): T {
   if(obj && result) {
-    Object.assign(obj, result);
-    if(attr_map) {
-      for(let k in attr_map) {
+    for(let k in result) {
+      if(attr_map && k in attr_map) {
         obj[k] = (result[k] === null || result[k] === undefined)
           ? null : (new Model[attr_map[k]])._load(result[k]);
       }
-    }
-    if(list_map) {
-      for(let k in list_map) {
+      else if(list_map && k in list_map) {
         obj[k] = (result[k] === null || result[k] === undefined)
           ? [] : result[k].map((v) => (new Model[list_map[k]])._load(v));
+      }
+      else {
+        obj[k] = result[k];
       }
     }
   }
@@ -45,7 +45,7 @@ export namespace Model {
     static extPath: string;
 
     constructor(data?: any) {
-      if(data !== undefined && data !== null) {
+      if(data) {
         this._load(data);
       }
     }
@@ -54,6 +54,20 @@ export namespace Model {
       let ctor = (this.constructor as ModelCtor<T>);
       return load_data(this, result, ctor.propertyMap, ctor.listPropertyMap);
     }
+
+    get pageTitle(): string {
+      return null;
+    }
+  }
+
+  function mapByType<T extends {type: string}>(input: T[]): {[key: string]: T} {
+    let result = {};
+    if(input) {
+      for(let obj of input) {
+        result[obj.type] = obj;
+      }
+    }
+    return result;
   }
 
   export class Address extends BaseModel {
@@ -65,53 +79,58 @@ export namespace Model {
     postal_code: string;
     country: string;
     address_type: string;
+    credential_id: number;
 
     static resourceName = 'address';
+  }
+
+  export class Attribute extends BaseModel {
+    id: number;
+    type: string;
+    format: string;
+    value: string;
+    credential_id: number;
+
+    get typeClass(): string {
+      if(this.format === 'email' || this.format === 'phone' || this.format === 'name')
+        return this.format;
+      if(this.format === 'url')
+        return 'website';
+    }
+
+    get typeLabel(): string {
+      if(this.type && ! ~this.type.indexOf('.'))
+        return `attribute.${this.type}`;
+      return this.type;
+    }
   }
 
   export class Category extends BaseModel {
     id: number;
     type: string;
     value: string;
+    credential_id: number;
 
     static resourceName = 'category';
-  }
-
-  export class Contact extends BaseModel {
-    id: number;
-    credential: Credential;
-    text: string;
-    type: string;
-    startDate: string;
-    endDate: string;
-
-    static resourceName = 'contact';
-
-    static propertyMap = {
-      credential: 'Credential',
-    };
-
-    get typeClass(): string {
-      var t = this.type;
-      if(t === 'contact.email') return 'email';
-      if(t === 'contact.phone' || t == 'contact.phone-business') return 'phone';
-      if(t === 'contact.website') return 'website';
-      return 'contact';
-    }
   }
 
   export class Credential extends BaseModel {
     id: number;
     credential_type: CredentialType;
     effective_date: string;
-    revoked: string;
+    inactive: boolean;
+    revoked: boolean;
 
     addresses: Address[];
+    _attributes: Attribute[];
+    _attribute_map: {[key: string]: Attribute};
     categories: Category[];
-    contacts: Contact[];
     names: Name[];
-    people: Person[];
     topic: Topic;
+
+    get pageTitle(): string {
+      return this.credential_type && this.credential_type.description;
+    }
 
     static resourceName = 'credential';
 
@@ -121,11 +140,22 @@ export namespace Model {
     };
     static listPropertyMap = {
       addresses: 'Address',
+      attributes: 'Attribute',
       categories: 'Category',
-      contacts: 'Contact',
       names: 'Name',
-      people: 'Person',
     };
+
+    get attributes(): Attribute[] {
+      return this._attributes;
+    }
+    set attributes(attrs: Attribute[]) {
+      this._attributes = attrs;
+      this._attribute_map = mapByType(this._attributes);
+    }
+
+    get attribute_map(): {[key: string]: Attribute} {
+      return this._attribute_map || {};
+    }
 
     get issuer(): Issuer {
       return this.credential_type && this.credential_type.issuer;
@@ -133,19 +163,16 @@ export namespace Model {
     set issuer(val: Issuer) {
     }
     get haveAddresses() {
-      return this.addresses && this.addresses.length;
+      return this.topic.addresses && this.topic.addresses.length;
     }
-    get haveContacts() {
-      return this.contacts && this.contacts.length;
-    }
-    get haveNames() {
-      return this.names && this.names.length;
-    }
-    get havePeople() {
-      return this.people && this.people.length;
+    get haveAttributes() {
+      return this.attributes && this.attributes.length;
     }
     get haveCategories() {
       return this.categories && this.categories.length;
+    }
+    get haveNames() {
+      return this.names && this.names.length;
     }
   }
 
@@ -221,6 +248,10 @@ export namespace Model {
 
     static resourceName = 'issuer';
 
+    get pageTitle(): string {
+      return this.name;
+    }
+
     get logo_url(): string {
       if(this.has_logo) {
         return `${Issuer.resourceName}/${this.id}/logo`;
@@ -235,36 +266,16 @@ export namespace Model {
 
   export class Name extends BaseModel {
     id: number;
-    credential: Credential;
     text: string;
     type: string;
-    startDate: string;
-    endDate: string;
-
-    // extra API fields
-    // address: Address;
-    issuer: Issuer;
+    credential_id: number;
 
     static resourceName = 'name';
 
+    // extra API fields
+    issuer: Issuer;
     static propertyMap = {
-      credential: 'Credential',
       issuer: 'Issuer',
-    };
-  }
-
-  export class Person extends BaseModel {
-    id: number;
-    credential: Credential;
-    fullName: string;
-    type: string;
-    startDate: string;
-    endDate: string;
-
-    static resourceName = 'person';
-
-    static propertyMap = {
-      credential: 'Credential',
     };
   }
 
@@ -274,17 +285,50 @@ export namespace Model {
     type: string;
 
     addresses: Address[];
-    names: Name[];
-    contacts: Contact[];
-    people: Person[];
+    _attributes: Attribute[];
+    _attribute_map: {[key: string]: Attribute};
     categories: Category[];
+    names: Name[];
 
     static resourceName = 'topic';
 
-    static propertyMap = {
-      address: 'Address',
-      category: 'Category',
+    static listPropertyMap = {
+      addresses: 'Address',
+      attributes: 'Attribute',
+      categories: 'Category',
+      names: 'Name',
     };
+
+    get attributes(): Attribute[] {
+      return this._attributes;
+    }
+    set attributes(attrs: Attribute[]) {
+      this._attributes = attrs;
+      this._attribute_map = mapByType(this._attributes);
+    }
+
+    get attribute_map(): {[key: string]: Attribute} {
+      return this._attribute_map || {};
+    }
+
+    get pageTitle(): string {
+      if(this.names && this.names.length) {
+        return this.names[0].text;
+      }
+    }
+
+    get preferredName(): Name {
+      let found = null;
+      if(this.names) {
+        for(let name of this.names) {
+          if(name.type === 'entity_name')
+            found = name;
+        }
+        if(! found)
+          found = this.names[0];
+      }
+      return found;
+    }
 
     get typeLabel(): string {
       if(this.type) return ('name.'+this.type).replace(/_/g, '-');

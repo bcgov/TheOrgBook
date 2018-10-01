@@ -24,11 +24,10 @@ from api_v2.models.CredentialType import CredentialType
 from api_v2.models.Credential import Credential as CredentialModel
 from api_v2.models.Claim import Claim
 
-from api_v2.models.Name import Name
 from api_v2.models.Address import Address
-from api_v2.models.Person import Person
-from api_v2.models.Contact import Contact
+from api_v2.models.Attribute import Attribute
 from api_v2.models.Category import Category
+from api_v2.models.Name import Name
 from api_v2.models.TopicRelationship import TopicRelationship
 
 LOGGER = logging.getLogger(__name__)
@@ -36,11 +35,10 @@ LOGGER = logging.getLogger(__name__)
 PROCESSOR_FUNCTION_BASE_PATH = "api_v2.processor"
 
 SUPPORTED_MODELS_MAPPING = {
-    "name": Name,
+    "attribute": Attribute,
     "address": Address,
-    "person": Person,
-    "contact": Contact,
-    "category": Category,
+    "category": Attribute,
+    "name": Name,
 }
 
 
@@ -462,6 +460,12 @@ class CredentialManager(object):
             if revoked:
                 credential_args["revoked"] = bool(revoked)
 
+            inactive = CredentialManager.process_mapping(
+                credential_config.get("inactive"), self.credential
+            )
+            if inactive:
+                credential_args["inactive"] = bool(inactive)
+
         credential = topic.credentials.create(**credential_args)
 
         # Create and associate claims for this credential
@@ -541,6 +545,15 @@ class CredentialManager(object):
                     field,
                     CredentialManager.process_mapping(field_mapper, self.credential),
                 )
+            if model_name == "category":
+                model.format = "category"
+
+            # skip blank values
+            if model_name == "name" and (model.text is None or model.text is ""):
+                continue
+            if (model_name == "category" or model_name == "attribute") and \
+                    (not model.type or model.value is None or model.value is ""):
+                continue
 
             model.credential = credential
             model.save()

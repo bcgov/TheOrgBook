@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalizeRouterModule } from 'localize-router';
 import { AddressComponent } from './address.component';
+import { AttributeComponent } from './attribute.component';
+import { AttributeListComponent } from './attribute-list.component';
 import { DateFormatPipe } from './date-format.pipe';
 import { ErrorMessageComponent } from './error-message.component';
 import { LoadingIndicatorComponent } from './loading-indicator.component';
@@ -15,6 +17,8 @@ const ROUTES = [];
 @NgModule({
   declarations: [
     AddressComponent,
+    AttributeComponent,
+    AttributeListComponent,
     DateFormatPipe,
     ErrorMessageComponent,
     LoadingIndicatorComponent,
@@ -31,6 +35,8 @@ const ROUTES = [];
   ],
   exports: [
     AddressComponent,
+    AttributeComponent,
+    AttributeListComponent,
     DateFormatPipe,
     ErrorMessageComponent,
     LoadingIndicatorComponent,

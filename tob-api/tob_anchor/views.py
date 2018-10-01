@@ -39,6 +39,10 @@ LOGGER = logging.getLogger(__name__)
 INSTRUMENT = True
 STATS = {"min": {}, "max": {}, "total": {}, "count": {}}
 
+INDY_KEYFINDER = None
+DJANGO_KEYFINDER = None
+KEY_CACHE = None
+
 
 class DjangoKeyFinder(KeyFinderBase):
     """
@@ -61,10 +65,16 @@ class DjangoKeyFinder(KeyFinderBase):
             pass
 
 
-INDY_KEYFINDER = IndyKeyFinder(indy_client(), indy_verifier_id())
-DJANGO_KEYFINDER = DjangoKeyFinder(INDY_KEYFINDER)
-KEY_CACHE = KeyCache(DJANGO_KEYFINDER)
-
+def get_key_finder(use_cache: bool = True):
+    global INDY_KEYFINDER, DJANGO_KEYFINDER, KEY_CACHE
+    if use_cache and KEY_CACHE:
+        return KEY_CACHE
+    if not INDY_KEYFINDER:
+        # may raise RuntimeError on indy_client() if Indy service has not been started
+        INDY_KEYFINDER = IndyKeyFinder(indy_client(), indy_verifier_id())
+        DJANGO_KEYFINDER = DjangoKeyFinder(INDY_KEYFINDER)
+        KEY_CACHE = KeyCache(DJANGO_KEYFINDER)
+    return INDY_KEYFINDER
 
 async def _check_signature(request, use_cache: bool = True):
     """
@@ -75,7 +85,7 @@ async def _check_signature(request, use_cache: bool = True):
         return True, request["didauth"]
     try:
         result = await verify_signature(
-            request.headers, KEY_CACHE if use_cache else INDY_KEYFINDER,
+            request.headers, get_key_finder(),
             request.method, request.path_qs)
         request["didauth"] = result
         ok = True
@@ -83,6 +93,10 @@ async def _check_signature(request, use_cache: bool = True):
         LOGGER.exception("Signature validation error:")
         result = web.json_response({"success": False, "result": "Signature required"}, status=400)
         request["didauth"] = None
+        ok = False
+    except:
+        LOGGER.exception("Signature validation error:")
+        result = web.json_response({"success": False, "result": "Not available"}, status=403)
         ok = False
     _time_end(perf)
     return ok, result
@@ -531,6 +545,13 @@ async def verify_credential(request):
         LOGGER.exception("Credential verification error:")
         return web.json_response(
             {"success": False, "result": "Credential verification error: {}".format(str(e))},
+            headers=headers,
+        )
+    except:
+        LOGGER.exception("Credential verification error:")
+        return web.json_response(
+            {"success": False, "result": "Not available"},
+            status=403,
             headers=headers,
         )
 
