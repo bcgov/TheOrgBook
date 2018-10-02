@@ -3,8 +3,8 @@
 
 // Define these in the order they should be deployed.
 def APP_NAMES = ['postgresql', 'django', 'schema-spy', 'solr', 'angular-on-nginx']
-def SOURCE_TAG = 'bc-tob-test'
-def DESTINATION_TAG = 'bc-tob-prod'
+def SOURCE_TAG = 'test'
+def DESTINATION_TAG = 'prod'
 
 node {
   APP_NAMES.each { appName ->
