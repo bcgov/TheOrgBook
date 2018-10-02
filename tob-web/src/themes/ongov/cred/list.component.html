@@ -1,9 +1,9 @@
 <div class="creds-list" *ngIf="format !='search'">
-<div *ngFor="let cred of records">
+    <div *ngFor="let cred of records">
     <div class="cred" *ngIf="cred.credential_type.schema.name.indexOf('registration') != -1">
         <div class="panel name-panel" >
             <div class="panel-heading" >
-                <a [title]="[cred.issuer.name]" class="header-link"  [routerLink]="['/issuer', cred.issuer.id] | localize">{{cred.issuer.name}} </a>
+                <a [title]="[cred.issuer.name]" class="header-link"  [routerLink]="['/issuer', cred.issuer.id] | localize">{{cred.issuer.abbreviation | translate}} </a>
 
             </div>
 
@@ -36,7 +36,7 @@
                   </div>
                 <div>
                   <div class="col-sm-5 cred-info">
-                    <label *ngIf="cred.topic.attribute_map['topic_type'] as topic_type">
+                    <label *ngIf="cred.topic.attribute_map['entity_type'] as topic_type">
                         {{('business_type.' + topic_type.value) | translate}}
                     </label>
                   </div>
