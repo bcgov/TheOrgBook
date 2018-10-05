@@ -29,6 +29,10 @@ export class GeneralDataService {
       return path;
     }
     let root = (<any>window).testApiUrl || this.apiUrl;
+<<<<<<< HEAD
+
+=======
+>>>>>>> upstream/master
     if(root) {
       if(! root.endsWith('/')) root += '/';
       return root + path;
