@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import permissions
 
 from api.models.User import User
-from api.models.VerifiableClaim import VerifiableClaim
 
 
 ISSUERS_GROUP_NAME = "issuers"
@@ -58,12 +57,6 @@ def create_issuer_user(
 
 def get_issuers_group():
     group, created = Group.objects.get_or_create(name=ISSUERS_GROUP_NAME)
-    if created:
-        claims_type = ContentType.objects.get_for_model(VerifiableClaim)
-        create_claims_perm = Permission.objects.get(
-            content_type=claims_type, codename="add_verifiableclaim"
-        )
-        group.permissions.add(create_claims_perm)
     return group
 
 
@@ -100,11 +93,3 @@ class IsRegisteredIssuer(permissions.BasePermission):
             request.user
             and request.user.groups.filter(name=ISSUERS_GROUP_NAME).exists()
         )
-
-
-class CanStoreClaims(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user and request.user.has_perm(
-            "api.add_verifiableclaim"
-        )
-
