@@ -61,6 +61,7 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=${DJANGO_DEBUG}
       - DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL}
+      - OPTIMIZE_TABLE_ROW_COUNTS=${OPTIMIZE_TABLE_ROW_COUNTS}
       - SOLR_SERVICE_NAME=${SOLR_SERVICE_NAME}
       - SOLR_CORE_NAME=${SOLR_CORE_NAME}
       - SKIP_INDEXING_ON_STARTUP=${SKIP_INDEXING_ON_STARTUP}
@@ -151,7 +152,7 @@ services:
   # tob-db
   # 
   tob-db:
-    image: registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5
+    image: postgresql
     environment:
       - POSTGRESQL_USER=${POSTGRESQL_USER}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
@@ -167,7 +168,7 @@ services:
   # wallet-db
   # 
   wallet-db:
-    image: registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5
+    image: postgresql
     environment:
       - POSTGRESQL_USER=${POSTGRESQL_USER}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}

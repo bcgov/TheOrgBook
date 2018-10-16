@@ -134,8 +134,11 @@ build-db() {
   #
   # tob-db
   #
-  # Nothing to build here ...
-  echo
+  echo -e "\nBuilding postgresql image ..."
+  ${S2I_EXE} build \
+    '../tob-db/config' \
+    'registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5' \
+    'postgresql'
 }
 
 build-schema-spy() {
@@ -241,6 +244,7 @@ configureEnvironment() {
   export DJANGO_SECRET_KEY=wpn1GZrouOryH2FshRrpVHcEhMfMLtmTWMC2K5Vhx8MAi74H5y
   export DJANGO_DEBUG=True
   export DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL-INFO}
+  export OPTIMIZE_TABLE_ROW_COUNTS=${OPTIMIZE_TABLE_ROW_COUNTS-}
   export INDY_DISABLED=${INDY_DISABLED-}
   export SOLR_SERVICE_NAME="tob-solr"
   export SOLR_CORE_NAME=${CORE_NAME}
@@ -250,7 +254,7 @@ configureEnvironment() {
   export LEDGER_PROTOCOL_VERSION=${LEDGER_PROTOCOL_VERSION-}
   export SQL_DEBUG=${SQL_DEBUG:-}
   export WEB_CONCURRENCY=${WEB_CONCURRENCY:-5}
-  export APPLICATION_URL=${APPLICATION_URL-http://localhost:8081}
+  export APPLICATION_URL=${APPLICATION_URL-http://localhost:8080}
 
   # tob-web
   export TOB_THEME=${TOB_THEME:-bcgov}
@@ -395,6 +399,9 @@ build)
     ;;
   tob-solr)
     build-solr
+    ;;
+  tob-db)
+    build-db
     ;;
   *)
     buildImages
