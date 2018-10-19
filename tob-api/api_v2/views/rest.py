@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework.exceptions import NotFound
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from rest_framework.response import Response
 
 from api_v2.serializers.rest import (
@@ -18,12 +18,13 @@ from api_v2.serializers.rest import (
     ExpandedCredentialSerializer,
     AddressSerializer,
     AttributeSerializer,
-    CategorySerializer,
     NameSerializer,
     CredentialTopicExtSerializer,
 )
 
 from rest_framework.serializers import SerializerMethodField
+
+from drf_yasg.utils import swagger_auto_schema
 
 from api_v2.serializers.search import CustomTopicSerializer
 
@@ -34,24 +35,25 @@ from api_v2.models.Topic import Topic
 from api_v2.models.Credential import Credential
 from api_v2.models.Address import Address
 from api_v2.models.Attribute import Attribute
-from api_v2.models.Category import Category
 from api_v2.models.Name import Name
 
 from api_v2 import utils
 
 
-class IssuerViewSet(ModelViewSet):
+class IssuerViewSet(ReadOnlyModelViewSet):
     serializer_class = IssuerSerializer
     queryset = Issuer.objects.all()
 
-    @detail_route(url_path="credentialtype")
+    @swagger_auto_schema(method='get')
+    @detail_route(url_path="credentialtype", methods=["get"])
     def list_credential_types(self, request, pk=None):
         queryset = CredentialType.objects.filter(issuer__id=pk)
         get_object_or_404(queryset, pk=pk)
         serializer = CredentialTypeSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(url_path="logo")
+    @swagger_auto_schema(method='get')
+    @detail_route(url_path="logo", methods=["get"])
     def fetch_logo(self, request, pk=None):
         issuer = get_object_or_404(self.queryset, pk=pk)
         logo = None
@@ -63,65 +65,70 @@ class IssuerViewSet(ModelViewSet):
         return HttpResponse(logo, content_type="image/jpg")
 
 
-class SchemaViewSet(ModelViewSet):
+class SchemaViewSet(ReadOnlyModelViewSet):
     serializer_class = SchemaSerializer
     queryset = Schema.objects.all()
 
 
-class CredentialTypeViewSet(ModelViewSet):
+class CredentialTypeViewSet(ReadOnlyModelViewSet):
     serializer_class = CredentialTypeSerializer
     queryset = CredentialType.objects.all()
 
-    @detail_route(url_path="logo")
+    @detail_route(url_path="logo", methods=["get"])
     def fetch_logo(self, request, pk=None):
-        credType = get_object_or_404(self.queryset, pk=pk)
+        cred_type = get_object_or_404(self.queryset, pk=pk)
         logo = None
-        if credType.logo_b64:
-            logo = base64.b64decode(credType.logo_b64)
-        elif credType.issuer and credType.issuer.logo_b64:
-            logo = base64.b64decode(credType.issuer.logo_b64)
+        if cred_type.logo_b64:
+            logo = base64.b64decode(cred_type.logo_b64)
+        elif cred_type.issuer and cred_type.issuer.logo_b64:
+            logo = base64.b64decode(cred_type.issuer.logo_b64)
         if not logo:
             raise Http404()
         # FIXME - need to store the logo mime type
         return HttpResponse(logo, content_type="image/jpg")
 
 
-class TopicViewSet(ModelViewSet):
+class TopicViewSet(ReadOnlyModelViewSet):
     serializer_class = TopicSerializer
     queryset = Topic.objects.all()
 
-    @detail_route(url_path="formatted")
+    @detail_route(url_path="formatted", methods=["get"])
     def retrieve_formatted(self, request, pk=None):
         item = self.get_object()
         serializer = CustomTopicSerializer(item)
         return Response(serializer.data)
 
-    @detail_route(url_path="credential")
+    @detail_route(url_path="credential", methods=["get"])
     def list_credentials(self, request, pk=None):
         item = self.get_object()
         queryset = item.credentials
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(url_path="credential/active")
+    @detail_route(url_path="credential/active", methods=["get"])
     def list_active_credentials(self, request, pk=None):
         item = self.get_object()
         queryset = item.credentials.filter(revoked=False, inactive=False)
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(url_path="credential/historical")
+    @detail_route(url_path="credential/historical", methods=["get"])
     def list_historical_credentials(self, request, pk=None):
         item = self.get_object()
         queryset = item.credentials.filter(Q(revoked=True) | Q(inactive=True))
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @list_route(methods=['get'], url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)")
+    @list_route(
+        methods=["get"], url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)"
+    )
     def retrieve_by_type(self, request, type=None, source_id=None):
         return self.retrieve(request)
 
-    @list_route(methods=['get'], url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)/formatted")
+    @list_route(
+        methods=["get"],
+        url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)/formatted",
+    )
     def retrieve_by_type_formatted(self, request, type=None, source_id=None):
         return self.retrieve_formatted(request)
 
@@ -142,23 +149,23 @@ class TopicViewSet(ModelViewSet):
         return obj
 
 
-class CredentialViewSet(ModelViewSet):
+class CredentialViewSet(ReadOnlyModelViewSet):
     serializer_class = CredentialSerializer
     queryset = Credential.objects.all()
 
-    @detail_route(url_path="formatted")
+    @detail_route(url_path="formatted", methods=["get"])
     def retrieve_formatted(self, request, pk=None):
         item = self.get_object()
         serializer = ExpandedCredentialSerializer(item)
         return Response(serializer.data)
 
-    @list_route(url_path="active")
+    @list_route(url_path="active", methods=["get"])
     def list_active(self, request, pk=None):
         queryset = self.queryset.filter(revoked=False, inactive=False)
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @list_route(url_path="historical")
+    @list_route(url_path="historical", methods=["get"])
     def list_historical(self, request, pk=None):
         queryset = self.queryset.filter(Q(revoked=True) | Q(inactive=True))
         serializer = CredentialSerializer(queryset, many=True)
@@ -182,24 +189,19 @@ class CredentialViewSet(ModelViewSet):
         return obj
 
 
-class AddressViewSet(ModelViewSet):
+class AddressViewSet(ReadOnlyModelViewSet):
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
 
 
-class AttributeViewSet(ModelViewSet):
+class AttributeViewSet(ReadOnlyModelViewSet):
     serializer_class = AttributeSerializer
     queryset = Attribute.objects.all()
 
 
-class NameViewSet(ModelViewSet):
+class NameViewSet(ReadOnlyModelViewSet):
     serializer_class = NameSerializer
     queryset = Name.objects.all()
-
-
-class CategoryViewSet(ModelViewSet):
-    serializer_class = CategorySerializer
-    queryset = Category.objects.all()
 
 
 # Add environment specific endpoints

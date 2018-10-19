@@ -85,6 +85,8 @@ async def add_server_headers(request, response):
 async def init_app(on_startup=None, on_cleanup=None):
     from aiohttp.web import Application
     from aiohttp_wsgi import WSGIHandler
+    from tob_anchor.processor import CredentialProcessorQueue
+    from tob_anchor.solrqueue import SolrQueue
     from tob_anchor.urls import get_routes
 
     wsgi_handler = WSGIHandler(application)
@@ -93,6 +95,11 @@ async def init_app(on_startup=None, on_cleanup=None):
     app.router.add_routes(get_routes())
     # all other requests forwarded to django
     app.router.add_route("*", "/{path_info:.*}", wsgi_handler)
+
+    processor = CredentialProcessorQueue()
+    processor.setup(app)
+    solrqueue = SolrQueue()
+    solrqueue.setup(app)
 
     if on_startup:
         app.on_startup.append(on_startup)
@@ -105,14 +112,14 @@ async def init_app(on_startup=None, on_cleanup=None):
     return app
 
 
+def run_django_proc(proc, *args):
+    try:
+        return proc(*args)
+    finally:
+        django.db.connections.close_all()
+
 def run_django(proc, *args) -> asyncio.Future:
-    def runner(proc, *args):
-        try:
-            ret = proc(*args)
-            return ret
-        finally:
-            django.db.connections.close_all()
-    return asyncio.get_event_loop().run_in_executor(None, runner, proc, *args)
+    return asyncio.get_event_loop().run_in_executor(None, run_django_proc, proc, *args)
 
 
 def run_reindex():
@@ -132,15 +139,28 @@ def run_migration():
     call_command("migrate")
 
 
-def pre_init(proc=False):
+def start_indy_manager(proc: bool = False):
     global MANAGER, STARTED
     if proc:
         MANAGER.start_process()
     else:
         MANAGER.start()
     STARTED = True
+
+
+def pre_init():
+    start_indy_manager()
+    run_coro(perform_register_services())
+
+
+async def perform_register_services(app=None):
+    global MANAGER, STARTED
+    if app:
+        return app.loop.create_task(
+            perform_register_services()
+        )
     try:
-        run_coro(register_services())
+        await register_services()
     except:
         LOGGER.exception("Error during Indy initialization:")
         MANAGER.stop()
@@ -179,6 +199,7 @@ async def register_services():
     await client.sync()
     LOGGER.debug("Indy client synced")
     LOGGER.debug(await client.get_status())
+
 
 def shutdown():
     MANAGER.stop()

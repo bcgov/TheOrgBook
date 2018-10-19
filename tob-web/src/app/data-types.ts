@@ -80,6 +80,7 @@ export namespace Model {
     country: string;
     address_type: string;
     credential_id: number;
+    inactive: boolean;
 
     static resourceName = 'address';
   }
@@ -90,6 +91,7 @@ export namespace Model {
     format: string;
     value: string;
     credential_id: number;
+    inactive: boolean;
 
     get typeClass(): string {
       if(this.format === 'email' || this.format === 'phone' || this.format === 'name')
@@ -105,15 +107,6 @@ export namespace Model {
     }
   }
 
-  export class Category extends BaseModel {
-    id: number;
-    type: string;
-    value: string;
-    credential_id: number;
-
-    static resourceName = 'category';
-  }
-
   export class Credential extends BaseModel {
     id: number;
     credential_type: CredentialType;
@@ -124,7 +117,6 @@ export namespace Model {
     addresses: Address[];
     _attributes: Attribute[];
     _attribute_map: {[key: string]: Attribute};
-    categories: Category[];
     names: Name[];
     topic: Topic;
 
@@ -141,7 +133,6 @@ export namespace Model {
     static listPropertyMap = {
       addresses: 'Address',
       attributes: 'Attribute',
-      categories: 'Category',
       names: 'Name',
     };
 
@@ -167,9 +158,6 @@ export namespace Model {
     }
     get haveAttributes() {
       return this.attributes && this.attributes.length;
-    }
-    get haveCategories() {
-      return this.categories && this.categories.length;
     }
     get haveNames() {
       return this.names && this.names.length;
@@ -269,6 +257,7 @@ export namespace Model {
     text: string;
     type: string;
     credential_id: number;
+    inactive: boolean;
 
     static resourceName = 'name';
 
@@ -287,7 +276,6 @@ export namespace Model {
     addresses: Address[];
     _attributes: Attribute[];
     _attribute_map: {[key: string]: Attribute};
-    categories: Category[];
     names: Name[];
 
     static resourceName = 'topic';
@@ -295,7 +283,6 @@ export namespace Model {
     static listPropertyMap = {
       addresses: 'Address',
       attributes: 'Attribute',
-      categories: 'Category',
       names: 'Name',
     };
 
@@ -336,6 +323,9 @@ export namespace Model {
     }
 
     get link(): string[] {
+      // FIXME need to move link generation into general data service
+      if(this.type === 'registration')
+        return ['/topic/', this.source_id];
       return ['/topic/', this.type, this.source_id];
     }
 
@@ -365,15 +355,16 @@ export namespace Fetch {
   export class BaseResult<T> {
     public data: T;
     public meta: any;
+    protected _input: any;
 
     constructor(
-      protected _ctor: (any) => T,
-      protected _input?: any,
-      public error?: any,
-      public loading: boolean = false,
-      _meta: any = null) {
-        this.input = _input;
-        this.meta = _meta || {};
+        protected _ctor: (any) => T,
+        input?: any,
+        public error?: any,
+        public loading: boolean = false,
+        meta = null) {
+      this.input = input;
+      this.meta = meta || {};
     }
 
     get input(): any {
@@ -390,7 +381,7 @@ export namespace Fetch {
     }
 
     get loaded(): boolean {
-      return ! this.empty && ! this.loading;
+      return !! this.data;
     }
 
     get notFound(): boolean {
@@ -398,7 +389,7 @@ export namespace Fetch {
     }
   }
 
-  export class Pagination {
+  export class ListInfo {
     public pageNum: number = 1;
     public pageCount: number = 0;
     public resultCount: number = 0;
@@ -409,6 +400,7 @@ export namespace Fetch {
     public previous: string = null;
     public next: string = null;
     public params: {[key: string]: any};
+    public facets: any;
 
     get havePrevious(): boolean {
       return this.previous != null;
@@ -418,8 +410,8 @@ export namespace Fetch {
       return this.next != null;
     }
 
-    static fromResult(value: any): Pagination {
-      let ret = new Pagination();
+    static fromResult(value: any): ListInfo {
+      let ret = new ListInfo();
       if(value) {
         ret.pageNum = value.page || null;
         ret.firstIndex = value.first_index || null;
@@ -433,8 +425,11 @@ export namespace Fetch {
   }
 
   export class ListResult<T> extends BaseResult<T[]> {
-    public pagination: Pagination;
-    public facets: any;
+    public info: ListInfo;
+
+    get input(): any {
+      return this._input;
+    }
 
     set input(value: any) {
       this._input = value;
@@ -443,7 +438,7 @@ export namespace Fetch {
       }
       else if(value && 'results' in value && value['results'] instanceof Array) {
         this.data = this._ctor(value['results']);
-        this.pagination = Pagination.fromResult(value);
+        this.info = ListInfo.fromResult(value);
       }
       else {
         this.data = null;
@@ -461,12 +456,13 @@ export namespace Fetch {
   }
 
   export class RequestParams {
-    path: string;
-    resource: string;
-    recordId: string;
-    childResource: string;
-    childId: string;
-    extPath: string;
+    path?: string;
+    resource?: string;
+    recordId?: string;
+    childResource?: string;
+    childId?: string;
+    extPath?: string;
+    persist: boolean = false;
 
     static fromModel<M extends Model.BaseModel>(ctor: Model.ModelCtor<M>) {
       let req = new RequestParams();
@@ -544,9 +540,10 @@ export namespace Fetch {
     _sub: Subscription;
 
     constructor(
-        protected _rctor: ResultCtor<T, R>,
-        protected _map: (any) => T,
-        protected _req?: RequestParams) {
+      protected _rctor: ResultCtor<T, R>,
+      protected _map: (any) => T,
+      protected _req?: RequestParams
+    ) {
       if(! this._req) this._req = new RequestParams();
       this._result = new BehaviorSubject(this._makeResult());
     }
@@ -571,7 +568,7 @@ export namespace Fetch {
       }
     }
 
-    protected _makeResult(input?: any, error?: any, loading: boolean=false, meta=null) {
+    protected _makeResult(input?: any, error?: any, loading: boolean = false, meta=null) {
       return new this._rctor(this._map, input, error, loading, meta);
     }
 
@@ -595,24 +592,25 @@ export namespace Fetch {
       return this._req;
     }
 
-    loadData(data: any, meta=null) {
-      this.result = this._makeResult(data, null, false, meta);
+    loadData(input: any, meta = null) {
+      this.result = this._makeResult(input, null, false, meta);
     }
 
-    loadError(err: any, meta=null) {
+    loadError(err: any, meta = null) {
       this.result = this._makeResult(null, err, false, meta);
     }
 
-    loadFrom(obs: Observable<any>, meta=null) {
+    loadFrom(obs: Observable<any>, meta = null) {
       this._clearSub();
-      this.result = this._makeResult(null, null, true, meta);
+      let input = this._req.persist ? this.result.input : null;
+      this.result = this._makeResult(input, null, true, meta);
       this._sub = obs.subscribe(
         (result) => this.loadData(result, meta),
         (err) => this.loadError(err, meta)
       );
     }
 
-    loadNotFound(meta=null) {
+    loadNotFound(meta = null) {
       this.loadError({obj: {status: 404}});
     }
   }
@@ -632,8 +630,6 @@ export namespace Fetch {
   }
 
   export class ListLoader<T> extends BaseLoader<T[], ListResult<T>> {
-    public pagination;
-
     constructor(
         protected _mapEntry: (any) => T,
         req?: RequestParams) {
@@ -656,17 +652,215 @@ export namespace Fetch {
   }
 
   export class ModelLoader<M extends Model.BaseModel> extends DataLoader<M> {
-    constructor(ctor: Model.ModelCtor<M>, req?: RequestParams) {
+    constructor(ctor: Model.ModelCtor<M>, req?: RequestParams | { [key: string]: any }) {
       let creq = RequestParams.fromModel(ctor).extend(req);
       super((data) => new ctor(data), creq);
     }
   }
 
   export class ModelListLoader<M extends Model.BaseModel> extends ListLoader<M> {
-    constructor(ctor: Model.ModelCtor<M>, req?: RequestParams) {
+    constructor(ctor: Model.ModelCtor<M>, req?: RequestParams | { [key: string]: any }) {
       let creq = RequestParams.fromModel(ctor).extend(req);
       super((data) => new ctor(data), creq);
     }
   }
 }
 // end Fetch
+
+
+export namespace Filter {
+
+  export interface Option {
+    label: string;
+    value: string;
+    active?: boolean;
+  }
+
+  export interface FieldSpec {
+    name: string;
+    label?: string;
+    alias?: string;
+    options?: Option[];
+    hidden?: boolean;
+    defval?: string;
+    value?: string;
+    blank?: boolean;
+  }
+
+  export class Field implements FieldSpec {
+    public name = '';
+    public alias = null;
+    public label = '';
+    public options;
+    public hidden = false;
+    public defval = '';
+    public blank = false;
+    _value: string = null;
+
+    constructor(init?: FieldSpec) {
+      if(init) {
+        Object.assign(this, init);
+        if(init.options)
+          this.options = init.options.map(o => Object.assign({}, o));
+      }
+    }
+
+    clone() {
+      return new Field(this);
+    }
+
+    get value() {
+      return this._value;
+    }
+
+    set value(val: string) {
+      if(val === undefined || val === null) val = this.defval;
+      this._value = val;
+      this.setActive();
+    }
+
+    setActive() {
+      let val = this.value;
+      if(this.options) {
+        for(let o of this.options) {
+          o.active = (o.value === val);
+        }
+      }
+    }
+  }
+
+  interface StrDict {[key: string]: string}
+
+  export class FieldSet {
+    _result: BehaviorSubject<Field[]>;
+    _fields: Field[] = [];
+    _defaults: StrDict = {};
+    _values: StrDict = {};
+
+    constructor(
+      fields: FieldSpec[]
+    ) {
+      let fs = [];
+      if(fields) {
+        for(let opt of fields)
+          fs.push(new Field(opt));
+      }
+      this._fields = fs;
+      this._result = new BehaviorSubject(this._next());
+    }
+
+    loadQuery(params: StrDict) {
+      let upd = {};
+      for(let opt of this._fields) {
+        let k = opt.alias || opt.name;
+        if(k in params)
+          upd[opt.name] = params[k];
+      }
+      this.update(upd);
+    }
+
+    get stream(): Observable<Field[]> {
+      return this._result.asObservable();
+    }
+
+    get streamVisible(): Observable<Field[]> {
+      return this.stream.map(fs => fs.filter(f => ! f.hidden));
+    }
+
+    get result(): Field[] {
+      return this._result.value;
+    }
+
+    get queryParams(): StrDict {
+      let fs = this.result;
+      let ret = {};
+      for(let opt of fs) {
+        if(opt.value !== null)
+          ret[opt.alias || opt.name] = opt.value;
+      }
+      return ret;
+    }
+
+    complete() {
+      if(this._result) {
+        this._result.complete();
+        this._result = null;
+      }
+    }
+
+    reset() {
+      this.values = {};
+    }
+
+    getFieldValue(key: string): string {
+      return this._values[key];
+    }
+
+    setFieldValue(key: string, value: string|number) {
+      let upd = {};
+      upd[key] = value;
+      this.update(upd);
+    }
+
+    update(vals?: StrDict) {
+      let v = {... this._values};
+      if(vals)
+        Object.assign(v, vals);
+      this.values = v;
+    }
+
+    _next() {
+      let vs = this._values;
+      let fs = [];
+      for(let f of this._fields) {
+        let f2 = f.clone();
+        f2.value = vs[f2.name];
+        fs.push(f2);
+      }
+      return fs;
+    }
+
+    _update() {
+      if(this._result)
+        this._result.next(this._next());
+    }
+
+    get defaults() {
+      return this._defaults;
+    }
+
+    set defaults(vals: StrDict) {
+      this._defaults = vals || {};
+      this.update();
+    }
+
+    get values() {
+      return {... this._values};
+    }
+
+    set values(vals: StrDict) {
+      let v = {};
+      for(let f of this._fields) {
+        let defval = f.defval;
+        if(f.name in this._defaults)
+          defval = this._defaults[f.name];
+        if(vals && f.name in vals && vals[f.name] !== null) {
+          let input = vals[f.name];
+          if(typeof input === 'string' || typeof input === 'number') {
+            input = ('' + input).trim();
+          }
+          if(input === '' && defval !== '' && ! f.blank) {
+            input = defval;
+          }
+          v[f.name] = input;
+        }
+        else {
+          v[f.name] = defval;
+        }
+      }
+      this._values = v;
+      this._update();
+    }
+  }
+}
+// end Filter

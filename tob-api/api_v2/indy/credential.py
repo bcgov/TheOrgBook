@@ -7,15 +7,10 @@ import time
 from importlib import import_module
 
 from django.db import transaction
-from django.utils import timezone
 
 from django.db.utils import IntegrityError
 
 from von_anchor.util import schema_key
-
-from tob_anchor.boot import indy_client, indy_holder_id
-from vonx.common.eventloop import run_coro
-from vonx.indy.messages import Credential as VonxCredential
 
 from api_v2.models.Issuer import Issuer
 from api_v2.models.Schema import Schema
@@ -26,7 +21,6 @@ from api_v2.models.Claim import Claim
 
 from api_v2.models.Address import Address
 from api_v2.models.Attribute import Attribute
-from api_v2.models.Category import Category
 from api_v2.models.Name import Name
 from api_v2.models.TopicRelationship import TopicRelationship
 
@@ -72,7 +66,7 @@ class Credential(object):
         credential_data {object} -- Valid credential data as sent by an issuer
     """
 
-    def __init__(self, credential_data: object) -> None:
+    def __init__(self, credential_data: object, request_metadata: dict = None, wallet_id: str = None) -> None:
         self._raw = credential_data
         self._schema_id = credential_data["schema_id"]
         self._cred_def_id = credential_data["cred_def_id"]
@@ -81,7 +75,9 @@ class Credential(object):
         self._signature_correctness_proof = credential_data[
             "signature_correctness_proof"
         ]
+        self._req_metadata = request_metadata
         self._rev_reg = credential_data["rev_reg"]
+        self._wallet_id = wallet_id
         self._witness = credential_data["witness"]
 
         self._claim_attributes = []
@@ -121,13 +117,25 @@ class Credential(object):
         return _json.dumps(self._raw)
 
     @property
-    def origin_did(self) -> str:
+    def schema_origin_did(self) -> str:
         """Accessor for schema origin did
 
         Returns:
             str -- origin did
         """
         return schema_key(self._schema_id).origin_did
+
+    @property
+    def origin_did(self) -> str:
+        """Accessor for the cred def origin did
+
+        Returns:
+            str -- origin did
+        """
+        if self._cred_def_id:
+            key = self._cred_def_id.split(':')
+            return key[0]
+        return None
 
     @property
     def schema_name(self) -> str:
@@ -165,6 +173,48 @@ class Credential(object):
         """
         return self._cred_def_id
 
+    @property
+    def request_metadata(self) -> dict:
+        return self._request_metadata
+
+    @property
+    def wallet_id(self) -> str:
+        """Accessor for credential wallet ID, after storage
+
+        Returns:
+            str -- the wallet ID of the credential
+        """
+        return self._wallet_id
+
+    @wallet_id.setter
+    def wallet_id(self, val: str):
+        self._wallet_id = val
+
+
+class CredentialClaims:
+    def __init__(self, cred: CredentialModel):
+        self._cred = cred
+        self._claims = {}
+        self._load_claims()
+
+    def _load_claims(self):
+        claims = getattr(self._cred, '_claims_cache', None)
+        if claims is None:
+            claims = {}
+            for claim in self._cred.claims.all():
+                claims[claim.name] = claim.value
+            setattr(self._cred, '_claims_cache', claims)
+        self._claims = claims
+
+    def __getattr__(self, name: str):
+        """Make claim values accessible on class instance"""
+        try:
+            return self._claims[name]
+        except KeyError:
+            raise AttributeError(
+                "'Credential' object has no attribute '{}'".format(name)
+            )
+
 
 class CredentialManager(object):
     """
@@ -172,9 +222,15 @@ class CredentialManager(object):
     database based on rules provided by issuer are registration.
     """
 
-    def __init__(self, credential: Credential, request_metadata: dict) -> None:
-        self.credential = credential
-        self.credential_request_metadata = request_metadata
+    def __init__(self) -> None:
+        self._cred_type_cache = {}
+
+    @staticmethod
+    def get_claims(credential):
+        if isinstance(credential, Credential):
+            return credential
+        elif isinstance(credential, CredentialModel):
+            return CredentialClaims(credential)
 
     @staticmethod
     def process_mapping(rules, credential):
@@ -193,22 +249,18 @@ class CredentialManager(object):
                 "Every mapping must specify 'input' and 'from' values."
             )
 
-        # Pocessor is optional
-        try:
-            processor = rules["processor"]
-        except KeyError as error:
-            processor = None
+        # Processor is optional
+        processor = rules.get("processor")
+
+        claims = CredentialManager.get_claims(credential)
 
         # Get model field value from string literal or claim value
         if _from == "value":
             mapped_value = _input
         elif _from == "claim":
             try:
-                if isinstance(credential, Credential):
-                    mapped_value = getattr(credential, _input)
-                elif isinstance(credential, CredentialModel):
-                    mapped_value = Claim.objects.get(credential=credential, name=_input).value
-            except (AttributeError, Claim.DoesNotExist) as error:
+                mapped_value = getattr(claims, _input)
+            except AttributeError as error:
                 raise CredentialException(
                     "Credential does not contain the configured claim '{}'".format(
                         _input
@@ -261,59 +313,68 @@ class CredentialManager(object):
                 function = pipeline.pop()
                 mapped_value = function(mapped_value)
 
-        # This is ugly. von-agent currently serializes null values
-        # to the string 'None'
-        if mapped_value == "None":
-            mapped_value = None
-
         return mapped_value
 
-    def process(self, credential_wallet_id):
+    def get_credential_type(self, credential: Credential):
         """
-        Processes incoming credential data and returns newly created credential
-
-        Returns:
-            Credential -- newly created credential in application database
+        Fetch the credential type for the incoming credential
         """
-        # Get context for this credential if it exists
         LOGGER.warn(">>> get credential context")
         start_time = time.perf_counter()
-        try:
-            issuer = Issuer.objects.get(did=self.credential.origin_did)
-            schema = Schema.objects.get(
-                origin_did=self.credential.origin_did,
-                name=self.credential.schema_name,
-                version=self.credential.schema_version,
-            )
-        except Issuer.DoesNotExist:
-            raise CredentialException(
-                "Issuer with did '{}' does not exist.".format(
-                    self.credential.origin_did
+        cache_key = (
+            credential.cred_def_id,
+        )
+        result = self._cred_type_cache.get(cache_key)
+        if not result:
+            try:
+                issuer = Issuer.objects.get(did=credential.origin_did)
+                schema = Schema.objects.get(
+                    origin_did=credential.schema_origin_did,
+                    name=credential.schema_name,
+                    version=credential.schema_version,
                 )
-            )
-        except Schema.DoesNotExist:
-            raise CredentialException(
-                "Schema with origin_did"
-                + " '{}', name '{}', and version '{}' ".format(
-                    self.credential.origin_did,
-                    self.credential.schema_name,
-                    self.credential.schema_version,
+            except Issuer.DoesNotExist:
+                raise CredentialException(
+                    "Issuer with did '{}' does not exist.".format(
+                        credential.origin_did
+                    )
                 )
-                + " does not exist."
-            )
+            except Schema.DoesNotExist:
+                raise CredentialException(
+                    "Schema with origin_did"
+                    + " '{}', name '{}', and version '{}' ".format(
+                        credential.schema_origin_did,
+                        credential.schema_name,
+                        credential.schema_version,
+                    )
+                    + " does not exist."
+                )
 
-        credential_type = CredentialType.objects.get(schema=schema, issuer=issuer)
+            result = CredentialType.objects.get(schema=schema, issuer=issuer)
+            self._cred_type_cache[cache_key] = result
         LOGGER.warn(
             "<<< get credential context: " + str(time.perf_counter() - start_time)
         )
+        return result
 
-        # credential_wallet_id = run_coro(self.store())
+    def process(self, credential: Credential, check_from_did: str = None) -> CredentialModel:
+        """
+        Processes incoming credential data and returns related Topic
+
+        Returns:
+            Credential -- the processed database credential
+        """
+        if check_from_did and check_from_did != credential.origin_did:
+            raise CredentialException(
+                "Credential origin DID '{}' does not match request origin DID '{}'".format(
+                credential.origin_did, check_from_did))
+        credential_type = self.get_credential_type(credential)
+
         with transaction.atomic():
-            self.populate_application_database(credential_type, credential_wallet_id)
+            return self.populate_application_database(credential_type, credential)
 
-        return credential_wallet_id
-
-    def populate_application_database(self, credential_type, credential_wallet_id):
+    def populate_application_database(self, credential_type: CredentialType,
+                                      credential: Credential) -> CredentialModel:
         LOGGER.warn(">>> store cred in local database")
         start_time = time.perf_counter()
         processor_config = credential_type.processor_config
@@ -333,23 +394,23 @@ class CredentialManager(object):
             topic = None
 
             related_topic_name = CredentialManager.process_mapping(
-                topic_def.get("related_name"), self.credential
+                topic_def.get("related_name"), credential
             )
             related_topic_source_id = CredentialManager.process_mapping(
-                topic_def.get("related_source_id"), self.credential
+                topic_def.get("related_source_id"), credential
             )
             related_topic_type = CredentialManager.process_mapping(
-                topic_def.get("related_type"), self.credential
+                topic_def.get("related_type"), credential
             )
 
             topic_name = CredentialManager.process_mapping(
-                topic_def.get("name"), self.credential
+                topic_def.get("name"), credential
             )
             topic_source_id = CredentialManager.process_mapping(
-                topic_def.get("source_id"), self.credential
+                topic_def.get("source_id"), credential
             )
             topic_type = CredentialManager.process_mapping(
-                topic_def.get("type"), self.credential
+                topic_def.get("type"), credential
             )
 
             # Get parent topic if possible
@@ -408,7 +469,7 @@ class CredentialManager(object):
         for cardinality_field in cardinality_fields:
             try:
                 cardinality_values[cardinality_field] = getattr(
-                    self.credential, cardinality_field
+                    credential, cardinality_field
                 )
             except AttributeError as error:
                 raise CredentialException(
@@ -417,7 +478,7 @@ class CredentialManager(object):
                     )
                     + "in cardinality_fields value does not exist in "
                     + "credential. Values are: {}".format(
-                        ", ".join(list(self.credential.claim_attributes))
+                        ", ".join(list(credential.claim_attributes))
                     )
                 )
         if cardinality_values:
@@ -432,15 +493,15 @@ class CredentialManager(object):
 
         credential_args = {
             "cardinality_hash": cardinality_hash,
-            "credential_def_id": self.credential.cred_def_id,
+            "credential_def_id": credential.cred_def_id,
             "credential_type": credential_type,
-            "wallet_id": credential_wallet_id,
+            "wallet_id": credential.wallet_id,
         }
 
         credential_config = processor_config.get("credential")
         if credential_config:
             effective_date = CredentialManager.process_mapping(
-                credential_config.get("effective_date"), self.credential
+                credential_config.get("effective_date"), credential
             )
             if effective_date:
                 try:
@@ -455,30 +516,30 @@ class CredentialManager(object):
                 credential_args["effective_date"] = effective_date
 
             revoked = CredentialManager.process_mapping(
-                credential_config.get("revoked"), self.credential
+                credential_config.get("revoked"), credential
             )
             if revoked:
                 credential_args["revoked"] = bool(revoked)
 
             inactive = CredentialManager.process_mapping(
-                credential_config.get("inactive"), self.credential
+                credential_config.get("inactive"), credential
             )
             if inactive:
                 credential_args["inactive"] = bool(inactive)
 
-        credential = topic.credentials.create(**credential_args)
+        dbCredential = topic.credentials.create(**credential_args)
 
         # Create and associate claims for this credential
-        for claim_attribute in self.credential.claim_attributes:
-            claim_value = getattr(self.credential, claim_attribute)
+        for claim_attribute in credential.claim_attributes:
+            claim_value = getattr(credential, claim_attribute)
             Claim.objects.create(
-                credential=credential, name=claim_attribute, value=claim_value
+                credential=dbCredential, name=claim_attribute, value=claim_value
             )
 
         if related_topic is not None:
             try:
                 TopicRelationship.objects.create(
-                    credential=credential, topic=topic, related_topic=related_topic
+                    credential=dbCredential, topic=topic, related_topic=related_topic
                 )
             except IntegrityError:
                 raise CredentialException(
@@ -543,7 +604,7 @@ class CredentialManager(object):
                 setattr(
                     model,
                     field,
-                    CredentialManager.process_mapping(field_mapper, self.credential),
+                    CredentialManager.process_mapping(field_mapper, credential),
                 )
             if model_name == "category":
                 model.format = "category"
@@ -555,23 +616,11 @@ class CredentialManager(object):
                     (not model.type or model.value is None or model.value is ""):
                 continue
 
-            model.credential = credential
+            model.credential = dbCredential
             model.save()
 
         LOGGER.warn(
             "<<< store cred in local database: " + str(time.perf_counter() - start_time)
         )
 
-        return topic
-
-    async def store(self) -> str:
-        # Store credential in wallet
-        stored = await indy_client().store_credential(
-            indy_holder_id(),
-            VonxCredential(
-                self.credential.raw,
-                self.credential_request_metadata,
-                None,  # revocation ID
-            ),
-        )
-        return stored.cred_id
+        return dbCredential

@@ -14,6 +14,26 @@
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
+        "name": "${WALLET_CREDENTIAL_STORE_NAME}",
+        "labels": {
+          "app": "${NAME}"
+        }
+      },
+      "data": {
+        "key": "${WALLET_ENCRYPTION_KEY}",
+        "holder-seed": "${HOLDER_WALLET_SEED}",
+        "holder-did": "${HOLDER_WALLET_DID}",
+        "verifier-seed": "${VERIFIER_WALLET_SEED}",
+        "verifier-did": "${VERIFIER_WALLET_DID}",
+        "issuer-seed": "${ISSUER_WALLET_SEED}",
+        "issuer-did": "${ISSUER_WALLET_DID}"
+      },
+      "type": "Opaque"
+    },
+    {
+      "kind": "Secret",
+      "apiVersion": "v1",
+      "metadata": {
         "name": "${NAME}",
         "labels": {
           "app": "${NAME}"
@@ -253,6 +273,51 @@
                     }
                   },
                   {
+                    "name": "WALLET_ENCRYPTION_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_CREDENTIAL_STORE_NAME}",
+                        "key": "key"
+                      }
+                    }
+                  },
+                  {
+                    "name": "INDY_WALLET_SEED",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_CREDENTIAL_STORE_NAME}",
+                        "key": "holder-seed"
+                      }
+                    }
+                  },
+                  {
+                    "name": "INDY_VERIFIER_WALLET_SEED",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_CREDENTIAL_STORE_NAME}",
+                        "key": "verifier-seed"
+                      }
+                    }
+                  },
+                  {
+                    "name": "HOLDER_WALLET_DID",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_CREDENTIAL_STORE_NAME}",
+                        "key": "holder-did"
+                      }
+                    }
+                  },
+                  {
+                    "name": "VERIFIER_WALLET_DID",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_CREDENTIAL_STORE_NAME}",
+                        "key": "verifier-did"
+                      }
+                    }
+                  },
+                  {
                     "name": "APP_CONFIG",
                     "value": "${APP_CONFIG}"
                   },
@@ -277,16 +342,28 @@
                     "value": "${SKIP_INDEXING_ON_STARTUP}"
                   },
                   {
-                    "name": "INDY_WALLET_SEED",
-                    "value": "${INDY_WALLET_SEED}"
+                    "name": "ENABLE_REALTIME_INDEXING",
+                    "value": "${ENABLE_REALTIME_INDEXING}"
+                  },
+                  {
+                    "name": "ENABLE_SUGGESTER_REBUILD",
+                    "value": "${ENABLE_SUGGESTER_REBUILD}"
+                  },
+                  {
+                    "name": "GENESIS_URL",
+                    "value": "${GENESIS_URL}"
                   },
                   {
                     "name": "LEDGER_URL",
                     "value": "${LEDGER_URL}"
                   },
                   {
-                    "name": "INDY_WALLET_TYPE",
-                    "value": "${INDY_WALLET_TYPE}"
+                    "name": "LEDGER_PROTOCOL_VERSION",
+                    "value": "${LEDGER_PROTOCOL_VERSION}"
+                  },
+                  {
+                    "name": "AUTO_REGISTER_DID",
+                    "value": "${AUTO_REGISTER_DID}"
                   },
                   {
                     "name": "USE_AUTHENTICATION",
@@ -331,6 +408,10 @@
                   {
                     "name": "TOB_THEME",
                     "value": "${TOB_THEME}"
+                  },
+                  {
+                    "name": "APPLICATION_URL",
+                    "value": "${APPLICATION_URL}"
                   }
                 ],
                 "resources": {
@@ -364,7 +445,7 @@
           "name": "${NAME}"
         },
         "minReplicas": 1,
-        "maxReplicas": 4
+        "maxReplicas": 5
       }
     }
   ],
@@ -422,7 +503,7 @@
       "displayName": "Wallet Storage Type",
       "description": "The wallet storage type.  Your choice of 'postgres' or 'sqlite' at the moment.  If not defined, defaults to 'sqlite' for compatibility",
       "required": false,
-      "value": ""
+      "value": "postgres"
     },
     {
       "name": "POSTGRESQL_WALLET_HOST",
@@ -437,6 +518,69 @@
       "required": true,
       "description": "The port number of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgre.",
       "value": "5432"
+    },
+    {
+      "name": "WALLET_ENCRYPTION_KEY",
+      "displayName": "Wallet Encryption Key",
+      "description": "The encryption key to be used for the wallets.  Needs to be basee64 encoded.",
+      "required": true,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "HOLDER_WALLET_SEED",
+      "displayName": "Holder Wallet Seed",
+      "description": "The Seed used for the holder wallet.  Needs to be basee64 encoded.",
+      "required": true,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "VERIFIER_WALLET_SEED",
+      "displayName": "Verifier Wallet Seed",
+      "description": "The Seed used for the verifier wallet.  Needs to be basee64 encoded.",
+      "required": true,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "ISSUER_WALLET_SEED",
+      "displayName": "Issuer Wallet Seed",
+      "description": "The Seed used for the issuer wallet.  Needs to be basee64 encoded.",
+      "required": true,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "HOLDER_WALLET_DID",
+      "displayName": "Holder Wallet DID",
+      "description": "The DID associated to the holder wallet.  Needs to be basee64 encoded.",
+      "required": false,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "VERIFIER_WALLET_DID",
+      "displayName": "Verifier Wallet DID",
+      "description": "The DID associated to the verifier wallet.  Needs to be basee64 encoded.",
+      "required": false,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "ISSUER_WALLET_DID",
+      "displayName": "Issuer Wallet DID",
+      "description": "The DID associated to the issuer wallet.  Needs to be basee64 encoded.",
+      "required": false,
+      "generate": "expression",
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+    },
+    {
+      "name": "WALLET_CREDENTIAL_STORE_NAME",
+      "displayName": "Wallet Credential Store Name",
+      "description": "The name of the wallet credential store (aka The name of the secret that contains the wallet credentials).",
+      "required": true,
+      "value": "wallet-credentials"
     },
     {
       "name": "APP_CONFIG",
@@ -474,9 +618,23 @@
     {
       "name": "SKIP_INDEXING_ON_STARTUP",
       "displayName": "Skip Indexing On Startup",
-      "description": "Set this flag to `true` to skip indexing on startup as part of the database migration; set to `false` otherwise.  When there are a large number of records to index, indexing at startup can cause startup delays and issues.",
+      "description": "Set this flag to `true` to skip indexing on startup as part of the database migration; set to `all` to skip indexing and suggester build, set to `false` otherwise.  When there are a large number of records to index, indexing at startup can cause startup delays and issues.",
       "required": true,
-      "value": "true"
+      "value": "all"
+    },
+    {
+      "name": "ENABLE_REALTIME_INDEXING",
+      "displayName": "Enable Realtime Indexing",
+      "description": "Flag to enable/disable realtime search indexing.  Set to 1 to enable, leave it blank to disable.  Having realtime indexing enabled during onboarding can cause performance issues.",
+      "required": false,
+      "value": ""
+    },
+    {
+      "name": "ENABLE_SUGGESTER_REBUILD",
+      "displayName": "Enable Suggester Rebuild",
+      "description": "Flag to enable/disable search suggester rebuilding.  Set to 1 to enable, leave it blank to disable.  Having this enabled can cause issues with very large data-sets.",
+      "required": false,
+      "value": ""
     },
     {
       "name": "TAG_NAME",
@@ -507,25 +665,32 @@
       "value": "/home/indy/.indy_client/wallet"
     },
     {
-      "name": "INDY_WALLET_SEED",
-      "displayName": "Indy Wallet Seed",
-      "description": "The seed that the indy wallet uses to generate predictable keys.",
-      "required": true,
-      "value": "the_org_book_dev_000000000000000"
+      "name": "GENESIS_URL",
+      "displayName": "Genesis Url",
+      "description": "URL for downloading a copy of the genesis file defining the ledger connection for the environment.  Used when connecting the the Sovrin Ledger.",
+      "required": false,
+      "value": ""
     },
     {
       "name": "LEDGER_URL",
       "displayName": "VON network ledger url.",
-      "description": "URL for a running instance of the von-network.",
-      "required": true,
+      "description": "URL for a running instance of the von-network.  Used when connecting to the BCovrin Ledger.",
+      "required": false,
       "value": "http://159.89.115.24"
     },
     {
-      "name": "INDY_WALLET_TYPE",
-      "displayName": "Indy Wallet Type",
-      "description": "DEPRICATED - The wallet type to use; remote (enterprise) or virtual (local), defaults to virtual.",
-      "required": true,
-      "value": "virtual"
+      "name": "LEDGER_PROTOCOL_VERSION",
+      "displayName": "Ledger Protocol Version",
+      "description": "Used to specify the protocol version for the ledger.  Defaults if left blank.",
+      "required": false,
+      "value": ""
+    },
+    {
+      "name": "AUTO_REGISTER_DID",
+      "displayName": "Auto Register DID",
+      "description": "Flag to indicate whether or not to auto-register with the ledger.  Only works with the BCovrin, which has an endpoint for self registration.",
+      "required": false,
+      "value": "1"
     },
     {
       "name": "TOB_THEME",
@@ -592,7 +757,7 @@
       "displayName": "Resources Memory Request",
       "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
       "required": true,
-      "value": "256Mi"
+      "value": "100Mi"
     },
     {
       "name": "MEMORY_LIMIT",
@@ -600,6 +765,13 @@
       "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
       "required": true,
       "value": "512Mi"
+    },
+    {
+      "name": "APPLICATION_URL",
+      "displayName": "Application url",
+      "description": "This service's url.",
+      "required": true,
+      "value": "https://theorgbook.pathfinder.gov.bc.ca"
     }
   ]
 }
