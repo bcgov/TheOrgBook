@@ -18,7 +18,7 @@
           </div>
           <div class="row form-group" *ngIf="record.did">
             <label class="col-sm-4 control-label" translate>issuer.did</label>
-            <div class="col-sm-8 form-field">
+            <div class="col-sm-8 form-field text-identifier">
               {{fullDid}}
             </div>
           </div>
@@ -43,7 +43,7 @@
     </div>
   </div>
 
-  <div class="row mrgn-tp-md mrgn-bttm-lg issuer-creds" *ngIf="result.loaded">
+  <div class="row mt-3 mb-5 issuer-creds" *ngIf="result.loaded">
     <div class="col-sm-12" *ngIf="(credTypes$ | async) as credTypes">
       <label class="control-label"><span class="field-name" translate>issuer.cred-types</span></label>
       <loading-indicator [loading]="credTypes.loading"></loading-indicator>

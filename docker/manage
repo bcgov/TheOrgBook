@@ -60,7 +60,11 @@ usage() {
               $0 start tob-web
               $0 start tob-web API_URL=http://docker.for.win.localhost:56325/api/v1
               $0 start tob-api
-    
+
+      web-dev - Builds and runs a live development version of tob-web, along with
+                the required supporting components. Once started, the website is
+                automatically compiled and updated in response to file modifications.
+
       stop - Stops the services.  This is a non-destructive process.  The containers
              are not deleted so they will be reused the next time you run start.
     
@@ -87,29 +91,60 @@ build-web() {
   # tob-web
   #
   # The nginx-runtime image is used for the final runtime image.
-  # The angular-app image is used to build the artifacts for the angular distribution.
+  # The nodejs-build image is used to build the artifacts for the angular distribution.
   # The angular-on-nginx image is copy of the nginx-runtime image complete with a copy of the build artifacts.
   #
   echo -e "\nBuilding nginx-runtime image ..."
-  docker build \
+  docker build -q \
     -t 'nginx-runtime' \
     -f '../tob-web/openshift/templates/nginx-runtime/Dockerfile' '../tob-web/openshift/templates/nginx-runtime/'
 
-  echo -e "\nBuilding angular-app image ..."
+  echo -e "\nBuilding nodejs-build image ..."
+  docker build -q \
+    -t 'nodejs-build' \
+    -f '../tob-web/openshift/templates/nodejs-build/Dockerfile' '../tob-web/openshift/templates/nodejs-build/'
+
+  _projectName=${COMPOSE_PROJECT_NAME:-docker}
+  echo -e "\nBuilding angular-on-nginx image ..."
   ${S2I_EXE} build \
+    -e "npm_config_color=always" \
+    -e "npm_config_loglevel=info" \
     -e "HTTP_PROXY=${HTTP_PROXY}" \
     -e "HTTPS_PROXY=${HTTPS_PROXY}" \
     -e "NG_BASE_HREF=${WEB_BASE_HREF}" \
     -e "NG_DEPLOY_URL=${WEB_DEPLOY_URL}" \
     -e "TOB_THEME=${TOB_THEME}" \
+    -v "${_projectName}_tob-npm-cache:/opt/app-root/src/.npm" \
+    --runtime-image nginx-runtime \
+    -a /opt/app-root/src/dist:app \
     '../tob-web' \
-    'centos/nodejs-6-centos7:6' \
-    'angular-app'
+    'nodejs-build' \
+    'angular-on-nginx'
+}
 
-  echo -e "\nBuilding angular-on-nginx image ..."
-  docker build \
-    -t 'angular-on-nginx' \
-    -f '../tob-web/openshift/templates/angular-on-nginx/Dockerfile' '../tob-web/openshift/templates/angular-on-nginx/'
+build-web-dev() {
+  #
+  # tob-web-dev
+  # Alternative version of tob-web for live development
+  #
+  echo -e "\nBuilding nodejs-build image ..."
+  docker build -q \
+    -t 'nodejs-build' \
+    -f '../tob-web/openshift/templates/nodejs-build/Dockerfile' '../tob-web/openshift/templates/nodejs-build/'
+
+  _projectName=${COMPOSE_PROJECT_NAME:-docker}
+  echo -e "\nBuilding angular-dev image ..."
+  ${S2I_EXE} build \
+    -e "DEV_MODE=true" \
+    -e "HTTP_PROXY=${HTTP_PROXY}" \
+    -e "HTTPS_PROXY=${HTTPS_PROXY}" \
+    -e "NG_BASE_HREF=${WEB_BASE_HREF}" \
+    -e "NG_DEPLOY_URL=${WEB_DEPLOY_URL}" \
+    -e "TOB_THEME=${TOB_THEME}" \
+    -v "${_projectName}_tob-npm-cache:/opt/app-root/src/.npm" \
+    '../tob-web' \
+    'nodejs-build' \
+    'angular-dev'
 }
 
 build-solr() {
@@ -306,6 +341,9 @@ deleteVolumes() {
   else
     echo "No project volumes exist."
   fi
+  
+  echo "Removing build cache ..."
+  rm -Rf ../tob-web/.cache
 }
 
 registerDids() {
@@ -367,13 +405,19 @@ toLower() {
 
 pushd ${SCRIPT_HOME} >/dev/null
 COMMAND=$(toLower ${1})
-shift
+shift || COMMAND=usage
 
 case "${COMMAND}" in
 start)
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
   docker-compose up ${_startupParams}
+  ;;
+web-dev)
+  _startupParams=$(getStartupParams $@)
+  configureEnvironment $@
+  [ -z "$SKIP_BUILD" ] && build-web-dev
+  docker-compose run --rm --service-ports tob-web-dev
   ;;
 stop)
   configureEnvironment

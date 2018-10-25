@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalizeRouterModule } from 'localize-router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SearchComponent } from './form.component';
 import { SearchFiltersComponent } from './filters.component';
@@ -30,7 +30,7 @@ const ROUTES = [];
     LocalizeRouterModule.forChild(ROUTES),
     CredModule,
     UtilModule,
-    NgbModule,
+    NgbTypeaheadModule,
   ],
   exports: [
     SearchComponent,
