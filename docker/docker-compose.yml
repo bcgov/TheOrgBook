@@ -18,7 +18,31 @@ services:
       - "${WEB_HTTP_PORT}:8080"
     depends_on:
       - tob-api
-    # command: npm start
+
+  #
+  # tob-web-dev
+  # Run tob-web in development mode with auto-reload and inspector support
+  #
+  tob-web-dev:
+    image: angular-dev
+    environment:
+      - API_URL=${API_URL}
+      - DEV_MODE=false
+      - NODE_ENV=development
+      - NPM_CONFIG_LOGLEVEL=notice
+      - NPM_RUN=dev
+      - TOB_THEME=${TOB_THEME}
+      - WEB_BASE_HREF=${WEB_BASE_HREF}
+      - WEB_DEPLOY_URL=${WEB_DEPLOY_URL}
+    networks:
+      - tob
+    ports:
+      - "${WEB_HTTP_PORT}:8080"
+      - 5858:5858
+    volumes:
+      - "../tob-web/src:/opt/app-root/src/src"
+    depends_on:
+      - tob-api
 
   # 
   # tob-api
@@ -53,9 +77,7 @@ services:
       - POSTGRESQL_WALLET_ADMIN_PASSWORD=${POSTGRESQL_ADMIN_PASSWORD}
       - WALLET_ENCRYPTION_KEY=${WALLET_ENCRYPTION_KEY}
       - INDY_WALLET_SEED=${INDY_WALLET_SEED}
-      - INDY_VERIFIER_WALLET_SEED=${INDY_VERIFIER_WALLET_SEED}
       - HOLDER_WALLET_DID=${HOLDER_WALLET_DID}
-      - VERIFIER_WALLET_DID=${VERIFIER_WALLET_DID}
       - DEBUG=${DEBUG}
       - SQL_DEBUG=${SQL_DEBUG}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}

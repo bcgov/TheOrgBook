@@ -34,7 +34,7 @@ class Command(BaseCommand):
         self.stdout.write("Reprocessing {} credentials".format(cred_count))
 
         current_cred = 0
-        for credential in Credential.objects.all():
+        for credential in Credential.objects.all().iterator():
             with transaction.atomic():
                 current_cred += 1
                 self.stdout.write(
