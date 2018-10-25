@@ -2,7 +2,7 @@
   <input #queryInput type="text" id="queryInput" name="query"
     [placeholder]="'home.search-input' | translate"  size="40"
     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-    [ngbTypeahead]="typeaheadSearch" [focusFirst]="false"
+    [ngbTypeahead]="typeaheadSearch"
     (selectItem)="typeaheadSelected($event)">
   <button #queryButton [title]="'search.by-name' | translate" class="btn btn-primary">
     <span class="load" *ngIf="loading"><div class="loading-indicator"></div></span>
