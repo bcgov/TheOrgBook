@@ -223,7 +223,7 @@ configureEnvironment() {
   if [ -f .env ]; then
     while read line; do
       if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
-        export $line
+        export ${line//[$'\r\n']}
       fi
     done <.env
   fi
