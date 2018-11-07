@@ -3,18 +3,20 @@ from datetime import datetime
 import json as _json
 import hashlib
 import logging
+import re
 import time
 from importlib import import_module
 
-from django.db import transaction
-
+from django.db import transaction, DEFAULT_DB_ALIAS
 from django.db.utils import IntegrityError
+from django.utils.dateparse import parse_datetime
 
 from von_anchor.util import schema_key
 
 from api_v2.models.Issuer import Issuer
 from api_v2.models.Schema import Schema
 from api_v2.models.Topic import Topic
+from api_v2.models.CredentialSet import CredentialSet
 from api_v2.models.CredentialType import CredentialType
 from api_v2.models.Credential import Credential as CredentialModel
 from api_v2.models.Claim import Claim
@@ -87,7 +89,6 @@ class Credential(object):
         claim_data = credential_data["values"]
         for claim_attribute in claim_data:
             self._claim_attributes.append(claim_attribute)
-
     def __getattr__(self, name: str):
         """Make claim values accessible on class instance"""
         try:
@@ -225,15 +226,15 @@ class CredentialManager(object):
     def __init__(self) -> None:
         self._cred_type_cache = {}
 
-    @staticmethod
-    def get_claims(credential):
+    @classmethod
+    def get_claims(cls, credential):
         if isinstance(credential, Credential):
             return credential
         elif isinstance(credential, CredentialModel):
             return CredentialClaims(credential)
 
-    @staticmethod
-    def process_mapping(rules, credential):
+    @classmethod
+    def process_mapping(cls, rules, credential):
         """
         Takes our mapping rules and returns a value from credential
         """
@@ -252,7 +253,7 @@ class CredentialManager(object):
         # Processor is optional
         processor = rules.get("processor")
 
-        claims = CredentialManager.get_claims(credential)
+        claims = cls.get_claims(credential)
 
         # Get model field value from string literal or claim value
         if _from == "value":
@@ -315,46 +316,54 @@ class CredentialManager(object):
 
         return mapped_value
 
-    def get_credential_type(self, credential: Credential):
+    def get_credential_type(self, credential: (Credential, CredentialModel)):
         """
         Fetch the credential type for the incoming credential
         """
-        LOGGER.warn(">>> get credential context")
+        LOGGER.debug(">>> get credential context")
         start_time = time.perf_counter()
-        cache_key = (
-            credential.cred_def_id,
-        )
-        result = self._cred_type_cache.get(cache_key)
-        if not result:
-            try:
-                issuer = Issuer.objects.get(did=credential.origin_did)
-                schema = Schema.objects.get(
-                    origin_did=credential.schema_origin_did,
-                    name=credential.schema_name,
-                    version=credential.schema_version,
-                )
-            except Issuer.DoesNotExist:
-                raise CredentialException(
-                    "Issuer with did '{}' does not exist.".format(
-                        credential.origin_did
+        result = None
+        type_id = getattr(credential, 'credential_type_id', None)
+        if type_id:
+            result = self._cred_type_cache.get(type_id)
+            if not result:
+                result = CredentialType.objects.get(pk=type_id)
+                self._cred_type_cache[type_id] = result
+        elif isinstance(credential, Credential):
+            cache_key = (credential.cred_def_id,)
+            result = self._cred_type_cache.get(cache_key)
+            if not result:
+                try:
+                    issuer = Issuer.objects.get(did=credential.origin_did)
+                    schema = Schema.objects.get(
+                        origin_did=credential.schema_origin_did,
+                        name=credential.schema_name,
+                        version=credential.schema_version,
                     )
-                )
-            except Schema.DoesNotExist:
-                raise CredentialException(
-                    "Schema with origin_did"
-                    + " '{}', name '{}', and version '{}' ".format(
-                        credential.schema_origin_did,
-                        credential.schema_name,
-                        credential.schema_version,
+                except Issuer.DoesNotExist:
+                    raise CredentialException(
+                        "Issuer with did '{}' does not exist.".format(
+                            credential.origin_did
+                        )
                     )
-                    + " does not exist."
-                )
+                except Schema.DoesNotExist:
+                    raise CredentialException(
+                        "Schema with origin_did"
+                        + " '{}', name '{}', and version '{}' ".format(
+                            credential.schema_origin_did,
+                            credential.schema_name,
+                            credential.schema_version,
+                        )
+                        + " does not exist."
+                    )
 
-            result = CredentialType.objects.get(schema=schema, issuer=issuer)
-            self._cred_type_cache[cache_key] = result
-        LOGGER.warn(
+                result = CredentialType.objects.get(schema=schema, issuer=issuer)
+                self._cred_type_cache[cache_key] = result
+        LOGGER.debug(
             "<<< get credential context: " + str(time.perf_counter() - start_time)
         )
+        if not result:
+            raise CredentialException("Credential type not found")
         return result
 
     def process(self, credential: Credential, check_from_did: str = None) -> CredentialModel:
@@ -370,22 +379,48 @@ class CredentialManager(object):
                 credential.origin_did, check_from_did))
         credential_type = self.get_credential_type(credential)
 
-        with transaction.atomic():
-            return self.populate_application_database(credential_type, credential)
+        return self.populate_application_database(credential_type, credential)
 
-    def populate_application_database(self, credential_type: CredentialType,
-                                      credential: Credential) -> CredentialModel:
-        LOGGER.warn(">>> store cred in local database")
-        start_time = time.perf_counter()
+    def reprocess(self, credential: CredentialModel):
+        """
+        Reprocesses an existing credential in order to update the related search models
+        """
+        credential_type = self.get_credential_type(credential)
         processor_config = credential_type.processor_config
-        topic_defs = processor_config["topic"]
 
+        with transaction.atomic():
+            if not credential.credential_set:
+                cardinality = self.credential_cardinality(credential, processor_config)
+                self.update_credential_set(credential_type, credential, cardinality)
+            self.remove_search_models(credential)
+            self.create_search_models(credential, processor_config)
+
+    @classmethod
+    def find_or_create_topic(cls, topic_spec: dict, retry=True):
+        """
+        Create a Topic, allowing for other threads which may have created it first
+        """
+        try:
+            return Topic.objects.get(**topic_spec)
+        except Topic.DoesNotExist:
+            try:
+                return Topic.objects.create(**topic_spec)
+            except IntegrityError:
+                if retry:
+                    return cls.find_or_create_topic(topic_spec, retry=False)
+                raise CredentialException("Database error while creating topic")
+
+    @classmethod
+    def resolve_credential_topics(cls, credential, processor_config) -> (Topic, Topic):
+        """
+        Resolve the related topic(s) for a credential based on the processor config
+        """
+        topic_defs = processor_config["topic"]
         # We accept object or array for topic def
         if type(topic_defs) is dict:
             topic_defs = [topic_defs]
 
-        cardinality_fields = processor_config.get("cardinality_fields") or []
-        mapping = processor_config.get("mapping") or []
+        result = (None, None)
 
         # Issuer can register multiple topic selectors to fall back on
         # We use the first valid topic and related parent if applicable
@@ -393,23 +428,23 @@ class CredentialManager(object):
             related_topic = None
             topic = None
 
-            related_topic_name = CredentialManager.process_mapping(
+            related_topic_name = cls.process_mapping(
                 topic_def.get("related_name"), credential
             )
-            related_topic_source_id = CredentialManager.process_mapping(
+            related_topic_source_id = cls.process_mapping(
                 topic_def.get("related_source_id"), credential
             )
-            related_topic_type = CredentialManager.process_mapping(
+            related_topic_type = cls.process_mapping(
                 topic_def.get("related_type"), credential
             )
 
-            topic_name = CredentialManager.process_mapping(
+            topic_name = cls.process_mapping(
                 topic_def.get("name"), credential
             )
-            topic_source_id = CredentialManager.process_mapping(
+            topic_source_id = cls.process_mapping(
                 topic_def.get("source_id"), credential
             )
-            topic_type = CredentialManager.process_mapping(
+            topic_type = cls.process_mapping(
                 topic_def.get("type"), credential
             )
 
@@ -436,72 +471,55 @@ class CredentialManager(object):
                 except Topic.DoesNotExist:
                     continue
             elif topic_source_id and topic_type:
-                # Special Case:
                 # Create a new topic if our query comes up empty
-                try:
-                    topic = Topic.objects.get(
-                        source_id=topic_source_id, type=topic_type
-                    )
-                except Topic.DoesNotExist as error:
-                    topic = Topic.objects.create(
-                        source_id=topic_source_id, type=topic_type
-                    )
+                topic_spec = {"source_id": topic_source_id, "type": topic_type}
+                topic = cls.find_or_create_topic(topic_spec)
 
             # We stick with the first topic that we resolve
             if topic:
                 if not related_topic and related_topic_source_id and related_topic_type:
-                    related_topic = Topic.objects.create(
-                        source_id=related_topic_source_id, type=related_topic_type
-                    )
-                break
+                    topic_spec = {"source_id": related_topic_source_id, "type": related_topic_type}
+                    related_topic = cls.find_or_create_topic(topic_spec)
+                result = (topic, related_topic)
+        return result
 
-        # If we couldn't resolve _any_ topics from the configuration,
-        # we can't continue
-        if not topic:
-            raise CredentialException(
-                "Issuer registration 'topic' must specify at least one valid topic name OR topic type and topic source_id"
-            )
-
-        # We always create a new credential model to represent the current credential
-        # The issuer may specify an effective date from a claim. Otherwise, defaults to now.
-
-        cardinality_values = {}
-        for cardinality_field in cardinality_fields:
-            try:
-                cardinality_values[cardinality_field] = getattr(
-                    credential, cardinality_field
-                )
-            except AttributeError as error:
-                raise CredentialException(
-                    "Issuer configuration specifies field '{}' ".format(
-                        cardinality_field
+    @classmethod
+    def credential_cardinality(cls, credential, processor_config):
+        """
+        Extract the credential cardinality values and hash
+        """
+        fields = processor_config.get("cardinality_fields") or []
+        values = {}
+        if fields:
+            claims = cls.get_claims(credential)
+            for field in fields:
+                try:
+                    values[field] = getattr(claims, field)
+                except AttributeError as error:
+                    raise CredentialException(
+                        "Issuer configuration specifies field '{}' in cardinality_fields "
+                        "value does not exist in credential. Values are: {}".format(
+                            field, ", ".join(list(credential.claim_attributes))
+                        )
                     )
-                    + "in cardinality_fields value does not exist in "
-                    + "credential. Values are: {}".format(
-                        ", ".join(list(credential.claim_attributes))
-                    )
-                )
-        if cardinality_values:
-            hash_fields = [
-                "{}::{}".format(k, cardinality_values[k]) for k in cardinality_values
-            ]
-            cardinality_hash = base64.b64encode(
+        if values:
+            hash_fields = ["{}::{}".format(k, values[k]) for k in values]
+            hash = base64.b64encode(
                 hashlib.sha256(",".join(hash_fields).encode("utf-8")).digest()
             )
-        else:
-            cardinality_hash = None
+            return {"values": values, "hash": hash}
+        return None
 
-        credential_args = {
-            "cardinality_hash": cardinality_hash,
-            "credential_def_id": credential.cred_def_id,
-            "credential_type": credential_type,
-            "wallet_id": credential.wallet_id,
-        }
-
-        credential_config = processor_config.get("credential")
-        if credential_config:
-            effective_date = CredentialManager.process_mapping(
-                credential_config.get("effective_date"), credential
+    @classmethod
+    def process_credential_properties(cls, credential, processor_config) -> dict:
+        """
+        Generate a dictionary of additional credential properties from the processor config
+        """
+        config = processor_config.get("credential")
+        args = {}
+        if config:
+            effective_date = cls.process_mapping(
+                config.get("effective_date"), credential
             )
             if effective_date:
                 try:
@@ -510,90 +528,50 @@ class CredentialManager(object):
                         int(effective_date)
                     ).isoformat()
                 except ValueError:
-                    # If it's not an int, assume it's already ISO8601 string.
-                    # Fail later if it isn't
-                    pass
-                credential_args["effective_date"] = effective_date
+                    # Django method to parse a date string. Must be in ISO8601 format
+                    try:
+                        effective_date = parse_datetime(effective_date)
+                    except re.error:
+                        raise CredentialException(
+                            "Error parsing effective date: {}".format(effective_date)
+                        )
+                    except ValueError:
+                        raise CredentialException(
+                            "Credential effective date is invalid: {}".format(effective_date)
+                        )
+                args["effective_date"] = effective_date
 
-            revoked = CredentialManager.process_mapping(
-                credential_config.get("revoked"), credential
+            revoked = cls.process_mapping(
+                config.get("revoked"), credential
             )
             if revoked:
-                credential_args["revoked"] = bool(revoked)
+                args["revoked"] = bool(revoked)
 
-            inactive = CredentialManager.process_mapping(
-                credential_config.get("inactive"), credential
+            inactive = cls.process_mapping(
+                config.get("inactive"), credential
             )
             if inactive:
-                credential_args["inactive"] = bool(inactive)
+                args["inactive"] = bool(inactive)
+        return args
 
-        dbCredential = topic.credentials.create(**credential_args)
+    @classmethod
+    def create_search_models(cls, credential: CredentialModel, processor_config,
+                             search_model_map=None, save=True):
+        """
+        Create search model instances using mapping from issuer config
 
-        # Create and associate claims for this credential
-        for claim_attribute in credential.claim_attributes:
-            claim_value = getattr(credential, claim_attribute)
-            Claim.objects.create(
-                credential=dbCredential, name=claim_attribute, value=claim_value
-            )
+        Returns: a list of the unsaved model instances
+        """
+        mapping = processor_config.get("mapping") or []
+        if search_model_map is None:
+            search_model_map = SUPPORTED_MODELS_MAPPING
+        result = []
 
-        if related_topic is not None:
-            try:
-                TopicRelationship.objects.create(
-                    credential=dbCredential, topic=topic, related_topic=related_topic
-                )
-            except IntegrityError:
-                raise CredentialException(
-                    "Relationship between topics '{}' and '{}' already exist.".format(
-                        topic.id, related_topic.id
-                    )
-                )
-
-        # We search for existing credentials by cardinality_fields
-        # to revoke credentials occuring before latest credential
-        existing_credential_query = {
-            "credential_type": credential_type,
-            "revoked": False,
-            "topic": topic,
-        }
-        if cardinality_hash:
-            existing_credential_query["cardinality_hash"] = cardinality_hash
-
-        try:
-            existing_credentials = CredentialModel.objects.filter(
-                **existing_credential_query
-            )
-            if cardinality_values:
-                existing_credentials = existing_credentials.prefetch_related("claims")
-
-            latest = existing_credentials.latest("effective_date")
-            for existing_credential in existing_credentials:
-                if (
-                    existing_credential.effective_date > latest.effective_date
-                    or existing_credential == latest
-                ):
-                    continue
-                if cardinality_values:
-                    # we already checked the hash,
-                    # but check the claim values just to be sure
-                    existing_claims = {}
-                    for claim in existing_credential.claims.all():
-                        if claim.name in cardinality_values:
-                            existing_claims[claim.name] = claim.value
-                    if existing_claims != cardinality_values:
-                        continue
-                existing_credential.revoked = True
-                existing_credential.save()
-
-        except CredentialModel.DoesNotExist as error:
-            # No records to implicitly revoke
-            pass
-
-        # Create search models using mapping from issuer config
         for model_mapper in mapping:
             model_name = model_mapper["model"]
 
             try:
-                Model = SUPPORTED_MODELS_MAPPING[model_name]
+                Model = search_model_map[model_name]
                 model = Model()
             except KeyError as error:
                 raise CredentialException(
@@ -604,20 +582,170 @@ class CredentialManager(object):
                 setattr(
                     model,
                     field,
-                    CredentialManager.process_mapping(field_mapper, credential),
+                    cls.process_mapping(field_mapper, credential),
                 )
             if model_name == "category":
                 model.format = "category"
 
-            # skip blank values
+            # skip blank in names and attributes
             if model_name == "name" and (model.text is None or model.text is ""):
                 continue
             if (model_name == "category" or model_name == "attribute") and \
                     (not model.type or model.value is None or model.value is ""):
                 continue
 
-            model.credential = dbCredential
-            model.save()
+            model.credential = credential
+            if save:
+                model.save()
+            result.append(model)
+        return result
+
+    @classmethod
+    def remove_search_models(cls, credential: CredentialModel, search_model_map=None,
+                             raw_delete=True):
+        """
+        Delete any existing search model instances
+        """
+        if search_model_map is None:
+            search_model_map = SUPPORTED_MODELS_MAPPING
+        for model_key, model_cls in search_model_map.items():
+            if model_key == "category":
+                continue
+            rows = model_cls.objects.filter(credential=credential)
+            if raw_delete:
+                # Don't trigger search reindex (yet)
+                rows._raw_delete(using=DEFAULT_DB_ALIAS)
+            else:
+                rows.delete()
+
+    @classmethod
+    def update_credential_set(cls, credential_type: CredentialType,
+                              credential: CredentialModel,
+                              cardinality=None) -> CredentialSet:
+        if credential.credential_set:
+            return credential.credential_set
+        existing_set_query = {
+            "cardinality_hash": cardinality["hash"] if cardinality else None,
+            "credential_type": credential_type,
+            "topic": credential.topic,
+        }
+        try:
+            cred_set = CredentialSet.objects.get(**existing_set_query)
+            latest_cred = credential
+
+            for prev_cred in cred_set.credentials.filter(revoked=False).order_by('effective_date'):
+                if prev_cred.effective_date <= credential.effective_date:
+                    prev_cred.latest = False
+                    prev_cred.revoked = True
+                    prev_cred.revoked_by = credential
+                    prev_cred.revoked_date = credential.effective_date
+                    prev_cred.save()
+                else:
+                    latest_cred = prev_cred
+                    if not credential.revoked:
+                        credential.revoked = True
+                        credential.revoked_by = prev_cred
+                        credential.revoked_date = prev_cred.effective_date
+
+            cred_set.latest_credential = latest_cred
+            cred_set.first_effective_date = credential.effective_date if \
+                cred_set.first_effective_date is None else \
+                min(cred_set.first_effective_date, credential.effective_date)
+
+            if latest_cred.revoked:
+                cred_set.last_effective_date = latest_cred.revoked_date if \
+                    cred_set.last_effective_date is None else \
+                    max(cred_set.last_effective_date, latest_cred.revoked_date)
+            else:
+                cred_set.last_effective_date = None
+
+            cred_set.save()
+            credential.credential_set = cred_set
+            credential.latest = (latest_cred == credential)
+            credential.save()
+
+            if latest_cred != credential and not latest_cred.latest:
+                latest_cred.latest = True
+                latest_cred.save()
+
+        except CredentialSet.DoesNotExist:
+            updates = existing_set_query.copy()
+            updates['first_effective_date'] = credential.effective_date
+            updates['last_effective_date'] = credential.revoked_date \
+                if credential.revoked else None
+            updates['latest_credential'] = credential
+            cred_set = CredentialSet.objects.create(**updates)
+            credential.credential_set = cred_set
+            credential.latest = True
+            credential.save()
+        return cred_set
+
+    @classmethod
+    def populate_application_database(cls, credential_type: CredentialType,
+                                      credential: Credential) -> CredentialModel:
+        LOGGER.warn(">>> store cred in local database")
+        start_time = time.perf_counter()
+        processor_config = credential_type.processor_config
+
+        topic, related_topic = cls.resolve_credential_topics(credential, processor_config)
+
+        # If we couldn't resolve _any_ topics from the configuration,
+        # we can't continue
+        if not topic:
+            raise CredentialException(
+                "Issuer registration 'topic' must specify at least one valid topic name "
+                "OR topic type and topic source_id"
+            )
+
+        with transaction.atomic():
+            # Acquire a lock on the topic to block competing credentials
+            # This lock is released when the transaction ends
+            Topic.objects.select_for_update().get(pk=topic.id)
+
+            cardinality = cls.credential_cardinality(
+                credential, processor_config
+            )
+
+            # We always create a new credential model to represent the current credential
+            # The issuer may specify an effective date from a claim. Otherwise, defaults to now.
+
+            credential_args = {
+                "cardinality_hash": cardinality["hash"] if cardinality else None,
+                "credential_def_id": credential.cred_def_id,
+                "credential_type": credential_type,
+                "wallet_id": credential.wallet_id,
+            }
+            credential_args.update(
+                cls.process_credential_properties(credential, processor_config)
+            )
+
+            dbCredential = topic.credentials.create(**credential_args)
+
+            # Create and associate claims for this credential
+            for claim_attribute in credential.claim_attributes:
+                claim_value = getattr(credential, claim_attribute)
+                Claim.objects.create(
+                    credential=dbCredential, name=claim_attribute, value=claim_value
+                )
+
+            # Create topic relationship if needed
+            if related_topic is not None:
+                try:
+                    TopicRelationship.objects.create(
+                        credential=dbCredential, topic=topic, related_topic=related_topic
+                    )
+                except IntegrityError:
+                    raise CredentialException(
+                        "Relationship between topics '{}' and '{}' already exist.".format(
+                            topic.id, related_topic.id
+                        )
+                    )
+
+            # Assign to credential set
+            cls.update_credential_set(credential_type, dbCredential, cardinality)
+
+            # Save search models
+            cls.create_search_models(dbCredential, processor_config)
 
         LOGGER.warn(
             "<<< store cred in local database: " + str(time.perf_counter() - start_time)
