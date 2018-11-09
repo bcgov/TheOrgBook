@@ -110,9 +110,11 @@ export namespace Model {
   export class Credential extends BaseModel {
     id: number;
     credential_type: CredentialType;
+    credential_set: CredentialSet;
     effective_date: string;
     inactive: boolean;
     revoked: boolean;
+    revoked_date: string;
 
     addresses: Address[];
     _attributes: Attribute[];
@@ -128,6 +130,7 @@ export namespace Model {
 
     static propertyMap = {
       credential_type: 'CredentialType',
+      credential_set: 'CredentialSet',
       topic: 'Topic',
     };
     static listPropertyMap = {
@@ -200,6 +203,28 @@ export namespace Model {
         return this.result;
       return JSON.stringify(this.result, null, 2);
     }
+  }
+
+  export class CredentialSet extends BaseModel {
+    id: number;
+    credentials: Credential[];
+    credential_type: CredentialType;
+    latest_credential: Credential;
+    latest_credential_id: number;
+    first_effective_date: string;
+    last_effective_date: string;
+
+    static propertyMap = {
+      latest_credential: 'Credential',
+      credential_type: 'CredentialType',
+      topic: 'Topic',
+    };
+    static listPropertyMap = {
+      credentials: 'Credential',
+    };
+
+    static resourceName = 'topic';
+    static childResource = 'credentialset';
   }
 
   export class CredentialType extends BaseModel {

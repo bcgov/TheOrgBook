@@ -63,6 +63,13 @@
 	</fieldType>
 
     <!--
+    ### More exact matching on name, used to score results
+    -->
+    <copyField source="name" dest="name_precise"/>
+
+    <field name="name_precise" type="text_general" indexed="true" stored="true" multiValued="true"/>
+
+    <!--
     ######################## django-haystack specifics begin ########################
     -->
 
@@ -96,11 +103,15 @@
     <field name="django_ct" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="django_id" type="string" indexed="true" stored="true" multiValued="false"/>
 
+    <field name="document" type="text_en" indexed="true" stored="true" multiValued="false" />
+
+    <field name="credential_set_id" type="long" indexed="true" stored="true" multiValued="false" />
+     
     <field name="credential_type_id" type="long" indexed="true" stored="true" multiValued="false" />
     
-    <field name="document" type="text_en" indexed="true" stored="true" multiValued="false" />
-     
     <field name="credential_type_id_exact" type="long" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="topic_type" type="string" indexed="true" stored="true" multiValued="false" />
     
     <field name="topic_type_exact" type="string" indexed="true" stored="true" multiValued="false" />
 
@@ -111,16 +122,18 @@
     <field name="location" type="text_en" indexed="true" stored="true" multiValued="true" />
      
     <field name="name" type="text_en" indexed="true" stored="true" multiValued="true" />
-     
-    <field name="effective_date_exact" type="date" indexed="true" stored="true" multiValued="false" />
-    
-    <field name="topic_type" type="string" indexed="true" stored="true" multiValued="false" />
-    
+
     <field name="effective_date" type="date" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="effective_date_exact" type="date" indexed="true" stored="true" multiValued="false" />
     
     <field name="inactive" type="boolean" indexed="true" stored="true" multiValued="false" />
     
     <field name="revoked" type="boolean" indexed="true" stored="true" multiValued="false" />
+
+    <field name="revoked_date" type="date" indexed="true" stored="true" multiValued="false" />
+    
+    <field name="latest" type="boolean" indexed="true" stored="true" multiValued="false" />
     
     <field name="issuer_id" type="long" indexed="true" stored="true" multiValued="false" />
     

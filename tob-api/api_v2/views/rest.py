@@ -16,6 +16,7 @@ from api_v2.serializers.rest import (
     TopicSerializer,
     CredentialSerializer,
     ExpandedCredentialSerializer,
+    ExpandedCredentialSetSerializer,
     AddressSerializer,
     AttributeSerializer,
     NameSerializer,
@@ -132,6 +133,13 @@ class TopicViewSet(ReadOnlyModelViewSet):
     def retrieve_by_type_formatted(self, request, type=None, source_id=None):
         return self.retrieve_formatted(request)
 
+    @detail_route(url_path="credentialset", methods=["get"])
+    def list_credential_sets(self, request, pk=None):
+        item = self.get_object()
+        queryset = item.credential_sets.order_by("first_effective_date").all()
+        serializer = ExpandedCredentialSetSerializer(queryset, many=True)
+        return Response(serializer.data)
+
     def get_object(self):
         if self.kwargs.get("pk"):
             return super(TopicViewSet, self).get_object()
@@ -161,7 +169,7 @@ class CredentialViewSet(ReadOnlyModelViewSet):
 
     @list_route(url_path="active", methods=["get"])
     def list_active(self, request, pk=None):
-        queryset = self.queryset.filter(revoked=False, inactive=False)
+        queryset = self.queryset.filter(revoked=False, inactive=False, latest=True)
         serializer = CredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -169,6 +177,17 @@ class CredentialViewSet(ReadOnlyModelViewSet):
     def list_historical(self, request, pk=None):
         queryset = self.queryset.filter(Q(revoked=True) | Q(inactive=True))
         serializer = CredentialSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @detail_route(url_path="latest", methods=["get"])
+    def get_latest(self, request, pk=None):
+        item = self.get_object()
+        latest = None
+        if item.credential_set:
+            latest = item.credential_set.latest_credential
+        if not latest:
+            latest = item
+        serializer = CredentialSerializer(latest)
         return Response(serializer.data)
 
     def get_object(self):
