@@ -73,7 +73,6 @@ export class GeneralDataService {
           return _throw(error);
         }));
       req.subscribe((data: any) => {
-        console.log('quickload', data);
         if(data.counts) {
           for (let k in data.counts) {
             this._recordCounts[k] = parseInt(data.counts[k]);
@@ -102,7 +101,24 @@ export class GeneralDataService {
     }
     let params = new HttpParams().set('q', term);
     return this.loadFromApi('search/autocomplete', params)
-      .pipe(map(response => response["result"]));
+      .pipe(map(response => {
+        let ret = [];
+        for(let row of response['results']) {
+          let found = null;
+          for(let name of row.names) {
+            if(~ name.text.toLowerCase().indexOf(term.toLowerCase())) {
+              found = name.text;
+              break;
+            } else if(found === null) {
+              found = name.text;
+            }
+          }
+          if(found !== null) {
+            ret.push({id: row.id, term: found});
+          }
+        }
+        return ret;
+      }));
   }
 
   makeHttpParams(query?: { [key: string ]: string } | HttpParams) {
