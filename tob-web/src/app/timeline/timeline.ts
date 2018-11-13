@@ -415,7 +415,7 @@ export namespace Timeline {
     _gestureStartLayout: Layout;
     _rendered: boolean = false;
     _renderer: Renderer2;
-    _resetRange: null;
+    _resetRange : {start: Date, end: Date};
     _rows: Row[] = [];
     _redrawTimer: number;
     _updateTimer: number;
@@ -612,7 +612,12 @@ export namespace Timeline {
     }
 
     renderControls() {
-      let btns = ['fastprev', 'prev', 'zoomin', 'zoomout', 'reset', 'next', 'fastnext'];
+      let groups = [
+        ['fastprev', 'prev'],
+        ['zoomout', 'zoomin'],
+        ['reset'],
+        ['next', 'fastnext'],
+      ];
       let icons = {
         fastprev: 'fa-angle-double-left',
         prev: 'fa-angle-left',
@@ -623,19 +628,26 @@ export namespace Timeline {
         fastnext: 'fa-angle-double-right',
       };
       let rdr = this._renderer;
-      for(let btn of btns) {
-        let elt = rdr.createElement('button');
-        rdr.addClass(elt, 'btn');
-        rdr.addClass(elt, 'btn-sm');
-        rdr.addClass(elt, 'btn-secondary');
-        elt.name = btn;
-        elt.tabIndex = 0;
-        let icon = rdr.createElement('span');
-        rdr.addClass(icon, 'fa');
-        rdr.addClass(icon, icons[btn]);
-        elt.appendChild(icon);
-        this._elts.controlsOuter.appendChild(elt);
-        rdr.listen(elt, 'click', this.handleControl.bind(this));
+      for(let btns of groups) {
+        let grp = rdr.createElement('div');
+        rdr.addClass(grp, 'btn-group');
+        grp.setAttribute('role', 'group');
+        for(let btn of btns) {
+          let elt = rdr.createElement('button');
+          elt.setAttribute('type', 'button');
+          rdr.addClass(elt, 'btn');
+          rdr.addClass(elt, 'btn-sm');
+          rdr.addClass(elt, 'btn-secondary');
+          elt.name = btn;
+          elt.tabIndex = 0;
+          let icon = rdr.createElement('span');
+          rdr.addClass(icon, 'fa');
+          rdr.addClass(icon, icons[btn]);
+          elt.appendChild(icon);
+          grp.appendChild(elt);
+          rdr.listen(elt, 'click', this.handleControl.bind(this));
+        }
+        this._elts.controlsOuter.appendChild(grp);
       }
     }
 

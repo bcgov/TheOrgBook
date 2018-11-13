@@ -37,9 +37,11 @@ $slot-focus-width: $btn-focus-width;
   text-align: center;
   .btn {
     font-size: 110%;
-    margin: 0 4px;
     padding: 0.1rem;
     width: 3rem;
+  }
+  > .btn, > .btn-group {
+    margin: 0 4px;
   }
 }
 
