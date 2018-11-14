@@ -404,6 +404,7 @@ export namespace Timeline {
   export class TimelineView {
     _elts: {[key: string]: HTMLElement} = {
       container: null,
+      controlsOuter: null,
       axisOuter: null,
       rowsOuter: null,
     };
@@ -414,6 +415,7 @@ export namespace Timeline {
     _gestureStartLayout: Layout;
     _rendered: boolean = false;
     _renderer: Renderer2;
+    _resetRange : {start: Date, end: Date};
     _rows: Row[] = [];
     _redrawTimer: number;
     _updateTimer: number;
@@ -437,7 +439,7 @@ export namespace Timeline {
       this.redraw();
     }
 
-    setRange(start: string | Date, end: string | Date) {
+    setRange(start: string | Date, end: string | Date, relative?: boolean) {
       let startDate = parseDate(start);
       let endDate = parseDate(end);
       if(startDate && endDate && endDate.getTime() < startDate.getTime()) {
@@ -449,10 +451,12 @@ export namespace Timeline {
       let layout = Object.assign({}, this._layout);
       layout.start = startDate;
       layout.end = endDate;
+      if(! relative)
+        this._resetRange = {start: startDate, end: endDate};
       this.setLayout(layout);
     }
 
-    moveRange(delta, layout?: Layout) {
+    moveRange(delta, layout?: Layout) {console.log(new Date());
       if(! layout) layout = this._layout;
       if(layout.start && layout.end) {
         let startTime = layout.start.getTime();
@@ -461,7 +465,7 @@ export namespace Timeline {
         let start = new Date();
         start.setTime(startTime);
         let end = offsetDate(start, diff);
-        this.setRange(start, end);
+        this.setRange(start, end, true);
       }
     }
 
@@ -476,7 +480,16 @@ export namespace Timeline {
         }
         let start = offsetDate(layout.start, -offs);
         let end = offsetDate(layout.end, +offs);
-        this.setRange(start, end);
+        this.setRange(start, end, true);
+      }
+    }
+
+    resetRange() {
+      if(this._resetRange) {
+        let layout = Object.assign({}, this._layout);
+        layout.start = this._resetRange.start;
+        layout.end = this._resetRange.end;
+        this.setLayout(layout);
       }
     }
 
@@ -524,13 +537,11 @@ export namespace Timeline {
       else if(evt.type === 'gesturestart') {
         evt.preventDefault();
         evt.stopPropagation();
-        console.log('!!');
         this._gestureStartLayout = Object.assign({}, this._layout);
       }
       else if(evt.type === 'gesturechange') {
         evt.preventDefault();
         evt.stopPropagation();
-        console.log('??');
         if(evt.scale) {
           this.scaleRange(- evt.scale, this._gestureStartLayout);
         }
@@ -538,6 +549,34 @@ export namespace Timeline {
       else if(evt.type === 'gestureend') {
         evt.preventDefault();
         this._gestureStartLayout = null;
+      }
+    }
+
+    handleControl(evt) {
+      let tgt = evt.target;
+      while(tgt && ! tgt.name && tgt.parentNode && tgt.parentNode !== window)
+        tgt = tgt.parentNode;
+      let evtName = tgt && tgt.name;
+      if(evtName == 'zoomin') {
+        this.scaleRange(-0.1);
+      }
+      else if(evtName == 'zoomout') {
+        this.scaleRange(0.1);
+      }
+      else if(evtName == 'prev') {
+        this.moveRange(10);
+      }
+      else if(evtName == 'fastprev') {
+        this.moveRange(100);
+      }
+      else if(evtName == 'next') {
+        this.moveRange(-10);
+      }
+      else if(evtName == 'fastnext') {
+        this.moveRange(-100);
+      }
+      else if(evtName == 'reset') {
+        this.resetRange();
       }
     }
 
@@ -554,8 +593,11 @@ export namespace Timeline {
         rdr.listen(elts.container, 'gesturechange', handler);
         rdr.listen(elts.container, 'gestureend', handler);
         // disable forward/back gesture in Chrome
-        // rdr.listen(elts.container, 'pointermove', handler);
+        rdr.listen(elts.container, 'pointermove', handler);
         rdr.addClass(elts.container, 'timeline-outer');
+        elts.controlsOuter = rdr.createElement('div');
+        rdr.addClass(elts.controlsOuter, 'controls-outer');
+        this.renderControls();
         elts.rowsOuter = rdr.createElement('div');
         rdr.addClass(elts.rowsOuter, 'rows-outer');
         elts.axisOuter = rdr.createElement('div');
@@ -569,6 +611,46 @@ export namespace Timeline {
       return elts.container;
     }
 
+    renderControls() {
+      let groups = [
+        ['fastprev', 'prev'],
+        ['zoomout', 'zoomin'],
+        ['reset'],
+        ['next', 'fastnext'],
+      ];
+      let icons = {
+        fastprev: 'fa-angle-double-left',
+        prev: 'fa-angle-left',
+        zoomin: 'fa-search-plus',
+        zoomout: 'fa-search-minus',
+        reset: 'fa-undo',
+        next: 'fa-angle-right',
+        fastnext: 'fa-angle-double-right',
+      };
+      let rdr = this._renderer;
+      for(let btns of groups) {
+        let grp = rdr.createElement('div');
+        rdr.addClass(grp, 'btn-group');
+        grp.setAttribute('role', 'group');
+        for(let btn of btns) {
+          let elt = rdr.createElement('button');
+          elt.setAttribute('type', 'button');
+          rdr.addClass(elt, 'btn');
+          rdr.addClass(elt, 'btn-sm');
+          rdr.addClass(elt, 'btn-secondary');
+          elt.name = btn;
+          elt.tabIndex = 0;
+          let icon = rdr.createElement('span');
+          rdr.addClass(icon, 'fa');
+          rdr.addClass(icon, icons[btn]);
+          elt.appendChild(icon);
+          grp.appendChild(elt);
+          rdr.listen(elt, 'click', this.handleControl.bind(this));
+        }
+        this._elts.controlsOuter.appendChild(grp);
+      }
+    }
+
     redraw() {
       if (! this._rendered) return;
       clearTimeout(this._updateTimer);
@@ -580,7 +662,7 @@ export namespace Timeline {
     _performRedraw() {
       let container = this._elts.container;
       let first = container.childNodes[0];
-      let body = [this._elts.rowsOuter, this._elts.axisOuter];
+      let body = [this._elts.controlsOuter, this._elts.rowsOuter, this._elts.axisOuter];
       for(let elt of body) {
         container.insertBefore(elt, first);
       }

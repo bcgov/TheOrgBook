@@ -99,14 +99,14 @@
             "displayName": "Source Image Name",
             "required": true,
             "description": "The name of the source image.",
-            "value": "registry.access.redhat.com/rhscl/postgresql-95-rhel7"
+            "value": "registry.access.redhat.com/rhscl/postgresql-10-rhel7"
         },
         {
             "name": "SOURCE_IMAGE_TAG",
             "displayName": "Source Image Tag",
             "required": true,
             "description": "The tag of the source image.",
-            "value": "9.5"
+            "value": "latest"
         },
         {
             "name": "OUTPUT_IMAGE_TAG",

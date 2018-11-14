@@ -5,8 +5,8 @@
 #=========================================================
 # NAME=backup
 # SOURCE_IMAGE_NAME=backup
-# IMAGE_NAMESPACE=ontvon-von-tools
-TAG_NAME=prod
+# IMAGE_NAMESPACE=devex-von-tools
+TAG_NAME=test
 # DATABASE_SERVICE_NAME=postgresql
 # DATABASE_DEPLOYMENT_NAME=postgresql
 # WALLET_DB_HOST_NAME=wallet-db
@@ -21,8 +21,8 @@ TAG_NAME=prod
 # CONFIG_MAP_NAME=backup-conf
 # CONFIG_MOUNT_PATH=/
 # PERSISTENT_VOLUME_NAME=backup-pvc
-PERSISTENT_VOLUME_SIZE=840Gi
-PERSISTENT_VOLUME_CLASS=manual-storage
+PERSISTENT_VOLUME_SIZE=20Gi
+PERSISTENT_VOLUME_CLASS=gluster-file
 # CPU_REQUEST=0
 # CPU_LIMIT=0
 # MEMORY_REQUEST=0Mi
