@@ -405,6 +405,7 @@ export namespace Timeline {
     _elts: {[key: string]: HTMLElement} = {
       container: null,
       controlsOuter: null,
+      controlsInner: null,
       axisOuter: null,
       rowsOuter: null,
     };
@@ -597,6 +598,12 @@ export namespace Timeline {
         rdr.addClass(elts.container, 'timeline-outer');
         elts.controlsOuter = rdr.createElement('div');
         rdr.addClass(elts.controlsOuter, 'controls-outer');
+        rdr.addClass(elts.controlsOuter, 'row');
+        elts.controlsInner = rdr.createElement('div');
+        rdr.addClass(elts.controlsInner, 'controls-inner');
+        rdr.addClass(elts.controlsInner, 'col');
+        rdr.addClass(elts.controlsInner, 'text-center');
+        elts.controlsOuter.appendChild(elts.controlsInner);
         this.renderControls();
         elts.rowsOuter = rdr.createElement('div');
         rdr.addClass(elts.rowsOuter, 'rows-outer');
@@ -647,7 +654,8 @@ export namespace Timeline {
           grp.appendChild(elt);
           rdr.listen(elt, 'click', this.handleControl.bind(this));
         }
-        this._elts.controlsOuter.appendChild(grp);
+        this._elts.controlsInner.appendChild(grp);
+        this._elts.controlsInner.appendChild(document.createTextNode(' '));
       }
     }
 
