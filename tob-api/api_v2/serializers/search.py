@@ -26,6 +26,7 @@ from api_v2.serializers.rest import (
     CredentialNameSerializer,
     CredentialTopicSerializer,
     CredentialTopicExtSerializer,
+    CredentialNamedTopicSerializer,
 )
 
 from api_v2.models.Address import Address
@@ -180,21 +181,25 @@ class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
     credential_type = CredentialTypeSerializer()
     names = CredentialNameSerializer(many=True)
     topic = CredentialTopicSerializer()
+    related_topics = CredentialNamedTopicSerializer(many=True)
 
     class Meta(CredentialSerializer.Meta):
         fields = (
             "id", "create_timestamp", "update_timestamp",
-            "credential_set", "credential_type", "effective_date",
+            "effective_date",
+            "inactive", "latest", "revoked", "revoked_date",
+            "wallet_id",
+            "credential_set", "credential_type",
             "addresses", "attributes", "names",
-            "inactive", "revoked", "revoked_date", "latest",
             "topic",
+            "related_topics",
         )
         search_fields = (
             "category", "location", "name",
             "effective_date",
             "inactive", "latest", "revoked", "revoked_date",
             "topic_id", "topic_type", "topic_source_id",
-            "credential_type_id", "issuer_id",
+            "credential_type_id", "issuer_id", "wallet_id",
         )
 
 
@@ -220,10 +225,13 @@ class CredentialTopicSearchSerializer(CredentialSearchSerializer):
     class Meta(CredentialSearchSerializer.Meta):
         fields = (
             "id", "create_timestamp", "update_timestamp",
-            "credential_set", "credential_type", "effective_date",
+            "effective_date",
+            "inactive", "latest", "revoked", "revoked_date",
+            "wallet_id",
+            "credential_set", "credential_type",
             "names",
-            "inactive", "revoked", "revoked_date", "latest",
             "topic",
+            "related_topics",
         )
 
 
