@@ -156,7 +156,6 @@ async def perform_register_services(app=None):
         STARTED = False
         raise
 
-
 async def register_services():
 
     await asyncio.sleep(2) # temp fix for messages being sent before exchange has started
