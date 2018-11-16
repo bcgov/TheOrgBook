@@ -457,7 +457,7 @@ export namespace Timeline {
       this.setLayout(layout);
     }
 
-    moveRange(delta, layout?: Layout) {console.log(new Date());
+    moveRange(delta, layout?: Layout) {
       if(! layout) layout = this._layout;
       if(layout.start && layout.end) {
         let startTime = layout.start.getTime();
