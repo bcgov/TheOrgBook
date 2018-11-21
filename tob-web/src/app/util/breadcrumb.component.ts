@@ -3,9 +3,9 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import 'rxjs/add/operator/filter';
 
 @Component({
-  selector: 'breadcrumb',
-  templateUrl: './breadcrumb.component.html',
-  styleUrls: ['./breadcrumb.component.scss']
+  selector: 'app-breadcrumb',
+  templateUrl: '../../themes/_active/util/breadcrumb.component.html',
+  styleUrls: ['../../themes/_active/util/breadcrumb.component.scss']
 })
 export class BreadcrumbComponent implements OnInit {
   public breadcrumbs: Array<{}> = [];
