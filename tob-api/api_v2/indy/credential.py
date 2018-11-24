@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction, DEFAULT_DB_ALIAS
 from django.db.utils import IntegrityError
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import utc
+from django.utils import timezone
 
 from von_anchor.util import schema_key
 
@@ -520,16 +520,22 @@ class CredentialManager(object):
         date_value = cls.process_mapping(
             config.get(field_name), credential
         )
+        date_result = None
         if date_value:
             try:
                 # could be seconds since epoch
-                date_value = datetime.utcfromtimestamp(
+                date_result = datetime.utcfromtimestamp(
                     int(date_value)
                 )
             except ValueError:
                 # Django method to parse a date string. Must be in ISO8601 format
                 try:
-                    date_value = parse_datetime(date_value)
+                    date_result = parse_datetime(date_value)
+                    if not date_result:
+                        date_result = parse_date(date_value)
+                        if not date_result:
+                            raise ValueError()
+                        date_result = date_result.replace(tzinfo=timezone.now)
                 except re.error:
                     raise CredentialException(
                         "Error parsing {}: {}".format(field_name, date_value)
@@ -538,9 +544,9 @@ class CredentialManager(object):
                     raise CredentialException(
                         "Credential {} is invalid: {}".format(field_name, date_value)
                     )
-            if date_value is not None and not date_value.tzinfo:
-                date_value = date_value.replace(tzinfo=utc)
-        return date_value
+            if not date_result.tzinfo:
+                date_result = date_result.replace(tzinfo=timezone.utc)
+        return date_result
 
     @classmethod
     def process_credential_properties(cls, credential, processor_config) -> dict:
@@ -556,7 +562,7 @@ class CredentialManager(object):
 
             revoked_date = cls.process_config_date(config, credential, "revoked_date")
             if revoked_date:
-                if revoked_date > datetime.utcnow().replace(tzinfo=utc):
+                if revoked_date > datetime.utcnow().replace(tzinfo=timezone.utc):
                     raise CredentialException(
                         "Credential revoked_date must be in the past, not: {}".format(revoked_date)
                     )

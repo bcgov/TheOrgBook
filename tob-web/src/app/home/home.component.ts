@@ -13,7 +13,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('searchInput') _searchInput: SearchInputComponent;
   public inited = false;
   public loadError = null;
-  public recordCounts = {orgs: 0, certs: 0};
+  public recordCounts: any = {};
   public filterType = 'name';
 
   constructor(
@@ -30,6 +30,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
       if(loaded) {
         this.recordCounts.orgs = this._dataService.getRecordCount('topic');
         this.recordCounts.certs = this._dataService.getRecordCount('credential');
+        this.recordCounts.active = this._dataService.getRecordCount('active');
+        this.recordCounts.registrations = this._dataService.getRecordCount('registrations');
+        this.recordCounts.this_week = this._dataService.getRecordCount('this_week');
       }
       this.inited = true;
       setTimeout(() => this.focus(), 50);

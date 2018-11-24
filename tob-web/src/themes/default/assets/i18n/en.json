@@ -21,16 +21,16 @@
   "address": {
     "registered-office": "Registered Office"
   },
+  "connect": {
+    "breadcrumb": "Contact",
+    "title": "Connect with Us"
+  },
   "contact": {
     "email": "Email Address",
     "phone": "Phone",
     "phone-business": "Business Phone",
     "skype": "Skype Address",
     "website": "Website Address"
-  },
-  "contact": {
-    "breadcrumb": "Contact",
-    "title": "Connect with Us"
   },
   "cred": {
     "addresses": "Addresses",
@@ -76,9 +76,11 @@
     "display-timeline": "Timeline",
     "hide-filters": "Hide Filters",
     "details": "Details",
-    "none": "None",
+    "feedback-link": "Submit Feedback",
+    "links-title": "External Links and Resources",
     "map-link": "Show on map",
     "next-link": "Next",
+    "none": "None",
     "not-found": "This record could not be located.",
     "other-error": "An unknown error occurred.",
     "period-current": "Current",
@@ -96,7 +98,8 @@
     "breadcrumb": "Home",
     "title": "Welcome to The OrgBook",
     "title-certs": "verifiable credentials held",
-    "title-orgs": "legal entities"
+    "title-orgs": "legal entities",
+    "title-this-week": "new credentials this week"
   },
   "issuer": {
     "breadcrumb": "Issuer Service",
@@ -130,6 +133,7 @@
     "breadcrumb": "Search",
     "by-name": "Search by Name",
     "by-location": "Search by Location",
+    "input-label": "Organization Name or Registration ID",
     "no-results": "No results",
     "placeholder": "search",
     "prompt": "Please enter your search query above in order to proceed.",
@@ -137,6 +141,7 @@
     "results-error": "Your query could not be completed at this time.",
     "results-title": "Search Results",
     "return-link": "Back to Search",
+    "running": "Performing search ...",
     "title": "Find an Organization"
   },
   "topic": {

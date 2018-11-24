@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
@@ -20,7 +21,14 @@ export class GeneralDataService {
   private _loaderSub: Subscription = null;
   private _defaultTopicType = 'registration';
 
-  constructor(private _http: HttpClient) {
+  constructor(
+    private _http: HttpClient,
+    private _translate: TranslateService,
+  ) {
+  }
+
+  get language() {
+    return this._translate.currentLang;
   }
 
   getRequestUrl(path: string) : string {
@@ -76,6 +84,11 @@ export class GeneralDataService {
         if(data.counts) {
           for (let k in data.counts) {
             this._recordCounts[k] = parseInt(data.counts[k]);
+          }
+        }
+        if(data.credential_counts) {
+          for (let k in data.credential_counts) {
+            this._recordCounts[k] = parseInt(data.credential_counts[k]);
           }
         }
         if(data.records) {
