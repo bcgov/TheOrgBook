@@ -58,6 +58,12 @@ export namespace Timeline {
     time?: number;
   }
 
+  export interface MarkerSpec {
+    classNames?: string[];
+    date: Date;
+    label?: string;
+  }
+
   export interface RowSpec {
     slots: SlotSpec[];
     classNames?: string[];
@@ -72,6 +78,64 @@ export namespace Timeline {
     classNames?: string[];
     url?: string;
     data?: string;
+  }
+
+  class Marker {
+    date: Date;
+    classNames: string[];
+    label: string;
+    start: Date;
+    end: Date;
+    _elt: HTMLElement;
+    _labelElt: HTMLElement;
+    _renderer: Renderer2;
+
+    constructor(spec?: MarkerSpec) {
+      if(spec) {
+        this.classNames = spec.classNames;
+        this.date = spec.date;
+        this.label = spec.label;
+      }
+    }
+
+    setRange(start: Date, end: Date) {
+      this.start = start;
+      this.end = end;
+    }
+
+    render(renderer: Renderer2) {
+      this._renderer = renderer;
+      if(! this._elt) {
+        this._elt = renderer.createElement('div');
+        renderer.addClass(this._elt, 'timeline-marker');
+        if(this.classNames) {
+          for(let c of this.classNames) {
+            renderer.addClass(this._elt, c);
+          }
+        }
+        if(this.label) {
+          this._labelElt = renderer.createElement('label');
+          this._labelElt.appendChild(document.createTextNode(this.label));
+          this._elt.appendChild(this._labelElt);
+        }
+      }
+      return this._elt;
+    }
+
+    update(width) {
+      let hide = true;
+      if(this.start && this.end && this.date && width) {
+        let startTime = this.start.getTime();
+        let endTime = this.end.getTime();
+        let markTime = this.date.getTime();
+        if(markTime >= startTime && markTime < endTime) {
+          hide = false;
+          let pos = Math.round((markTime - startTime) * width / (endTime - startTime)) - 1;
+          this._elt.style.left = '' + pos + 'px';
+        }
+      }
+      this._elt.style.display = hide ? 'none' : null;
+    }
   }
 
   class Row {
@@ -414,6 +478,7 @@ export namespace Timeline {
     _lastLayout: Layout;
     _nextLayout: Layout;
     _gestureStartLayout: Layout;
+    _markers: Marker[] = [];
     _rendered: boolean = false;
     _renderer: Renderer2;
     _resetRange : {start: Date, end: Date};
@@ -437,6 +502,11 @@ export namespace Timeline {
 
     setRows(vals: RowSpec[]) {
       this._rows = (vals || []).map(val => new Row(val));
+      this.redraw();
+    }
+
+    setMarkers(vals: MarkerSpec[]) {
+      this._markers = (vals || []).map(val => new Marker(val));
       this.redraw();
     }
 
@@ -677,12 +747,20 @@ export namespace Timeline {
       clearChildNodes(container, body.length);
       let rowFirst = this._elts.rowsOuter.childNodes[0];
       let zIndex = 40;
+      let clearPos = 0;
+      for(let mark of this._markers) {
+        let elt = mark.render(this._renderer);
+        this._elts.rowsOuter.insertBefore(elt, rowFirst);
+        // elt.style.zIndex = '' + Math.max(0, zIndex);
+        clearPos ++;
+      }
       for(let row of this._rows) {
         let elt = row.render(this._renderer);
         this._elts.rowsOuter.insertBefore(elt, rowFirst);
         elt.style.zIndex = '' + Math.max(0, zIndex--);
+        clearPos ++;
       }
-      clearChildNodes(this._elts.rowsOuter, this._rows.length);
+      clearChildNodes(this._elts.rowsOuter, clearPos);
       this._performUpdate();
     }
 
@@ -721,8 +799,8 @@ export namespace Timeline {
         let width = this._elts.container.clientWidth;
 
         // reposition slots
+        let rowsWidth = this._elts.rowsOuter.clientWidth;
         for(let row of this._rows) {
-          let rowsWidth = this._elts.rowsOuter.clientWidth;
           row.setRange(this._layout.start, this._layout.end);
           row.update(rowsWidth);
         }
@@ -731,6 +809,12 @@ export namespace Timeline {
         let axisWidth = this._elts.axisOuter.clientWidth;
         this._axis.setRange(this._layout.start, this._layout.end);
         this._axis.update(axisWidth);
+
+        // reposition markers
+        for(let mark of this._markers) {
+          mark.setRange(this._layout.start, this._layout.end);
+          mark.update(rowsWidth);
+        }
       }
       if(reUp)
         this.update();

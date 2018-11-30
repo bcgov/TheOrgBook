@@ -35,6 +35,9 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     this._timeline = new Timeline.TimelineView(this._outer.nativeElement, null, this._renderer);
     this._timeline.setRange(this.rangeStart, this.rangeEnd);
     this._timeline.setRows(this.rows);
+    this._timeline.setMarkers([
+      {date: new Date(), label: 'Today'}
+    ]);
     this._renderer.listen(this._timeline.container, 'slotclick', this.click.bind(this));
     this._zone.runOutsideAngular(() => {
       this._timeline.render();
