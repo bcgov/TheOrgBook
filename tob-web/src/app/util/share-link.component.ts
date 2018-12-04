@@ -34,12 +34,12 @@ export class ShareLinkComponent implements OnInit {
     }
   }
 
-  protected openModal(content, evt?) {
+  openModal(content, evt?) {
     this._modal = this._modalService.open(content, { size: 'lg' });
     if(evt) evt.preventDefault();
   }
 
-  protected dismissModal(reason?) {
+  dismissModal(reason?) {
     if(this._modal) this._modal.dismiss(reason);
   }
 
