@@ -12,6 +12,9 @@
           <a [routerLink]="record.topic.link | localize" class="title-link back-link">
             <span class="fa fa-arrow-left left"></span>{{'topic.return-link' | translate}}</a>
         </div>
+        <div class="col text-right">
+          <app-sharelink [link]="record.link"></app-sharelink>
+        </div>
       </div>
 
       <div class="cred-info" *ngIf="mode == 'view'">

@@ -16,6 +16,7 @@ import { PageScrollComponent } from './pagescroll.component';
 import { NotFoundComponent } from './not-found.component';
 import { NumberShortenPipe } from './number-shorten.pipe';
 import { ResolveUrlPipe } from './resolve-url.pipe';
+import { ShareLinkComponent } from './share-link.component';
 
 const ROUTES = [];
 
@@ -32,6 +33,7 @@ const ROUTES = [];
     NotFoundComponent,
     NumberShortenPipe,
     ResolveUrlPipe,
+    ShareLinkComponent,
   ],
   providers: [
   ],
@@ -57,6 +59,7 @@ const ROUTES = [];
     NotFoundComponent,
     NumberShortenPipe,
     ResolveUrlPipe,
+    ShareLinkComponent,
   ]
 })
 export class UtilModule {}

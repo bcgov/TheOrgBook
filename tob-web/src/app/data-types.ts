@@ -169,6 +169,12 @@ export namespace Model {
     get haveNames() {
       return this.names && this.names.length;
     }
+
+    get link() {
+      if(this.topic) {
+        return this.topic.link.concat(['/cred/', ''+this.id]);
+      }
+    }
   }
 
   export class CredentialFormatted extends Credential {
