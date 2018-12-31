@@ -30,11 +30,16 @@
           <!-- a class="nav-item nav-link" href="#" [lang]="parent.altLang" (click)="parent.switchLanguage($event)">{{parent.altLangLabel}}</a -->
           <a class="nav-item nav-link" [routerLink]="'/search/name' | localize" translate>search.title</a>
           <a class="nav-item nav-link" [routerLink]="'/contact' | localize" translate>connect.title</a>
+          <a class="nav-item nav-link d-none" href="#" [lang]="parent.altLang" (click)="parent.switchLanguage($event)">{{parent.altLangLabel}}</a>
         </div>
       </div>
     </div>
   </nav>
   <div *ngIf="parent.showDebugMsg" class="debug-msg">
-    Development site
+    <div class="msg-body">
+      <small><span class="fa fa-exclamation-circle mr-2"></span></small>
+      {{ 'general.demo-site' | translate }}
+      <small><span class="fa fa-exclamation-circle ml-2"></span></small>
+    </div>
   </div>
 </header>
