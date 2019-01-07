@@ -4,6 +4,7 @@
 # Template File: templates/django/django-deploy.json
 #=========================================================
 # NAME=django
+# APP_GROUP=tob
 # IMAGE_NAMESPACE=devex-von-tools
 APPLICATION_DOMAIN=api.orgbook.gov.bc.ca
 # ROUTE_PATH=/api/v2/indy
@@ -39,10 +40,11 @@ AUTO_REGISTER_DID=0
 # USER_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # ADMIN_USER_ID=[a-zA-Z_][a-zA-Z0-9_]{10}
 # ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
-APPLICATION_URL=https://www.orgbook.gov.bc.ca
+APPLICATION_URL=https://orgbook.gov.bc.ca
 # EMAIL_SETTINGS_STORE_NAME=email-settings
 # FEEDBACK_TARGET_EMAIL=
 # SMTP_SERVER_ADDRESS=
+DEMO_SITE=False
 # CPU_REQUEST=100m
 # CPU_LIMIT=750m
 # MEMORY_REQUEST=100Mi
