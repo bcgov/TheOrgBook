@@ -2,14 +2,14 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction, DEFAULT_DB_ALIAS
 from django.db.models import signals
 
-from api_v2.indy.credential import CredentialManager
+from api_indy.indy.credential import CredentialManager
 
 from api_v2.models.Address import Address
 from api_v2.models.Attribute import Attribute
 from api_v2.models.Credential import Credential
 from api_v2.models.Name import Name
 
-from tob_anchor.solrqueue import SolrQueue
+from api_indy.tob_anchor.solrqueue import SolrQueue
 
 
 class Command(BaseCommand):

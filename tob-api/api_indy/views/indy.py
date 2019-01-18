@@ -10,11 +10,11 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from django.http import Http404
 
-from api_v2.indy.issuer import IssuerManager, IssuerException
-from api_v2.indy.credential_offer import CredentialOfferManager
-from api_v2.indy.credential import Credential, CredentialManager
-from api_v2.indy.proof_request import ProofRequest
-from api_v2.indy.proof import ProofManager
+from api_indy.indy.issuer import IssuerManager, IssuerException
+from api_indy.indy.credential_offer import CredentialOfferManager
+from api_indy.indy.credential import Credential, CredentialManager
+from api_indy.indy.proof_request import ProofRequest
+from api_indy.indy.proof import ProofManager
 
 from api_v2.decorators.jsonschema import validate
 from api_v2.jsonschema.issuer import ISSUER_JSON_SCHEMA
@@ -22,7 +22,7 @@ from api_v2.jsonschema.credential_offer import CREDENTIAL_OFFER_JSON_SCHEMA
 from api_v2.jsonschema.credential import CREDENTIAL_JSON_SCHEMA
 from api_v2.jsonschema.construct_proof import CONSTRUCT_PROOF_JSON_SCHEMA
 
-from tob_anchor.boot import indy_client, indy_holder_id
+from api_indy.tob_anchor.boot import indy_client, indy_holder_id
 from vonx.common.eventloop import run_coro
 from vonx.indy.messages import (
     ProofRequest as VonxProofRequest,

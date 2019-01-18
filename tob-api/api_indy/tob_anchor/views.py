@@ -28,17 +28,17 @@ from vonx.web.view_helpers import (
 )
 import vonx.web.views as vonx_views
 
-from api.models.User import User
+from api_v2.models.User import User
 
 from api_v2.models.Credential import Credential as CredentialModel
 
-from api_v2.indy.issuer import IssuerManager, IssuerException
-from api_v2.indy.proof_request import ProofRequest
-from api_v2.indy.proof import ProofManager
+from api_indy.indy.issuer import IssuerManager, IssuerException
+from api_indy.indy.proof_request import ProofRequest
+from api_indy.indy.proof import ProofManager
 
 from api_v2.jsonschema.issuer import ISSUER_JSON_SCHEMA
 
-from tob_anchor.boot import (
+from api_indy.tob_anchor.boot import (
     indy_client, indy_holder_id, run_django
 )
 
