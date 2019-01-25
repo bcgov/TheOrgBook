@@ -64,3 +64,5 @@ gradle-app.setting
 
 *.crt
 *.key
+/tob-api/Pipfile
+/tob-api/Pipfile.lock
