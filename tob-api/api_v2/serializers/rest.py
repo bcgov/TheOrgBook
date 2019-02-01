@@ -102,7 +102,7 @@ class CredentialAttributeSerializer(AttributeSerializer):
 
 class CredentialNameSerializer(NameSerializer):
     class Meta(NameSerializer.Meta):
-        fields = ("id", "text", "language", "credential_id")
+        fields = ("id", "text", "language", "credential_id", "type",)
 
 class CredentialTopicSerializer(TopicSerializer):
     class Meta(TopicSerializer.Meta):
@@ -113,9 +113,11 @@ class CredentialTopicSerializer(TopicSerializer):
 
 class CredentialNamedTopicSerializer(CredentialTopicSerializer):
     names = CredentialNameSerializer(source='get_active_names', many=True)
+    local_name = CredentialNameSerializer(source='get_local_name')
+    remote_name = CredentialNameSerializer(source='get_remote_name')
 
     class Meta(CredentialTopicSerializer.Meta):
-        fields = CredentialTopicSerializer.Meta.fields + ("names",)
+        fields = CredentialTopicSerializer.Meta.fields + ("names","local_name","remote_name",)
 
 class TopicAttributeSerializer(AttributeSerializer):
     credential_type_id = SerializerMethodField()
@@ -138,6 +140,8 @@ class CredentialExtSerializer(CredentialSerializer):
     attributes = CredentialAttributeSerializer(many=True)
     credential_type = CredentialTypeSerializer()
     names = CredentialNameSerializer(many=True)
+    local_name = CredentialNameSerializer(source='get_local_name')
+    remote_name = CredentialNameSerializer(source='get_remote_name')
     topic = CredentialTopicExtSerializer()
     related_topics = CredentialNamedTopicSerializer(many=True)
 
@@ -156,6 +160,8 @@ class CredentialExtSerializer(CredentialSerializer):
             "addresses",
             "attributes",
             "names",
+            "local_name",
+            "remote_name",
             "topic",
             "related_topics",
         )

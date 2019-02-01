@@ -45,7 +45,9 @@
         <a [routerLink]="cred.related_topics[0].link | localize" class="body-link cred-link related" *ngIf="cred.related_topics[0].names?.length">{{cred.related_topics[0].names[0].text}}</a>
       </ng-template>
       <ng-template #topicName>
-        <a [routerLink]="cred.topic.link | localize" class="body-link cred-link name" *ngIf="cred.topic.names?.length">{{cred.topic.names[0].text}}</a>
+        <a [routerLink]="cred.topic.link | localize" class="body-link cred-link name">
+          {{cred.topic.local_name.text}}
+        </a>
       </ng-template>
       <div class="badge badge-warning" *ngIf="cred.inactive" translate>cred.inactive</div>
       <div class="badge badge-danger" *ngIf="cred.revoked" translate>cred.expired</div>
@@ -57,7 +59,9 @@
     <div class="col-lg-8">
       <div class="cred-title">
         <a [routerLink]="cred.topic.link | localize"
-          class="body-link cred-link name">{{cred.names[0].text}}</a>
+          class="body-link cred-link name">
+          {{cred.topic.local_name.text}}
+        </a>
       </div>
       <div class="cred-topic small" *ngIf="cred.topic as topic">
         {{topic.typeLabel | translate}}<span class="cred-entity-status" *ngIf="topic.attribute_map.entity_status as status">:
@@ -66,6 +70,9 @@
         <span class="cred-entity-type" *ngIf="topic.attribute_map.entity_type as type">
           &mdash; <attribute-view [record]="type"></attribute-view>
         </span>
+        <div *ngIf="cred.topic.remote_name">
+          ( {{cred.topic.remote_name?.text}} )
+        </div>
       </div>
     </div>
     <div class="col-lg-4">

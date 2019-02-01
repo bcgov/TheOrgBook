@@ -233,11 +233,13 @@ export class GeneralDataService {
 
   public loadFacetOptions(data) {
     let fields = data.info && data.info.facets && data.info.facets.fields || {};
+    console.log(fields);
     let options = {
       credential_type_id: [],
       issuer_id: [],
       'category:entity_type': [],
     };
+    console.log(options);
     if(fields) {
       for(let optname in fields) {
         for(let optitem of fields[optname]) {
