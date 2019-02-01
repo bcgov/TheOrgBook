@@ -24,7 +24,8 @@ export class TimelineCredComponent {
   }
 
   get topic_name() {
-    return this._cred && this._cred.names.length && this._cred.names[0].text;
+    return this._cred && this._cred.topic && this._cred.topic.local_name.text;
+    //return this._cred && this._cred.names.length && this._cred.names[0].text;
   }
 
 }

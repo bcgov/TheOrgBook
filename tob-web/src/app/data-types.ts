@@ -59,6 +59,10 @@ export namespace Model {
     get pageTitle(): string {
       return null;
     }
+
+    get json(): string {
+      return JSON.stringify(this, null, 2);
+    }
   }
 
   function mapByType<T extends {type: string}>(input: T[]): {[key: string]: T} {
@@ -130,6 +134,8 @@ export namespace Model {
     _attributes: Attribute[];
     _attribute_map: {[key: string]: Attribute};
     names: Name[];
+    local_name: Name;
+    remote_name: Name;
     topic: Topic;
     related_topics: Topic[];
 
@@ -325,6 +331,8 @@ export namespace Model {
     _attributes: Attribute[];
     _attribute_map: {[key: string]: Attribute};
     names: Name[];
+    local_name: Name;
+    remote_name: Name;
 
     static resourceName = 'topic';
 
@@ -356,7 +364,7 @@ export namespace Model {
       let found = null;
       if(this.names) {
         for(let name of this.names) {
-          if(name.type === 'entity_name')
+          if(name.type === 'entity_name_assumed')
             found = name;
         }
         if(! found)
