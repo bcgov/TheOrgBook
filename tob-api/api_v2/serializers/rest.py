@@ -3,6 +3,7 @@ from api_v2.models.Issuer import Issuer
 from api_v2.models.Schema import Schema
 from api_v2.models.CredentialType import CredentialType
 from api_v2.models.Topic import Topic
+from api_v2.models.TopicRelationship import TopicRelationship
 from api_v2.models.Credential import Credential
 from api_v2.models.CredentialSet import CredentialSet
 from api_v2.models.Address import Address
@@ -61,6 +62,12 @@ class TopicSerializer(ModelSerializer):
         fields = list(utils.fetch_custom_settings('serializers', 'Topic', 'includeFields'))
 
 
+class TopicRelationshipSerializer(ModelSerializer):
+    class Meta:
+        model = TopicRelationship
+        fields = list(utils.fetch_custom_settings('serializers', 'TopicRelationship', 'includeFields'))
+
+
 class AddressSerializer(ModelSerializer):
     class Meta:
         model = Address
@@ -85,20 +92,25 @@ class AttributeSerializer(ModelSerializer):
         fields = "__all__"
 
 
+class CredentialAttributeSerializer(AttributeSerializer):
+    class Meta(AttributeSerializer.Meta):
+        fields = ("id", "type", "format", "value", "credential_id")
+
 class CredentialSerializer(ModelSerializer):
+    attributes = CredentialAttributeSerializer(source='all_attributes', many=True)
     class Meta:
         model = Credential
-        fields = "__all__"
+        fields = (
+            "topic","credential_set","credential_type","wallet_id","credential_def_id","cardinality_hash",
+            "effective_date","inactive","latest","revoked","revoked_date","revoked_by","related_topics",
+            "attributes",
+        )
 
 class CredentialAddressSerializer(AddressSerializer):
     class Meta(AddressSerializer.Meta):
         fields = tuple(
             {*AddressSerializer.Meta.fields, "credential_id"} - {"credential"}
         )
-
-class CredentialAttributeSerializer(AttributeSerializer):
-    class Meta(AttributeSerializer.Meta):
-        fields = ("id", "type", "format", "value", "credential_id")
 
 class CredentialNameSerializer(NameSerializer):
     class Meta(NameSerializer.Meta):

@@ -1,0 +1,56 @@
+<ng-container *ngIf="format === 'rows'">
+<div class="row name-row" *ngFor="let topicrelationship of records">
+<p>rows row {{ topicrelationship.json }}</p>
+<ng-container *ngIf="topicrelationship.related_topic.preferredName as name">
+  <div class="col-sm-7">
+    <div class="row-title">
+      <label>{{typeLabel(topic.type) | translate}}:</label>
+      <a [routerLink]="topicrelationship.related_topic.link | localize"
+        class="body-link cred-link name">{{name.text}}</a>
+    </div>
+    <small>
+      <label>
+        <span translate>cred.issuer</span>:</label>
+      <a [routerLink]="['/issuer', name.issuer.id] | localize" class="body-link issuer-link">{{name.issuer.name}}</a>
+    </small>
+    <br>
+    <small>
+      <label>
+        <span translate>cred.last-updated</span>:</label>
+      <span class="claim-info date">{{name.last_updated | dateFormat: 'effectiveDate'}}</span>
+    </small>
+  </div>
+  <div class="col-sm-5">
+    <small *ngIf="topicrelationship.related_topic.addresses.length > 0">
+      <address-view [record]="topicrelationship.related_topic.addresses[0]"></address-view>
+    </small>
+  </div>
+</ng-container>
+</div>
+</ng-container>
+<div class="topics-grid" *ngIf="format === 'cards'">
+  <name-panel [record]="topicrelationship" *ngFor="let topicrelationship of records" :link="true"></name-panel>
+</div>
+<ng-container *ngIf="format === 'compact'">
+<div class="row name-row" *ngFor="let topicrelationship of records">
+<p>compact row {{ topicrelationship.json }}</p>
+<ng-container *ngIf="topicrelationship.preferredName as name">
+  <div class="col-md-6 row-title">
+    <a [routerLink]="topicrelationship.link | localize" class="body-link cred-link related">{{name.text}}</a>
+    <div class="topic-info small">
+      {{topicrelationship.typeLabel | translate}}<span class="cred-entity-status" *ngIf="topicrelationship.other_topic.attribute_map.entity_status as status">:
+        <attribute-view [record]="status"></attribute-view>
+      </span>
+      <span class="cred-entity-type" *ngIf="topicrelationship.other_topic.attribute_map.entity_type as type">
+        &mdash; <attribute-view [record]="type"></attribute-view>
+      </span>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <label>
+      <span translate>cred.last-updated</span>:</label>
+    <span class="claim-info date">{{name.last_updated | dateFormat: 'effectiveDate'}}</span>
+  </div>
+</ng-container>
+</div>
+</ng-container>

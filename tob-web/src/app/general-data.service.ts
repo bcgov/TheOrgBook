@@ -220,6 +220,7 @@ export class GeneralDataService {
     else {
       let httpParams = this.makeHttpParams(params.query);
       let url = this.getRequestUrl(path);
+      console.log("loadData(url)", url);
       if(params.primary) {
         if(this._loaderSub)
           this._loaderSub.unsubscribe();
