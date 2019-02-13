@@ -402,6 +402,75 @@ export namespace Model {
     static childResource = 'related_to';
   }
 
+  export class TopicRelationship extends BaseModel {
+    topic_id: number;
+    relation_id: number;
+    credential: Credential;
+    topic: Topic;
+    related_topic: Topic;
+    relation_type = 'to';
+
+    _attributes: Attribute[];
+    _attribute_map: {[key: string]: Attribute};
+
+    static resourceName = 'topic_relationship';
+
+    get attributes(): Attribute[] {
+      return this._attributes;
+    }
+    set attributes(attrs: Attribute[]) {
+      this._attributes = attrs;
+      this._attribute_map = mapByType(this._attributes);
+    }
+
+    get attribute_map(): {[key: string]: Attribute} {
+      return this._attribute_map || {};
+    }
+
+    get other_topic() : Topic {
+      if (this.relation_type == 'to') {
+        console.log("this.related_topic");
+        console.log(this.related_topic);
+        return this.related_topic;
+      } else {
+        console.log("this.topic");
+        console.log(this.topic);
+        return this.topic;
+      }
+    }
+
+    get preferredName() : Name {
+      let found = null;
+      if(this.other_topic.names) {
+        for(let name of this.other_topic.names) {
+          if(name.type === 'entity_name_assumed')
+            found = name;
+        }
+        if(! found)
+          found = this.other_topic.names[0];
+      }
+      return found;
+    }
+
+    get link() : string[] {
+      return this.other_topic.link;
+    }
+
+    get typeLabel() : string {
+      return this.other_topic.typeLabel;
+    }
+  }
+
+  export class TopicRelationshipRelatedFrom extends TopicRelationship {
+    static childResource = 'related_from_relations';
+    relation_type = 'from';
+  }
+
+  export class TopicRelationshipRelatedTo extends TopicRelationship {
+    static childResource = 'related_to_relations';
+    relation_type = 'to';
+  }
+
 }
 // end Model
 
