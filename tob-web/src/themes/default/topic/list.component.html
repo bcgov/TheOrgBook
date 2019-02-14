@@ -32,6 +32,7 @@
 </div>
 <ng-container *ngIf="format === 'compact'">
 <div class="row name-row" *ngFor="let topic of records">
+  {{ topic.relation_id }}
 <ng-container *ngIf="topic.preferredName as name">
   <div class="col-md-6 row-title">
     <a [routerLink]="topic.link | localize" class="body-link cred-link related">{{name.text}}</a>
