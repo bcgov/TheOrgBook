@@ -49,7 +49,7 @@ mv starter-kits/credential-registry/server/tob-web credential-registry/client/
 mkdir starter-kits/credential-registry/client/tob-web/
 mkdir starter-kits/credential-registry/client/tob-web/themes/
 cp -r credential-registry/client/tob-web/src/themes/ starter-kits/credential-registry/client/tob-web/themes/
-mv credential-registry/client/tob-web/openshift/ starter-kits/credential-registry/client/tob-web/
+#mv credential-registry/client/tob-web/openshift/ starter-kits/credential-registry/client/tob-web/
 mv starter-kits/credential-registry/server/docker starter-kits/credential-registry/
 
 rm starter-kits/credential-registry/server/Deploy*
