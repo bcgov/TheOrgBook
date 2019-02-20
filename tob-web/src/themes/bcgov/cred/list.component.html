@@ -5,10 +5,14 @@
     </div>
     <div class="cred-detail">
       <p class="cred-title">
-        <a class="body-link cred-link" [routerLink]="cred.topic.extLink('cred', cred.id) | localize">{{cred.credential_type.description}}</a>
+        <a class="body-link cred-link" [routerLink]="cred.topic.extLink('cred', cred.id) | localize">
+          {{cred.credential_type.description}}
+        </a>
       </p>
       <p *ngIf="cred.related_topics?.length">
-        <a [routerLink]="cred.related_topics[0].link | localize" class="body-link cred-link related">{{cred.related_topics[0].names[0].text}}</a>
+        <a [routerLink]="cred.related_topics[0].link | localize" class="body-link cred-link related">
+          {{cred.relatedPreferredName}}
+        </a>
       </p>
       <p class="cred-date" *ngIf="cred.effective_date">
         <span class="claim-info date">{{cred.effective_date | dateFormat: 'effectiveDate'}}</span>
@@ -27,7 +31,9 @@
   <div class="row cred-row" *ngFor="let cred of records">
     <div class="col-sm-4">
       <div class="cred-title">
-        <a class="body-link cred-link" [routerLink]="cred.topic.extLink('cred', cred.id) | localize">{{cred.credential_type.description}}</a>
+        <a class="body-link cred-link" [routerLink]="cred.topic.extLink('cred', cred.id) | localize">
+          {{cred.credential_type.description}}
+        </a>
       </div>
       <div class="cred-date" *ngIf="cred.effective_date">
         <span class="claim-info date">{{cred.effective_date | dateFormat: 'effectiveDate'}}</span>
@@ -42,7 +48,9 @@
       <ng-container *ngIf="cred.related_topics?.length; then relatedName; else topicName">
       </ng-container>
       <ng-template #relatedName>
-        <a [routerLink]="cred.related_topics[0].link | localize" class="body-link cred-link related" *ngIf="cred.related_topics[0].names?.length">{{cred.related_topics[0].names[0].text}}</a>
+        <a [routerLink]="cred.related_topics[0].link | localize" class="body-link cred-link related" *ngIf="cred.related_topics[0].names?.length">
+          {{cred.relatedPreferredName}}
+        </a>
       </ng-template>
       <ng-template #topicName>
         <a [routerLink]="cred.topic.link | localize" class="body-link cred-link name">
