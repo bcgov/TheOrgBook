@@ -185,6 +185,27 @@ export namespace Model {
       return this.names && this.names.length;
     }
 
+    get relatedPreferredName() : string {
+      let found = '';
+      if('associated_registration_name' in this.attribute_map) {
+        let attr = this.attribute_map['associated_registration_name'];
+        return attr.value;
+      }
+      if(0 < this.related_topics.length) {
+        if(0 < this.related_topics[0].names.length) {
+          for(let name of this.related_topics[0].names) {
+            if(name.type === 'entity_name_assumed') {
+              found = name.text;
+            }
+          }
+          if(! found) {
+            found = this.related_topics[0].names[0].text;
+          }
+        }
+      }
+      return found;
+    }
+
     get link() {
       if(this.topic) {
         return this.topic.link.concat(['/cred/', ''+this.id]);
@@ -429,35 +450,70 @@ export namespace Model {
 
     get other_topic() : Topic {
       if (this.relation_type == 'to') {
-        console.log("this.related_topic");
-        console.log(this.related_topic);
+        //console.log("this.related_topic");
+        //console.log(this.related_topic);
         return this.related_topic;
       } else {
-        console.log("this.topic");
-        console.log(this.topic);
+        //console.log("this.topic");
+        //console.log(this.topic);
         return this.topic;
       }
     }
 
     get preferredName() : Name {
       let found = null;
-      if(this.other_topic.names) {
-        for(let name of this.other_topic.names) {
+      if('associated_registration_name' in this._attribute_map) {
+        let attr = this._attribute_map['associated_registration_name'];
+        let name = new Name({
+          id: this.credential.id,
+          text: attr.value,
+          type: 'Associated Registration',
+          credential_id: this.credential.id,
+          inactive: false,
+          issuer: this.credential.credential_type.issuer}
+        );
+        return name;
+      }
+      let other = this.other_topic;
+      if(other.names) {
+        for(let name of other.names) {
           if(name.type === 'entity_name_assumed')
             found = name;
         }
         if(! found)
-          found = this.other_topic.names[0];
+          found = other.names[0];
       }
       return found;
     }
 
     get link() : string[] {
-      return this.other_topic.link;
+      // FIXME need to move link generation into general data service
+      let other = this.other_topic;
+      if(other.type === 'registration')
+        return ['/topic/', other.source_id];
+      return ['/topic/', other.type, other.source_id];
     }
 
     get typeLabel() : string {
-      return this.other_topic.typeLabel;
+      let other = this.other_topic;
+      if(other.type) return ('name.'+other.type).replace(/_/g, '-');
+      return '';
+    }
+
+    get relationLabel() : string {
+      return this._attribute_map['relationship_description'].value;
+    }
+
+    get otherEntityStatus() : Attribute {
+      let other = this.other_topic;
+      let other_attribute_map = mapByType(other.attributes);
+      return other_attribute_map['entity_status'];
+    }
+
+    get otherEntityType() : Attribute {
+      let other = this.other_topic;
+      let other_attribute_map = mapByType(other.attributes);
+      return other_attribute_map['entity_type'];
     }
   }
 

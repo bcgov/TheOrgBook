@@ -291,6 +291,7 @@ class CredentialTopicSearchSerializer(CredentialSearchSerializer):
             "wallet_id",
             "credential_set",
             "credential_type",
+            "attributes",
             "names",
             "topic",
             "related_topics",
