@@ -18,9 +18,19 @@ class Topic(Auditable):
     related_to = models.ManyToManyField(
         "self",
         # Topics that have a verifiable relationship to me
-        related_name="related_from",
+        related_name="related_to",
         through="TopicRelationship",
         through_fields=("topic", "related_topic"),
+        symmetrical=False,
+    )
+
+    # Topics that have a verifiable relationship to me
+    related_from = models.ManyToManyField(
+        "self",
+        # Topics that have a verifiable relationship to me
+        related_name="related_from",
+        through="TopicRelationship",
+        through_fields=("related_topic", "topic"),
         symmetrical=False,
     )
 
@@ -54,7 +64,7 @@ class Topic(Auditable):
     def get_active_attributes(self):
         creds = self.get_active_credential_ids()
         if creds:
-            return Attribute.objects.filter(credential_id__in=creds)
+            return Attribute.objects.filter(credential_id__in=creds, credential__credential_type__description='Registration')
         return []
 
     def get_active_names(self):
@@ -62,6 +72,34 @@ class Topic(Auditable):
         if creds:
             return Name.objects.filter(credential_id__in=creds)
         return []
+
+    def get_local_name(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            names = Name.objects.filter(credential_id__in=creds)
+            remote_name = None
+            for name in names:
+                if name.type == 'entity_name_assumed':
+                    return name
+                else:
+                    remote_name = name
+            return remote_name
+        return None
+
+    def get_remote_name(self):
+        creds = self.get_active_credential_ids()
+        if creds:
+            names = Name.objects.filter(credential_id__in=creds)
+            has_assumed_name = False
+            remote_name = None
+            for name in names:
+                if name.type == 'entity_name_assumed':
+                    has_assumed_name = True
+                else:
+                    remote_name = name
+            if has_assumed_name:
+                return remote_name
+        return None
 
     def get_active_related_to(self):
         return self.related_to.filter(
@@ -72,3 +110,4 @@ class Topic(Auditable):
         return self.related_from.filter(
             to_rels__credential__latest=True,
             to_rels__credential__revoked=False)
+
