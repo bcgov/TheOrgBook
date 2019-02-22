@@ -394,6 +394,24 @@ export namespace Model {
       return found;
     }
 
+    get localName(): Name {
+      return this.preferredName;
+    }
+
+    get remoteName(): Name {
+      let p_name = this.preferredName;
+      if (p_name.type === 'entity_name_assumed') {
+        if(this.names) {
+          for(let name of this.names) {
+            if(name.type != 'entity_name_assumed') {
+              return name;
+            }
+          }
+        }
+      }
+      return null;
+    }
+
     get typeLabel(): string {
       if(this.type) return ('name.'+this.type).replace(/_/g, '-');
       return '';
@@ -450,12 +468,8 @@ export namespace Model {
 
     get other_topic() : Topic {
       if (this.relation_type == 'to') {
-        //console.log("this.related_topic");
-        //console.log(this.related_topic);
         return this.related_topic;
       } else {
-        //console.log("this.topic");
-        //console.log(this.topic);
         return this.topic;
       }
     }
