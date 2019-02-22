@@ -27,7 +27,6 @@ from api_v2.serializers.rest import (
     CredentialAddressSerializer,
     CredentialAttributeSerializer,
     CredentialNameSerializer,
-    CredentialTopicSerializer,
     CredentialTopicExtSerializer,
     CredentialNamedTopicSerializer,
 )
@@ -123,7 +122,7 @@ class CustomNameSerializer(NameSerializer):
     class Meta(NameSerializer.Meta):
         fields = (
             "id", "credential_id", "last_updated", "inactive",
-            "text", "language", "issuer",
+            "text", "language", "issuer", "type",
         )
 
     def get_last_updated(self, obj):
@@ -223,7 +222,7 @@ class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
     credential_set = CredentialSetSerializer()
     credential_type = CredentialTypeSerializer()
     names = CredentialNameSerializer(many=True)
-    topic = CredentialTopicSerializer()
+    topic = CredentialNamedTopicSerializer()
     related_topics = CredentialNamedTopicSerializer(many=True)
 
     class Meta(CredentialSerializer.Meta):

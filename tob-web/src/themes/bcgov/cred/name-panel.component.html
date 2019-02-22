@@ -23,6 +23,9 @@
         <label class="control-label" translate>attribute.entity_type</label>
         <div class="form-field">
           <attribute-view [record]="record.attribute_map.entity_type"></attribute-view>
+          <div *ngIf="remote_name">
+            ( {{remote_name?.text}} )
+          </div>
         </div>
         <label class="control-label" translate>topic.source-id</label>
         <div class="form-field text-identifier">
