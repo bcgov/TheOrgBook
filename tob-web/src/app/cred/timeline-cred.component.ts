@@ -19,8 +19,9 @@ export class TimelineCredComponent {
   }
 
   get related_topic_name() {
-    let topic = this._cred && this._cred.related_topics && this._cred.related_topics[0];
-    if(topic && topic.names && topic.names.length) return topic.names[0].text;
+    //let topic = this._cred && this._cred.related_topics && this._cred.related_topics[0];
+    //if(topic && topic.names && topic.names.length) return topic.names[0].text;
+    return this._cred && this._cred.relatedPreferredName;
   }
 
   get topic_name() {
