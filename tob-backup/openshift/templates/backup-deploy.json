@@ -372,7 +372,7 @@
     {
       "name": "PERSISTENT_VOLUME_CLASS",
       "displayName": "Persistent Volume Class name",
-      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db",
+      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db, nfs-backup.  nfs-backup requires some manual configuration; https://github.com/BCDevOps/provision-nfs-apb",
       "required": false,
       "value": "gluster-file"
     },
