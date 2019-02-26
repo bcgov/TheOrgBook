@@ -13,9 +13,20 @@ CUSTOMIZATIONS = {
                 "type",
             ]
         },
+        "TopicRelationship": {
+            "includeFields": [
+                "id",
+                "credential",
+                "topic",
+                "related_topic",
+            ]
+        },
     },
     "views": {
         "TopicViewSet": {
+            "includeMethods": []
+        },
+        "TopicRelationshipViewSet": {
             "includeMethods": []
         }
     },
