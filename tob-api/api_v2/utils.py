@@ -60,8 +60,10 @@ def model_counts(model_cls, cursor=None, optimize=None):
 def solr_counts():
     latest_q = SearchQuerySet().filter(latest=True)
     registrations_q = latest_q.filter(category="entity_status::ACT")
+    last_24h = datetime.now() - timedelta(days=1)
     last_week = datetime.now() - timedelta(days=7)
     last_month = datetime.now() - timedelta(days=30)
+    last_24h_q = SearchQuerySet().filter(create_timestamp__gte=last_24h)
     last_week_q = SearchQuerySet().filter(create_timestamp__gte=last_week)
     last_month_q = SearchQuerySet().filter(create_timestamp__gte=last_month)
     try:
@@ -70,6 +72,7 @@ def solr_counts():
             "registrations": registrations_q.count(),
             "last_month": last_month_q.count(),
             "last_week": last_week_q.count(),
+            "last_24h": last_24h_q.count(),
         }
     except SolrError:
         LOGGER.exception("Error when retrieving quickload counts from Solr")
