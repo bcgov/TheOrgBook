@@ -444,7 +444,7 @@
           "kind": "DeploymentConfig",
           "name": "${NAME}"
         },
-        "minReplicas": 1,
+        "minReplicas": 2,
         "maxReplicas": 5
       }
     }
