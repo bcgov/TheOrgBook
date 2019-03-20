@@ -53,11 +53,6 @@ usage () {
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
 
-    deleteWallets
-      - Delete the local wallets from one or more pods.
-        For example;
-          $0 -e dev deleteWallets django
-
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -183,9 +178,6 @@ hardReset() {
 
   switchProject
   exitOnError
-
-  # Delete any sqlite wallets from the API Pod ...
-  deleteWallets ${_apiPodName}
 
   # Scale down the API pod ...
   scaleDown ${_apiPodName}
@@ -324,10 +316,6 @@ case "${_cmd}" in
     switchProject
     exitOnError
     rebuildSearchIndex "${apiPodName}"
-    ;;
-  deletewallets)
-    deleteWallets ${@}
-    recyclePods ${@}
     ;;
   scaleup)
     scaleUp ${@}
