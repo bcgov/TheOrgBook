@@ -99,7 +99,9 @@
               <div class="col-sm-12">
                 <label class="control-label" translate>topic.related-to</label>
                 <div class="form-field">
-                  <p class="mb-1">{{topic.typeLabel | translate}}: <a class="body-link cred-link name" [routerLink]="topic.link | localize">{{topic.preferredName?.text}}</a></p>
+                  <p class="mb-1">{{topic.typeLabel | translate}}: <a class="body-link cred-link name" [routerLink]="topic.link | localize">
+                    {{topic.preferredName?.text}}
+                  </a></p>
                   <p class="mb-0">{{'topic.source-id' | translate}}: <span class="text-identifier">{{topic.source_id}}</span></p>
                 </div>
               </div>
