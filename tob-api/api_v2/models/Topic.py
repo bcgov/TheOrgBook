@@ -18,19 +18,9 @@ class Topic(Auditable):
     related_to = models.ManyToManyField(
         "self",
         # Topics that have a verifiable relationship to me
-        related_name="related_to",
-        through="TopicRelationship",
-        through_fields=("topic", "related_topic"),
-        symmetrical=False,
-    )
-
-    # Topics that have a verifiable relationship to me
-    related_from = models.ManyToManyField(
-        "self",
-        # Topics that have a verifiable relationship to me
         related_name="related_from",
         through="TopicRelationship",
-        through_fields=("related_topic", "topic"),
+        through_fields=("topic", "related_topic"),
         symmetrical=False,
     )
 
