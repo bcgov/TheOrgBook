@@ -44,6 +44,7 @@
         }
       },
       "spec": {
+        "storageClassName": "${PERSISTENT_VOLUME_CLASS}",
         "accessModes": [
           "ReadWriteOnce"
         ],
@@ -213,6 +214,13 @@
       "description": "The name of the Solr core configuration to load.",
       "required": true,
       "value": "the_org_book"
+    },
+    {
+      "name": "PERSISTENT_VOLUME_CLASS",
+      "displayName": "Persistent Volume Class name",
+      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db. gluster-block performs the best for Solr.",
+      "required": false,
+      "value": "gluster-block"
     },
     {
       "name": "CPU_REQUEST",
