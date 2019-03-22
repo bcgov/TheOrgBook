@@ -4,12 +4,14 @@
 # Template File: templates/backup-deploy.json
 #=========================================================
 # NAME=backup
+# APP_GROUP=tob
 # SOURCE_IMAGE_NAME=backup
 # IMAGE_NAMESPACE=devex-von-tools
 TAG_NAME=test
-# DATABASE_SERVICE_NAME=postgresql
 # DATABASE_DEPLOYMENT_NAME=postgresql
 # WALLET_DB_HOST_NAME=wallet-db
+# DATABASE_USER_KEY_NAME=database-user
+# DATABASE_PASSWORD_KEY_NAME=database-password
 # BACKUP_STRATEGY=rolling
 # WEBHOOK_URL=
 ENVIRONMENT_FRIENDLY_NAME=Verifiable Organizations Network (test)
@@ -26,6 +28,10 @@ MONTHLY_BACKUPS=0
 # BACKUP_VOLUME_NAME=backup
 BACKUP_VOLUME_SIZE=20Gi
 BACKUP_VOLUME_CLASS=gluster-file
+VERIFICATION_VOLUME_NAME=backup-verification
+VERIFICATION_VOLUME_SIZE=20Gi
+VERIFICATION_VOLUME_CLASS=gluster-file-db
+VERIFICATION_VOLUME_MOUNT_PATH=/var/lib/pgsql/data
 # CPU_REQUEST=0
 # CPU_LIMIT=0
 # MEMORY_REQUEST=0Mi
