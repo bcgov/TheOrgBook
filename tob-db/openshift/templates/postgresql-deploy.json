@@ -336,7 +336,7 @@
             "displayName": "Resources CPU Request",
             "description": "The resources CPU request (in cores) for this build.",
             "required": true,
-            "value": "100m"
+            "value": "10m"
         },
         {
             "name": "CPU_LIMIT",
@@ -350,14 +350,14 @@
             "displayName": "Resources Memory Request",
             "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
             "required": true,
-            "value": "100Mi"
+            "value": "10Mi"
         },
         {
             "name": "MEMORY_LIMIT",
             "displayName": "Resources Memory Limit",
             "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
             "required": true,
-            "value": "4Gi"
+            "value": "4000Mi"
         }
     ]
 }
