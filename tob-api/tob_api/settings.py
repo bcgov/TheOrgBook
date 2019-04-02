@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "django_filters",
     "api",
     "api_v2",
+    "api_indy",
     "tob_api",
     "corsheaders",
 ]
