@@ -97,7 +97,7 @@
 
             <div class="row form-group" *ngIf="record.topic as topic">
               <div class="col-sm-12">
-                <label class="control-label" translate>topic.related-to</label>
+                <label class="control-label" translate>topic.breadcrumb</label>
                 <div class="form-field">
                   <p class="mb-1">{{topic.typeLabel | translate}}: <a class="body-link cred-link name" [routerLink]="topic.link | localize">
                     {{topic.preferredName?.text}}
