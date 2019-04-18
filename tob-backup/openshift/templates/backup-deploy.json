@@ -9,7 +9,7 @@
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${PERSISTENT_VOLUME_NAME}",
+        "name": "${BACKUP_VOLUME_NAME}",
         "labels": {
           "app": "${NAME}-persistent",
           "template": "${NAME}-persistent-template",
@@ -17,13 +17,36 @@
         }
       },
       "spec": {
-        "storageClassName": "${PERSISTENT_VOLUME_CLASS}",
+        "storageClassName": "${BACKUP_VOLUME_CLASS}",
         "accessModes": [
           "ReadWriteOnce"
         ],
         "resources": {
           "requests": {
-            "storage": "${PERSISTENT_VOLUME_SIZE}"
+            "storage": "${BACKUP_VOLUME_SIZE}"
+          }
+        }
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${VERIFICATION_VOLUME_NAME}",
+        "labels": {
+          "app": "${NAME}-persistent",
+          "template": "${NAME}-persistent-template",
+          "app-group": "${APP_GROUP}"
+        }
+      },
+      "spec": {
+        "storageClassName": "${VERIFICATION_VOLUME_CLASS}",
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "${VERIFICATION_VOLUME_SIZE}"
           }
         }
       }
@@ -78,9 +101,15 @@
           "spec": {
             "volumes": [
               {
-                "name": "${NAME}",
+                "name": "${BACKUP_VOLUME_NAME}",
                 "persistentVolumeClaim": {
-                  "claimName": "${PERSISTENT_VOLUME_NAME}"
+                  "claimName": "${BACKUP_VOLUME_NAME}"
+                }
+              },
+              {
+                "name": "${VERIFICATION_VOLUME_NAME}",
+                "persistentVolumeClaim": {
+                  "claimName": "${VERIFICATION_VOLUME_NAME}"
                 }
               },
               {
@@ -135,7 +164,7 @@
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${DATABASE_DEPLOYMENT_NAME}",
-                        "key": "database-user"
+                        "key": "${DATABASE_USER_KEY_NAME}"
                       }
                     }
                   },
@@ -144,7 +173,7 @@
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${DATABASE_DEPLOYMENT_NAME}",
-                        "key": "database-password"
+                        "key": "${DATABASE_PASSWORD_KEY_NAME}"
                       }
                     }
                   },
@@ -153,7 +182,7 @@
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${WALLET_DB_HOST_NAME}",
-                        "key": "database-user"
+                        "key": "${DATABASE_USER_KEY_NAME}"
                       }
                     }
                   },
@@ -162,7 +191,7 @@
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${WALLET_DB_HOST_NAME}",
-                        "key": "database-password"
+                        "key": "${DATABASE_PASSWORD_KEY_NAME}"
                       }
                     }
                   },
@@ -191,8 +220,12 @@
                 },
                 "volumeMounts": [
                   {
-                    "name": "${NAME}",
+                    "name": "${BACKUP_VOLUME_NAME}",
                     "mountPath": "${BACKUP_DIR}"
+                  },
+                  {
+                    "name": "${VERIFICATION_VOLUME_NAME}",
+                    "mountPath": "${VERIFICATION_VOLUME_MOUNT_PATH}"
                   },
                   {
                     "name": "${NAME}-config-volume",
@@ -244,13 +277,6 @@
       "value": "dev"
     },
     {
-      "name": "DATABASE_SERVICE_NAME",
-      "displayName": "Database Service Name",
-      "description": "The name of the database service.",
-      "required": true,
-      "value": "postgresql"
-    },
-    {
       "name": "DATABASE_DEPLOYMENT_NAME",
       "displayName": "Database Deployment Name",
       "description": "The name associated to the database deployment resources.  In particular, this is used to wire up the credentials associated to the database.",
@@ -263,6 +289,20 @@
       "description": "The name associated to the wallet database deployment resources.  In particular, this is used to wire up the credentials associated to the database.",
       "required": true,
       "value": "wallet-db"
+    },
+    {
+      "name": "DATABASE_USER_KEY_NAME",
+      "displayName": "Database User Key Name",
+      "description": "The datbase user key name stoed in database deployment resources specified by DATABASE_DEPLOYMENT_NAME.",
+      "required": true,
+      "value": "database-user"
+    },
+    {
+      "name": "DATABASE_PASSWORD_KEY_NAME",
+      "displayName": "Database Password Key Name",
+      "description": "The database password key name stored in database deployment resources specified by DATABASE_DEPLOYMENT_NAME.",
+      "required": true,
+      "value": "database-password"
     },
     {
       "name": "BACKUP_STRATEGY",
@@ -295,7 +335,7 @@
     {
       "name": "BACKUP_DIR",
       "displayName": "The root backup directory",
-      "description": "The name of the root backup directory",
+      "description": "The name of the root backup directory.  The backup volume will be mounted to this directory.",
       "required": true,
       "value": "/backups/"
     },
@@ -356,25 +396,53 @@
       "value": "/"
     },
     {
-      "name": "PERSISTENT_VOLUME_NAME",
-      "displayName": "Persistent Volume Name",
-      "description": "The name of the persistent volume associated with the deployment.",
+      "name": "BACKUP_VOLUME_NAME",
+      "displayName": "Backup Volume Name",
+      "description": "The name of the persistent volume used to store the backups.  Please note, when using the recommended nfs-backup storage class the name of the pvc MUST be taken from the manually provisioned claim; nfs-backup storage MUST be provisioned manually.",
       "required": true,
-      "value": "backup-pvc"
+      "value": "backup"
     },
     {
-      "name": "PERSISTENT_VOLUME_SIZE",
-      "displayName": "Persistent Volume Size",
-      "description": "The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.",
+      "name": "BACKUP_VOLUME_SIZE",
+      "displayName": "Backup Volume Size",
+      "description": "The size of the persistent volume used to store the backups, e.g. 512Mi, 1Gi, 2Gi.  Ensure this is sized correctly.  Refer to the container documentation for details.",
       "required": true,
       "value": "1Gi"
     },
     {
-      "name": "PERSISTENT_VOLUME_CLASS",
-      "displayName": "Persistent Volume Class name",
-      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db, nfs-backup.  nfs-backup requires some manual configuration; https://github.com/BCDevOps/provision-nfs-apb",
+      "name": "BACKUP_VOLUME_CLASS",
+      "displayName": "Backup Volume Class",
+      "description": "The class of the persistent volume used to store the backups; gluster-file, gluster-block, gluster-file-db, nfs-backup.  Please note, nfs-backup storage is the recommended storage type for backups.  It MUST be provisioned manually through the OCP catalog via the 'BC Gov NFS Storage' template.  nfs-backup storage CANNOT be automatically provisioned by this template.",
+      "required": true,
+      "value": "nfs-backup"
+    },
+    {
+      "name": "VERIFICATION_VOLUME_NAME",
+      "displayName": "Verification Volume Name",
+      "description": "The name for the verification volume, used for restoring and verifying backups.  When using the recommend nfs-backup storage class for backups, this volume MUST be either gluster-file-db or gluster-block storage; gluster-block is recommended (it has far better performance).",
       "required": false,
-      "value": "gluster-file"
+      "value": "backup-verification"
+    },
+    {
+      "name": "VERIFICATION_VOLUME_SIZE",
+      "displayName": "Backup Volume Size",
+      "description": "The size of the persistent volume used for restoring and verifying backups, e.g. 512Mi, 1Gi, 2Gi.  Ensure this is sized correctly.  It should be large enough to contain your largest database.",
+      "required": true,
+      "value": "1Gi"
+    },
+    {
+      "name": "VERIFICATION_VOLUME_CLASS",
+      "displayName": "Backup Volume Class",
+      "description": "The class of the persistent volume used for restoring and verifying backups; should be one of gluster-block or gluster-file-db.  gluster-block performs better.",
+      "required": true,
+      "value": "gluster-file-db"
+    },
+    {
+      "name": "VERIFICATION_VOLUME_MOUNT_PATH",
+      "displayName": "Verification Volume Mount Path",
+      "description": "The path on which to mount the verification volume.  This is used by the database server to contain the database configuration and data files.",
+      "required": true,
+      "value": "/var/lib/pgsql/data"
     },
     {
       "name": "CPU_REQUEST",
