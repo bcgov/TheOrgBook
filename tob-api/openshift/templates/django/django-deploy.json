@@ -643,7 +643,7 @@
       "displayName": "VON network ledger url.",
       "description": "URL for a running instance of the von-network.  Used when connecting to the BCovrin Ledger.",
       "required": false,
-      "value": "http://dev.dflow.bcovrin.vonx.io"
+      "value": "http://dev.greenlight.bcovrin.vonx.io"
     },
     {
       "name": "LEDGER_PROTOCOL_VERSION",
