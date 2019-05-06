@@ -145,7 +145,7 @@ resetDatabase() {
   rebuildSearchIndex ${_apiPodName}
 
   echoWarning "\nThe project's database has been reset."
-  echoWarning "You can now use the dFlow manage script to recycle the dFlow pods."  
+  echoWarning "Use the GreenLight manage script to recycle the GreenLight pods."  
 }
 
 deleteDatabase() {
@@ -174,7 +174,7 @@ hardReset() {
     exit 1
   fi
 
-  printAndWait "If you are using dFlow, use the dFlow manage script to reset the dFlow pods.\nWait for all of the pods to completely shut down before continuing."
+  printAndWait "If you are using GreenLight, use the GreenLight manage script to reset the GreenLight pods.\nWait for all of the pods to completely shut down before continuing."
 
   switchProject
   exitOnError
@@ -203,7 +203,7 @@ hardReset() {
   rebuildSearchIndex ${_apiPodName}
 
   echoWarning "\nThe project's database and indy wallets have been reset."  
-  echoWarning "If you are using dFlow, you can now use the dFlow manage script to scale the dFlow pods up."  
+  echoWarning "If you are using GreenLight, use the GreenLight manage script to scale the GreenLight pods up."  
 }
 
 resetSearchIndex() {
