@@ -53,6 +53,9 @@ usage () {
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
 
+    indexSynced
+      - Check to see if the Solr indexes are syned with the database credentials.
+
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -273,6 +276,29 @@ rebuildSearchIndex() {
   runInContainerInteractively ${_apiPodName} './rebuildSearchIndex.sh'
   exitOnError
 }
+
+indexSynced() {
+  _apiPodName=${1}
+  _dbPodName=${2}
+
+  indexInfo=$(runInContainer "${_apiPodName}" \
+    'curl -s http://solr:8983/solr/the_org_book/admin/luke?wt=json&show=index&numTerms=0')
+
+  indexCount=$(echo ${indexInfo} | sed 's~\(.*"numDocs":\)\([[:digit:]]\+\).*~\2~')
+  actualCount=$(runInContainer ${_dbPodName} \
+    'psql -d ${POSTGRESQL_DATABASE} -t -c "select count(*) from credential;"')
+
+  if (( ${indexCount} == ${actualCount} )); then
+    synced="true"
+  else
+    synced="false"
+  fi 
+
+  echo
+  echo "Indexes Synced: ${synced}"
+  echo "Indexed Credentials: ${indexCount}"
+  echo "Actual Credentials: ${actualCount}"
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -316,6 +342,11 @@ case "${_cmd}" in
     switchProject
     exitOnError
     rebuildSearchIndex "${apiPodName}"
+    ;;
+  indexsynced)
+    apiPodName=${1:-django}
+    dbPodName=${2:-postgresql}
+    indexSynced "${apiPodName}" "${dbPodName}"
     ;;
   scaleup)
     scaleUp ${@}
