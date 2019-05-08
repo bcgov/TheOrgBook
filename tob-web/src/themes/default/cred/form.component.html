@@ -119,7 +119,8 @@
             <div class="row form-group" *ngIf="record.effective_date">
               <div class="col-sm-12">
                 <label class="control-label" translate>cred.start-date</label>
-                <div class="form-field">
+                <!-- filter out effective dates that don't make sense, set when we can't determine a "proper" effective date -->
+                <div class="form-field" *ngIf="record.effective_date > '0100-01-01'">
                   <span class="claim-info date">{{record.effective_date | dateFormat: 'effectiveDateTime'}}</span>
                 </div>
               </div>
