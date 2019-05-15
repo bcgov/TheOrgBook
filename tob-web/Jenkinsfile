@@ -32,8 +32,6 @@ def DEV_NAME_SPACE = 'devex-von-dev'
 
 @NonCPS
 boolean triggerBuild(String contextDirectory) {
-  return true
-  
   // Determine if code has changed within the source context directory.
   def changeLogSets = currentBuild.changeSets
   def filesChangeCnt = 0
