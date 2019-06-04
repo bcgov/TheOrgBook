@@ -19,7 +19,7 @@ from tob_api.rocketchat_hooks import log_error, log_warning, log_info
 
 from asgiref.sync import async_to_sync
 
-API_BASE_URL = os.environ.get('APPLICATION_URL', 'http://localhost:8080')
+API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8080')
 API_PATH = os.environ.get('API_PATH', '/api/v2')
 API_URL = "{}{}".format(API_BASE_URL, API_PATH)
 
