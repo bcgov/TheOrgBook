@@ -21,6 +21,7 @@ from asgiref.sync import async_to_sync
 
 API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8080')
 API_PATH = os.environ.get('API_PATH', '/api/v2')
+SEARCH_API_PATH = os.environ.get('SEARCH_API_PATH', '/search/credential')
 API_URL = "{}{}".format(API_BASE_URL, API_PATH)
 
 class Command(BaseCommand):
@@ -49,8 +50,8 @@ class Command(BaseCommand):
                 try:
                     # Query search API using the wallet_id; credential.wallet_id
                     response = await http_client.get(
-                        '{}/search/credential/topic/facets'.format(API_URL),
-                        params={ 'format':'json', 'wallet_id': credential.wallet_id}
+                        '{}{}'.format(API_URL, SEARCH_API_PATH),
+                        params={ 'format':'json', 'latest':'any', 'revoked':'any', 'inactive':'any','wallet_id': credential.wallet_id}
                         )
 
                     self.stdout.write(
@@ -68,7 +69,7 @@ class Command(BaseCommand):
                         'Could not verify credential index. '
                         'Is the OrgBook running?') from exc
 
-                credentialCount = result_json["objects"]["total"]
+                credentialCount = result_json["total"]
 
                 if credentialCount < 1:
                     msg = "Error - No index was found for credential id: {}, wallet_id: {}".format(credential.id, credential.wallet_id)
