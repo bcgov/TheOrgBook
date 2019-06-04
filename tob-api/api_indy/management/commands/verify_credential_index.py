@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         async with aiohttp.ClientSession() as http_client:
             current_cred = 0
-            for credential in Credential.objects.all().iterator():
+            for credential in Credential.objects.all().reverse().iterator():
                 current_cred += 1
                 self.stdout.write(
                     "\nVerifying index for credential id: {} ({} of {}) ...".format(
