@@ -288,10 +288,12 @@ indexSynced() {
   actualCount=$(runInContainer ${_dbPodName} \
     'psql -d ${POSTGRESQL_DATABASE} -t -c "select count(*) from credential;"')
 
+  indexDiff=$(( ${actualCount} - ${indexCount} ))
+
   if (( ${indexCount} == ${actualCount} )); then
     synced="true"
   else
-    synced="false"
+    synced="false - Difference: ${indexDiff}"
   fi 
 
   echo
