@@ -10,26 +10,31 @@ usage() {
   Updates the Haystack indexes for the project.
   ----------------------------------------------------------------------------------------
   Usage:
-    ${0} [ -h -x -s <SolrUrl/> -b <BatchSize/> ]
-  
+    ${0} [ -h -x -u <SolrUrl/> -b <BatchSize/> -s <StartDate/> ]
+
   Options:
     -h Prints the usage for the script
     -x Enable debug output
-    -s The URL to the Solr search engine instance 
+    -u The URL to the Solr search engine instance
     -b The batch size to use when performing the indexing.  Defaults to ${SOLR_BATCH_SIZE}.
-  
+    -s The date of where to start the update process.
+
   Example:
-    ${0} -s http://localhost:8983/solr/the_org_book  
+    ${0} -u http://localhost:8983/solr/the_org_book
+    ${0} -b 200 -s 2019-06-01T00:00:00
   ========================================================================================
 EOF
 exit
 
 }
+
 while getopts s:b:xh FLAG; do
   case $FLAG in
-    s ) export SOLR_URL=$OPTARG
+    u ) export SOLR_URL=$OPTARG
       ;;
     b ) SOLR_BATCH_SIZE=$OPTARG
+      ;;
+    s ) START_DATE=$OPTARG
       ;;
     x ) export DEBUG=1
       ;;
@@ -45,4 +50,8 @@ done
 shift $((OPTIND-1))
 # ==============================================================================================================================
 
-${MANAGE_CMD} update_index --batch-size=$SOLR_BATCH_SIZE
+if [ -z "${START_DATE}" ]; then
+  echo "${MANAGE_CMD} update_index -b ${SOLR_BATCH_SIZE}"
+else
+  echo "${MANAGE_CMD} update_index -b ${SOLR_BATCH_SIZE} -s ${START_DATE}"
+fi
