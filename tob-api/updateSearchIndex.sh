@@ -51,7 +51,7 @@ shift $((OPTIND-1))
 # ==============================================================================================================================
 
 if [ -z "${START_DATE}" ]; then
-  echo "${MANAGE_CMD} update_index -b ${SOLR_BATCH_SIZE}"
+  ${MANAGE_CMD} update_index -b ${SOLR_BATCH_SIZE}
 else
-  echo "${MANAGE_CMD} update_index -b ${SOLR_BATCH_SIZE} -s ${START_DATE}"
+  ${MANAGE_CMD} update_index -b ${SOLR_BATCH_SIZE} -s ${START_DATE}
 fi
