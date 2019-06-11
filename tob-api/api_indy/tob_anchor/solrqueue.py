@@ -113,10 +113,18 @@ class SolrQueue:
                 last_ids.update(ids)
             else:
                 if last_index:
-                    if last_del:
-                        self.remove(last_index, last_using, last_ids)
-                    else:
-                        self.update(last_index, last_using, last_ids)
+                    try:
+                        if last_del:
+                            self.remove(last_index, last_using, last_ids)
+                        else:
+                            self.update(last_index, last_using, last_ids)
+                    except:
+                        LOGGER.exception("An unexpected exception was encountered while processing items from the Solr queue.", exc_info=True)
+                        LOGGER.debug("Requeueing items for later processing ...")
+                        try:
+                            self._queue.put( (last_index, last_using, last_ids, last_del) )
+                        except Full:
+                            LOGGER.warning("Can't requeue items to the Solr queue because it is full; %s", last_ids)
 
                 if not index_cls:
                     # LOGGER.debug("Done indexing items from Solr queue ...")
@@ -134,7 +142,10 @@ class SolrQueue:
         if backend is not None:
             LOGGER.debug("Updating indexes for %d row(s) from Solr queue: %s", len(ids), ids)
             rows = index.index_queryset(using).filter(id__in=ids)
+            # Turn off silently_fail; throw an exception if there is an error so we can requeue the items being indexed.
+            backend.silently_fail = False
             backend.update(index, rows)
+            # LOGGER.debug("Index update complete.")
         else:
             LOGGER.error("Failed to get backend.  Unable to update the index for %d row(s) from the Solr queue: %s", len(ids), ids)
 
