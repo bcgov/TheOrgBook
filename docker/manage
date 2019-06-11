@@ -18,40 +18,40 @@ SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
 # -----------------------------------------------------------------------------------------------------------------
 usage() {
   cat <<-EOF
-    
+
       Usage: $0 [command] [options]
-    
+
       Commands:
-    
+
       build - Build the docker images for the project.
               You need to do this first, since the builds require
               a combination of Docker and S2I builds.
-    
+
               You can build individual components as shown below, components that have dependencies will have these dependencies built too.
-    
+
               Examples:
                - Build the web UI only
-    
+
                 $0 build tob-web
-     
+
                - Build the API server only.
-     
+
                 $0 build tob-api
-    
+
                - Build the Solr Search Engine server only.
-           
+
                 $0 build tob-solr
-    
+
               By default all containers that components comprise of, will be rebuilt.
-    
+
                 $0 build
-    
+
       up -  Creates the application containers from the built images
             and starts the services based on the docker-compose.yml file.
 
-            You can pass in a list of containers to start.  
+            You can pass in a list of containers to start.
             By default all containers will be started.
-            
+
             The API_URL used by tob-web can also be redirected.
 
             Examples:
@@ -71,13 +71,13 @@ usage() {
 
       stop - Stops the services.  This is a non-destructive process.  The volumes and containers
              are not deleted so they will be reused the next time you run start.
-    
+
       down - Brings down the services and removes the volumes (storage) and containers.
       rm - Same as down
-    
+
       registerDids - Register the DIDs for the issuer services.
                      This is intended for development use.
-    
+
                      Examples:
                      $0 registerDids seed=the_org_book_0000000000000000000
                      - This will register the DID using the provided seed with the locally running von-network instance.
@@ -323,7 +323,12 @@ configureEnvironment() {
 
 getStartupParams() {
   CONTAINERS=""
-  ARGS="--force-recreate"
+
+  case "${COMMAND}" in
+    start|up)
+      ARGS="--force-recreate"
+    ;;
+  esac
 
   for arg in $@; do
     case "$arg" in
@@ -431,12 +436,13 @@ case "${COMMAND}" in
 start|up)
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d ${_startupParams} 
+  docker-compose up -d ${_startupParams}
   docker-compose logs -f
  ;;
 logs)
+  _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose logs -f
+  docker-compose logs -f ${_startupParams}
   ;;
 web-dev)
   _startupParams=$(getStartupParams $@)
@@ -446,7 +452,7 @@ web-dev)
   ;;
 stop)
   configureEnvironment
-  docker-compose stop 
+  docker-compose stop
   ;;
 startdb)
   configureEnvironment $@
