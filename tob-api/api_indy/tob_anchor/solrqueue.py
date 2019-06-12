@@ -155,6 +155,8 @@ class SolrQueue:
         backend = index.get_backend(using)
         if backend is not None:
             LOGGER.debug("Removing indexes for %d row(s) in Solr queue: %s", len(ids), ids)
+            # Turn off silently_fail; throw an exception if there is an error so we can requeue the items being indexed.
+            backend.silently_fail = False
             # backend.remove has no support for a list of IDs
             backend.conn.delete(id=ids)
         else:
