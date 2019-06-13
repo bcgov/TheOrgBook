@@ -77,6 +77,8 @@ class SolrQueue:
 
     def stop(self, join=True):
         LOGGER.debug("Stoping Solr queue ...")
+        if not self._queue.empty():
+            LOGGER.warning("The Solr queue is not empty, there are about %s items that will not be indexed", self._queue.qsize())
         self._stop.set()
         self._trigger.set()
         if join:
