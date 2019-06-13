@@ -12,7 +12,7 @@ LOGGER = logging.getLogger(__name__)
 
 class SolrQueue:
     def __init__(self):
-        LOGGER.debug("Initializing Solr queue ...")
+        LOGGER.info("Initializing Solr queue ...")
         self._queue = Queue()
         self._prev_queue = None
         self._stop = threading.Event()
@@ -42,13 +42,13 @@ class SolrQueue:
             LOGGER.warning("Can't delete items from the Solr queue because it is full; %s", wallet_ids)
 
     def setup(self, app=None):
-        LOGGER.debug("Setting up Solr queue ...")
+        LOGGER.info("Setting up Solr queue ...")
         if app:
-            LOGGER.debug("Wiring the Solr queue into the app; %s", app)
+            LOGGER.info("Wiring the Solr queue into the app; %s", app)
             app["solrqueue"] = self
             app.on_startup.append(self.app_start)
             app.on_cleanup.append(self.app_stop)
-        LOGGER.debug("Wiring the Solr queue into the TxnAwareSearchIndex.")
+        LOGGER.info("Wiring the Solr queue into the TxnAwareSearchIndex.")
         self._prev_queue = TxnAwareSearchIndex._backend_queue
         TxnAwareSearchIndex._backend_queue = self
 
@@ -64,19 +64,19 @@ class SolrQueue:
         return self
 
     def __exit__(self, type, value, tb):
-        LOGGER.debug("Solr queue is exiting ...")
+        LOGGER.info("Solr queue is exiting ...")
         # if handling exception, don't wait for worker thread
         self.stop(not type)
-        LOGGER.debug("Restoring previous TxnAwareSearchIndex settings ...")
+        LOGGER.info("Restoring previous TxnAwareSearchIndex settings ...")
         TxnAwareSearchIndex._backend_queue = self._prev_queue
 
     def start(self):
-        LOGGER.debug("Starting Solr queue ...")
+        LOGGER.info("Starting Solr queue ...")
         self._thread = threading.Thread(target=self._run)
         self._thread.start()
 
     def stop(self, join=True):
-        LOGGER.debug("Stoping Solr queue ...")
+        LOGGER.info("Stoping Solr queue ...")
         if not self._queue.empty():
             LOGGER.warning("The Solr queue is not empty, there are about %s items that will not be indexed", self._queue.qsize())
         self._stop.set()
@@ -85,16 +85,16 @@ class SolrQueue:
             self._thread.join()
 
     def trigger(self):
-        LOGGER.debug("Triggering Solr queue ...")
+        LOGGER.info("Triggering Solr queue ...")
         self._trigger.set()
 
     def _run(self):
-        LOGGER.debug("Running Solr queue ...")
+        LOGGER.info("Running Solr queue ...")
         while True:
             self._trigger.wait(5)
             self._drain()
             if self._stop.is_set():
-                LOGGER.debug("Finished running Solr queue ...")
+                LOGGER.info("Finished running Solr queue ...")
                 return
 
     def _drain(self):
@@ -122,7 +122,7 @@ class SolrQueue:
                             self.update(last_index, last_using, last_ids)
                     except:
                         LOGGER.exception("An unexpected exception was encountered while processing items from the Solr queue.", exc_info=True)
-                        LOGGER.debug("Requeueing items for later processing ...")
+                        LOGGER.info("Requeueing items for later processing ...")
                         try:
                             self._queue.put( (last_index, last_using, last_ids, last_del) )
                         except Full:
@@ -142,7 +142,7 @@ class SolrQueue:
         index = index_cls()
         backend = index.get_backend(using)
         if backend is not None:
-            LOGGER.debug("Updating indexes for %d row(s) from Solr queue: %s", len(ids), ids)
+            LOGGER.info("Updating indexes for %d row(s) from Solr queue: %s", len(ids), ids)
             rows = index.index_queryset(using).filter(id__in=ids)
             # Turn off silently_fail; throw an exception if there is an error so we can requeue the items being indexed.
             backend.silently_fail = False
@@ -156,7 +156,7 @@ class SolrQueue:
         index = index_cls()
         backend = index.get_backend(using)
         if backend is not None:
-            LOGGER.debug("Removing indexes for %d row(s) in Solr queue: %s", len(ids), ids)
+            LOGGER.info("Removing indexes for %d row(s) in Solr queue: %s", len(ids), ids)
             # Turn off silently_fail; throw an exception if there is an error so we can requeue the items being indexed.
             backend.silently_fail = False
             # backend.remove has no support for a list of IDs
