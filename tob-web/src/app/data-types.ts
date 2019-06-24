@@ -168,7 +168,9 @@ export namespace Model {
 
     get attributes_ext(): Attribute[] {
       let ret_attrs = this._attributes;
-      ret_attrs.push(new Attribute({id: this.local_name.id, type: "name_short", value: this.local_name.text, credential_id: this.local_name.credential_id, inactive: this.local_name.inactive, format: "name", credential_type_id: this.credential_type.id }));
+      if (this.local_name) {
+        ret_attrs.push(new Attribute({id: this.local_name.id, type: "name_short", value: this.local_name.text, credential_id: this.local_name.credential_id, inactive: this.local_name.inactive, format: "name", credential_type_id: this.credential_type.id }));
+      }
       return ret_attrs;
     }
 
@@ -379,7 +381,9 @@ export namespace Model {
 
     get attributes_ext(): Attribute[] {
       let ret_attrs = this._attributes;
-      ret_attrs.push(new Attribute({id: this.local_name.id, type: "name_short", value: this.local_name.text, credential_id: this.local_name.credential_id, inactive: this.local_name.inactive, format: "name", credential_type_id: null }));
+      if (this.local_name) {
+        ret_attrs.push(new Attribute({id: this.local_name.id, type: "name_short", value: this.local_name.text, credential_id: this.local_name.credential_id, inactive: this.local_name.inactive, format: "name", credential_type_id: null }));
+      }
       return ret_attrs;
     }
 
