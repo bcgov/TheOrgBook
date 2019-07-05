@@ -116,7 +116,7 @@ class TopicViewSet(ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     @swagger_auto_schema(responses={200: ExpandedCredentialSerializer(many=True)})
-    @list_route(url_path="credential", methods=["get"])
+    @detail_route(url_path="credential", methods=["get"])
     def list_credentials(self, request, pk=None):
         item = self.get_object()
         queryset = item.credentials
@@ -124,7 +124,7 @@ class TopicViewSet(ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     @swagger_auto_schema(responses={200: ExpandedCredentialSerializer(many=True)})
-    @list_route(url_path="credential/active", methods=["get"])
+    @detail_route(url_path="credential/active", methods=["get"])
     def list_active_credentials(self, request, pk=None):
         item = self.get_object()
         queryset = item.credentials.filter(revoked=False, inactive=False)
@@ -132,22 +132,25 @@ class TopicViewSet(ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     @swagger_auto_schema(responses={200: ExpandedCredentialSerializer(many=True)})
-    @list_route(url_path="credential/historical", methods=["get"])
+    @detail_route(url_path="credential/historical", methods=["get"])
     def list_historical_credentials(self, request, pk=None):
         item = self.get_object()
         queryset = item.credentials.filter(Q(revoked=True) | Q(inactive=True))
         serializer = ExpandedCredentialSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(
-        methods=["get"], url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)"
+    @swagger_auto_schema(responses={200: TopicSerializer(many=False)})
+    @list_route(
+        methods=["get"], 
+        url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)"
     )
     def retrieve_by_type(self, request, type=None, source_id=None):
         return self.retrieve(request)
 
-    @detail_route(
+    @swagger_auto_schema(responses={200: CustomTopicSerializer(many=False)})
+    @list_route(
         methods=["get"],
-        url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)/formatted",
+        url_path="ident/(?P<type>[^/.]+)/(?P<source_id>[^/.]+)/formatted"
     )
     def retrieve_by_type_formatted(self, request, type=None, source_id=None):
         return self.retrieve_formatted(request)
