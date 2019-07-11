@@ -52,11 +52,11 @@ usage () {
 
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
-      - Supports passing arguments to updateSearchIndex.sh.  For example:
-          $0 -p bc-tob -e prod updateSearchIndex -b 500 -s 2019-07-04T00:00:00
 
     updateSearchIndex
       - Update the search index for a given environment.
+      - Supports passing arguments to updateSearchIndex.sh.  For example:
+          $0 -p bc-tob -e prod updateSearchIndex -b 500 -s 2019-07-04T00:00:00
 
     indexSynced
       - Check to see if the Solr indexes are syned with the database credentials.
