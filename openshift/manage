@@ -53,6 +53,11 @@ usage () {
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
 
+    updateSearchIndex
+      - Update the search index for a given environment.
+      - Supports passing arguments to updateSearchIndex.sh.  For example:
+          $0 -p bc-tob -e prod updateSearchIndex -b 500 -s 2019-07-04T00:00:00
+
     indexSynced
       - Check to see if the Solr indexes are syned with the database credentials.
 
@@ -277,6 +282,31 @@ rebuildSearchIndex() {
   exitOnError
 }
 
+updateSearchIndex() {
+  (
+    local OPTIND
+    local OPTARG
+    unset local args
+    while getopts s:b: FLAG; do
+      case $FLAG in
+        * ) args="${args} -${FLAG} ${OPTARG}"
+          ;;
+      esac
+    done
+    shift $((OPTIND-1))
+    
+    _apiPodName=${1:-django}
+    if [ -z "${_apiPodName}" ]; then
+      echo -e \\n"updateSearchIndex; Missing parameter!"\\n
+      exit 1
+    fi
+
+    echoWarning "\nUpdating the search index ..."
+    args="$(echo "${args}" | sed -e 's/^[[:space:]]*//')"
+    runInContainer ${_apiPodName} "./updateSearchIndex.sh ${args}"
+  )
+}
+
 indexSynced() {
   _apiPodName=${1}
   _dbPodName=${2}
@@ -344,6 +374,10 @@ case "${_cmd}" in
     switchProject
     exitOnError
     rebuildSearchIndex "${apiPodName}"
+    ;;
+  updatesearchindex)
+    # apiPodName=${1:-django}
+    updateSearchIndex ${@}
     ;;
   indexsynced)
     apiPodName=${1:-django}
