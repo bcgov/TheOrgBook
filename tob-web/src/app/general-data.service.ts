@@ -390,11 +390,8 @@ export class GeneralDataService {
       map(values => {
         let lang = this.language;
         let ret = undefined;
-        if (values && lang in values) {
-          let labels = values[lang];
-          if (labels && catType in labels) {
-            ret = labels[catType][catValue];
-          }
+        if (values && catType in values) {
+          ret = values[catType][lang];
         }
         return ret;
       }),
