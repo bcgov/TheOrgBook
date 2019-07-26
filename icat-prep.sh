@@ -58,3 +58,5 @@ rm -rf starter-kits/credential-registry/server/tob-backup
 rm -rf starter-kits/credential-registry/client/tob-web/themes/default
 rm -rf credential-registry/client/tob-web/src/themes/bcgov
 rm -rf credential-registry/client/tob-web/src/themes/ongov
+rm -rf credential-registry/client/tob-web/openshift
+rm credential-registry/client/tob-web/Jenkinsfile
