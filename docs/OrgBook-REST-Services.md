@@ -1,25 +1,26 @@
-
 # OrgBook REST Services
 
-OrgBook provides a SWAGGER page that provides an interactive way to test out its available API's.  This SWAGGER page is available in a local OrgBook install at http://localhost:8080/api/, or (for example) in a stable test deployment (hosted on the BC Gov OpenShift platform) at https://test.orgbook.gov.bc.ca/api/.
+OrgBook provides a [Swagger](https://swagger.io/) ([OpenAPI](https://www.openapis.org)) page that provides an interactive way to test out its available APIs.  TheOrgBook's Swagger page is available in a local OrgBook install at [http://localhost:8080/api/](http://localhost:8080/api/), or (for example) in a stable test deployment at [https://test.orgbook.gov.bc.ca/api/](https://test.orgbook.gov.bc.ca/api/).
 
-## Company Search
+## Organization Name Search
 
-The main API for performing a company name search is :
+The main API for performing an organization name search is `GET /v2/search/autocomplete` on the Swagger page.  You can also just run the search from your browser against your local OrgBook instance by going to:
 
 ```
 http://localhost:8080/api/v2/search/autocomplete?category=<text to search>
 ```
 
-This will return a list of company names matching the supplied search criteria.  The search is based on SOLR indexing and will return a list of companies based on closest match.  (If there is a company name with an exact match it will be first in the list.)  For example:
+This endpoint returns a list of registered organizations names matching the supplied search criteria.  The search is based on SOLR indexing and will return a list of organizations based on a closest match algorithm. If there is an organization name with an exact match to the search category, it will always be first in the response list.  For example:
 
 ```
 http://localhost:8080/api/v2/search/autocomplete?category="MY COMPANY CORP"
 ```
 
-... will return the requested company, as well as close matches in name.  The returned JSON structure can be used to query for additional information about the company (note that the page size and initial index can be specified via additional REST API parameters):
+Note that search paging parameters (page size and initial index) can be specified using additional REST API parameters. That is evident on the Swagger page entry for that call.
 
-```
+The request returns the named organization (exact match, if any), as well as close matches to the name.  Data in the returned JSON structure (below) can then be used to query for additional information about the company.
+
+``` jsonc
 {
     "total": 10,
     "first_index": 1,
@@ -45,17 +46,17 @@ http://localhost:8080/api/v2/search/autocomplete?category="MY COMPANY CORP"
 }
 ```
 
-The above API is useful for populating an "autocomplete" search drop-down, like the one on the OrgBook home page.
+The `GET /v2/search/autocomplete` API endpoint is useful for populating an "autocomplete" search drop-down, like the one on the OrgBook home page ([https://orgbook.gov.bc.ca](https://orgbook.gov.bc.ca)).
 
-You can get a more detailed set of data using the "facets" version of the search:
+You can get a more detailed set of data using the "facets" (`GET /v2/search/credential/topic/facets`) version of the search. For example,
 
 ```
 http://localhost:8080/api/v2/search/credential/topic/facets?name=<text to search>
 ```
 
-You can inspect the returned JSON structure.  One field useful for further searches is the "topic" ... "source_id", which is the BC Company number from BC Registries, for example (abbreviated for clarity):
+Review the returned JSON structure (below - abbreviated for clarity). A useful field for further searches is the "topic" ... "source_id"field, which is the BC Company number from BC Registries.
 
-```
+``` jsonc
 "objects": {
     ...
     "results": [
@@ -75,19 +76,20 @@ You can inspect the returned JSON structure.  One field useful for further searc
             ],
             "topic": {
                 ...
-                "source_id": "BC0123456",
+                "source_id": "S0030754",
                 ...
             },
             "related_topics": []
         }
-    }
+    ]
+}
 ```
 
-You can use the source_id in, for example, the following:
+You can use the `source_id` value in, for example, the following query to get more information about the organization.
 
 ```
-http://localhost:8080/api/v2/topic/ident/registration/BC0123456/formatted
+http://test.orgbook.gov.bc.ca/api/v2/topic/ident/registration/S0030754/formatted
 ```
 
-You can experiment with the API's using the SWAGGER page.
+That provides some basic information about querying for organizations and then getting details on those organization. We recommend you experiment with other API endpoints using the Swagger pages on your local or the test instance.
 
