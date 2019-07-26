@@ -52,6 +52,16 @@ mv starter-kits/credential-registry/server/docker starter-kits/credential-regist
 rm starter-kits/credential-registry/server/Deploy*
 rm starter-kits/credential-registry/server/SonarQube-*
 rm starter-kits/credential-registry/server/Zap-*
+
+rm -rf starter-kits/credential-registry/tob-db/openshift
+rm starter-kits/credential-registry/tob-db/Jenkinsfile
+rm -rf starter-kits/credential-registry/tob-api/openshift
+rm starter-kits/credential-registry/tob-api/Jenkinsfile
+rm -rf starter-kits/credential-registry/tob-solr/openshift
+rm starter-kits/credential-registry/tob-solr/Jenkinsfile
+rm -rf starter-kits/credential-registry/tob-wallet/openshift
+rm starter-kits/credential-registry/tob-wallet/Jenkinsfile
+
 rm -rf starter-kits/credential-registry/server/openshift
 rm -rf starter-kits/credential-registry/server/sonar-runner
 rm -rf starter-kits/credential-registry/server/tob-backup
