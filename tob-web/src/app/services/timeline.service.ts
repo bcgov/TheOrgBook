@@ -9,14 +9,13 @@ export class TimelineService {
 
   genShortDateMarkers(rows: RowSpec[]): MarkerSpec[] {
     const markers = []
-    console.log('rows', rows)
     for (const row of rows) {
       row.slots.forEach((itm) => {
         if (itm.end == null) return;
         const diff = parseDate(itm.end).getTime() - parseDate(itm.start).getTime()
         const monthCount = diff / 2592000000;
         if (monthCount > 1 && monthCount < 12) {
-          console.log('item', itm)
+
           markers.push({
             date: parseDate(itm.start),
             label: this.genLabel(itm.htmlContent.toString()),
@@ -24,13 +23,14 @@ export class TimelineService {
         })
       }
     })
-    console.log('markers', markers)
     return markers;
     }
   }
 
   genLabel(html: string) {
-    return html.slice(html.indexOf('>') + 1, html.indexOf('</strong>'));
+    let label = html.slice(html.indexOf('>') + 1, html.indexOf('</strong>'));
+    if (label.length > 20) label = label.slice(0, 20) + '...'
+    return label
   }
 
   constructor() { }

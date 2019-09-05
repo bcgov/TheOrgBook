@@ -3,7 +3,6 @@ import { Axis } from './axis.model';
 import { Layout, RowSpec, MarkerSpec } from './i-timeline';
 import { Marker } from './marker.model';
 import { Row } from './row.model';
-import { ShortDateMarker } from './short-date-marker.model';
 
 export namespace Timeline {
 
@@ -336,7 +335,6 @@ export namespace Timeline {
       let zIndex = 40;
       let clearPos = 0;
       for (const mark of this._markers) {
-        console.log('link', mark)
         const elt = !mark.link ? mark.render(this._renderer, false) : mark.render(this._renderer, true);
         this._elts.rowsOuter.insertBefore(elt, rowFirst);
         // elt.style.zIndex = '' + Math.max(0, zIndex);
@@ -405,10 +403,6 @@ export namespace Timeline {
         for (const mark of this._markers) {
           mark.setRange(this._layout.start, this._layout.end);
           mark.update(rowsWidth);
-        }
-
-        for (const itm of this._shortDateMarkers) {
-
         }
       }
       if (reUp) {

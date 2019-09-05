@@ -28,11 +28,9 @@ export class Marker {
 
   render(renderer: Renderer2, isLink: boolean = false) {
     this._renderer = renderer;
-    console.log('is link', isLink)
 
     if (! this._elt) {
       this._elt = renderer.createElement('div');
-      renderer.addClass(this._elt, 'timeline-marker');
       if (this.classNames) {
         for (const c of this.classNames) {
           renderer.addClass(this._elt, c);
@@ -41,12 +39,19 @@ export class Marker {
       if (isLink) {
         this._labelElt = renderer.createElement('a')
         this._labelElt.appendChild(document.createTextNode(this.label))
+        this._labelElt.setAttribute('href', this.link)
+        renderer.addClass(this._elt, 'timeline-marker');
+        renderer.addClass(this._elt, 'short-date-marker');
+
+
         this._elt.appendChild(this._labelElt)
       } else {
         if (this.label) {
           this._labelElt = renderer.createElement('label');
           this._labelElt.appendChild(document.createTextNode(this.label));
+          renderer.addClass(this._elt, 'timeline-marker');
           this._elt.appendChild(this._labelElt);
+
         }
       }
     }

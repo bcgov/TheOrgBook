@@ -1,10 +1,8 @@
 import {
   Component, Input, AfterViewInit, OnDestroy,
-  NgZone, ChangeDetectorRef,
-  ElementRef, Renderer2, ViewChild,
+  NgZone, ElementRef, Renderer2, ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Model } from '../data-types';
 import { Timeline } from './models/timeline';
 import { RowSpec, MarkerSpec } from './models/i-timeline';
 import { timelineScale } from './models/scale.model';
@@ -63,7 +61,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     this.rows[0].slots.push(
       {
         groups: ['all'],
-        htmlContent: '<strong>Testing</strong>,<br>testing',
+        htmlContent: '<strong>This is a really long slot</strong>,<br>testing',
         start: parseDate('1953-06-01T00:00:00Z'),
         end: parseDate('2019-05-01T00:00:00Z'),
         classNames: ['slot-primary'],
@@ -71,7 +69,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
       },
       {
         groups: ['all'],
-        htmlContent: '<strong>Testing</strong>,<br>testing',
+        htmlContent: '<strong>This is a really short slot</strong>,<br>testing',
         start: parseDate('2019-05-31T00:00:00Z'),
         end: parseDate('2019-08-31T00:00:00Z'),
         classNames: ['slot-secondary'],

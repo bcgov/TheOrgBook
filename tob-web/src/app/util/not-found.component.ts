@@ -32,7 +32,6 @@ export class NotFoundComponent implements OnInit {
       }
       let translated = <string[]>this._localize.translateRoute(['/', ...url]);
       if(translated.length && (! pfx || joinPath(url) != joinPath(translated.slice(1)))) {
-        console.log('redirect:', translated);
         this._router.navigate(translated);
       }
     }
