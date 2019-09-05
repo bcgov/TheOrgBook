@@ -58,36 +58,34 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     const date = parseDate('1953-06-01T00:00:00Z')
     // TODO: correct this.
     this._timeline.setRange(date, this.rangeEnd);
-    this.rows[0].slots.push(
-      {
-        groups: ['all'],
-        htmlContent: '<strong>This is a really long slot</strong>,<br>testing',
-        start: parseDate('1953-06-01T00:00:00Z'),
-        end: parseDate('2019-05-01T00:00:00Z'),
-        classNames: ['slot-primary'],
-        url: 'http://localhost:4300/en/organization/1a16336c-d880-4568-8e3b-306a263d83a4/cred/1'
-      },
-      {
-        groups: ['all'],
-        htmlContent: '<strong>This is a really short slot</strong>,<br>testing',
-        start: parseDate('2019-05-31T00:00:00Z'),
-        end: parseDate('2019-08-31T00:00:00Z'),
-        classNames: ['slot-secondary'],
-        url: 'http://localhost:4300/en/organization/1a16336c-d880-4568-8e3b-306a263d83a4/cred/1'
+    // this.rows[0].slots.push(
+    //   {
+    //     groups: ['all'],
+    //     htmlContent: '<strong>This is a really long slot</strong>,<br>testing',
+    //     start: parseDate('1953-06-01T00:00:00Z'),
+    //     end: parseDate('2019-05-01T00:00:00Z'),
+    //     classNames: ['slot-primary'],
+    //     url: 'http://localhost:4300/en/organization/1a16336c-d880-4568-8e3b-306a263d83a4/cred/1'
+    //   },
+    //   {
+    //     groups: ['all'],
+    //     htmlContent: '<strong>This is a really short slot</strong>,<br>testing',
+    //     start: parseDate('2019-05-31T00:00:00Z'),
+    //     end: parseDate('2019-08-31T00:00:00Z'),
+    //     classNames: ['slot-secondary'],
+    //     url: 'http://localhost:4300/en/organization/1a16336c-d880-4568-8e3b-306a263d83a4/cred/1'
 
-      }
+    //   }
 
-    )
+    // )
     this._timeline.setRows(this.rows);
     const markers = [{date: new Date(), label: 'Today'}] as MarkerSpec[]
     const scale = timelineScale(date, parseDate(this.rangeEnd))
     if (scale === 2) {
       markers.push(...this.timelineSvc.genShortDateMarkers(this.rows))
     }
-    console.log('new markers', markers)
 
     this._timeline.setMarkers(markers);
-    // this._timeline.setShortDateMarkers(dateMarkers)
 
     this._renderer.listen(this._timeline.container, 'slotclick', this.click.bind(this));
     this._zone.runOutsideAngular(() => {
