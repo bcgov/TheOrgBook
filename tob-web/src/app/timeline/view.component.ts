@@ -5,10 +5,11 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Model } from '../data-types';
-import { Timeline } from '../timeline/timeline';
-import { RowSpec } from './i-timeline';
-import { timelineScale } from './scale.model';
-import { parseDate } from './timeline-utils';
+import { Timeline } from './models/timeline';
+import { RowSpec, MarkerSpec } from './models/i-timeline';
+import { timelineScale } from './models/scale.model';
+import { parseDate } from './models/timeline-utils';
+import { TimelineService } from 'app/services/timeline.service';
 
 @Component({
   selector: 'timeline-view',
@@ -50,12 +51,12 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     private _renderer: Renderer2,
     private _router: Router,
     private _zone: NgZone,
+    private timelineSvc: TimelineService
   ) { }
 
   ngAfterViewInit() {
 
     this._timeline = new Timeline.TimelineView(this._outer.nativeElement, null, this._renderer);
-    console.log('timeline', this._timeline)
     const date = parseDate('1953-06-01T00:00:00Z')
     // TODO: correct this.
     this._timeline.setRange(date, this.rangeEnd);
@@ -66,6 +67,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
         start: parseDate('1953-06-01T00:00:00Z'),
         end: parseDate('2019-05-01T00:00:00Z'),
         classNames: ['slot-primary'],
+        url: 'http://localhost:4300/en/organization/1a16336c-d880-4568-8e3b-306a263d83a4/cred/1'
       },
       {
         groups: ['all'],
@@ -73,34 +75,21 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
         start: parseDate('2019-05-31T00:00:00Z'),
         end: parseDate('2019-08-31T00:00:00Z'),
         classNames: ['slot-secondary'],
+        url: 'http://localhost:4300/en/organization/1a16336c-d880-4568-8e3b-306a263d83a4/cred/1'
+
       }
 
     )
     this._timeline.setRows(this.rows);
-    const markers = [{date: new Date(), label: 'Today'}]
+    const markers = [{date: new Date(), label: 'Today'}] as MarkerSpec[]
     const scale = timelineScale(date, parseDate(this.rangeEnd))
     if (scale === 2) {
-      for (const row of this.rows) {
-        const test = row.slots.forEach((itm, i, arr) => {
-          // const diff = itm.start.valueOf() - itm.end.valueOf()
-          if (itm.end == null) return false;
-          console.log(itm);
-          const diff = parseDate(itm.end).getTime() - parseDate(itm.start).getTime()
-          const monthCount = diff / 2592000000;
-          if (monthCount > 1) {
-
-            markers.push(
-              {
-                date: parseDate(itm.start), label: itm.htmlContent.toString()
-            })
-          }
-          console.log('months', monthCount)
-        })
-        console.log('results', test)
-      }
+      markers.push(...this.timelineSvc.genShortDateMarkers(this.rows))
     }
+    console.log('new markers', markers)
 
     this._timeline.setMarkers(markers);
+    // this._timeline.setShortDateMarkers(dateMarkers)
 
     this._renderer.listen(this._timeline.container, 'slotclick', this.click.bind(this));
     this._zone.runOutsideAngular(() => {
@@ -179,6 +168,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
             start: '2020-05-31T00:00:00Z',
             end: '2021-05-31T00:00:00Z',
             classNames: ['slot-secondary'],
+
           }
         ]
       }

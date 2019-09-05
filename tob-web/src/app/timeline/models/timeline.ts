@@ -3,6 +3,7 @@ import { Axis } from './axis.model';
 import { Layout, RowSpec, MarkerSpec } from './i-timeline';
 import { Marker } from './marker.model';
 import { Row } from './row.model';
+import { ShortDateMarker } from './short-date-marker.model';
 
 export namespace Timeline {
 
@@ -26,8 +27,7 @@ export namespace Timeline {
   function setElementContent(elt, content) {
     if (typeof content === 'string') {
       elt.innerHTML = content;
-    }
-    else if (Array.isArray(content)) {
+    } else if (Array.isArray(content)) {
       elt.innerHTML = '';
       for (const part of content) {
         addElementContent(elt, part);
@@ -39,8 +39,7 @@ export namespace Timeline {
     let result: Date = null;
     if (typeof date === 'string') {
       result = new Date(date);
-    }
-    else {
+    } else {
       result = date;
     }
     if (result && isNaN(result.getTime())) {
@@ -76,6 +75,7 @@ export namespace Timeline {
     _rows: Row[] = [];
     _redrawTimer: number;
     _updateTimer: number;
+    _shortDateMarkers: Marker[];
 
     constructor(container: HTMLElement, layout: Layout, renderer: Renderer2) {
       this._elts.container = container;
@@ -98,6 +98,11 @@ export namespace Timeline {
 
     setMarkers(vals: MarkerSpec[]) {
       this._markers = (vals || []).map(val => new Marker(val));
+      this.redraw();
+    }
+
+    setShortDateMarkers(vals: MarkerSpec[]) {
+      this._shortDateMarkers = (vals || []).map(val => new Marker(val));
       this.redraw();
     }
 
@@ -331,7 +336,8 @@ export namespace Timeline {
       let zIndex = 40;
       let clearPos = 0;
       for (const mark of this._markers) {
-        const elt = mark.render(this._renderer);
+        console.log('link', mark)
+        const elt = !mark.link ? mark.render(this._renderer, false) : mark.render(this._renderer, true);
         this._elts.rowsOuter.insertBefore(elt, rowFirst);
         // elt.style.zIndex = '' + Math.max(0, zIndex);
         clearPos ++;
@@ -342,6 +348,7 @@ export namespace Timeline {
         elt.style.zIndex = '' + Math.max(0, zIndex--);
         clearPos ++;
       }
+
       clearChildNodes(this._elts.rowsOuter, clearPos);
       this._performUpdate();
     }
@@ -396,9 +403,12 @@ export namespace Timeline {
 
         // reposition markers
         for (const mark of this._markers) {
-          console.log(mark)
           mark.setRange(this._layout.start, this._layout.end);
           mark.update(rowsWidth);
+        }
+
+        for (const itm of this._shortDateMarkers) {
+
         }
       }
       if (reUp) {

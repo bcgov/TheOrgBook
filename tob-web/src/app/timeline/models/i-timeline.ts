@@ -12,6 +12,7 @@ export interface MarkerSpec {
   classNames?: string[];
   date: Date;
   label?: string;
+  link?: string;
 }
 
 export interface RowSpec {

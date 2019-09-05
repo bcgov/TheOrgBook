@@ -7,6 +7,7 @@ export class Marker {
   label: string;
   start: Date;
   end: Date;
+  link: string;
   _elt: HTMLElement;
   _labelElt: HTMLElement;
   _renderer: Renderer2;
@@ -16,6 +17,7 @@ export class Marker {
       this.classNames = spec.classNames;
       this.date = spec.date;
       this.label = spec.label;
+      this.link = spec.link ? spec.link : null
     }
   }
 
@@ -24,8 +26,9 @@ export class Marker {
     this.end = end;
   }
 
-  render(renderer: Renderer2) {
+  render(renderer: Renderer2, isLink: boolean = false) {
     this._renderer = renderer;
+    console.log('is link', isLink)
 
     if (! this._elt) {
       this._elt = renderer.createElement('div');
@@ -35,10 +38,16 @@ export class Marker {
           renderer.addClass(this._elt, c);
         }
       }
-      if (this.label) {
-        this._labelElt = renderer.createElement('label');
-        this._labelElt.appendChild(document.createTextNode(this.label));
-        this._elt.appendChild(this._labelElt);
+      if (isLink) {
+        this._labelElt = renderer.createElement('a')
+        this._labelElt.appendChild(document.createTextNode(this.label))
+        this._elt.appendChild(this._labelElt)
+      } else {
+        if (this.label) {
+          this._labelElt = renderer.createElement('label');
+          this._labelElt.appendChild(document.createTextNode(this.label));
+          this._elt.appendChild(this._labelElt);
+        }
       }
     }
     return this._elt;

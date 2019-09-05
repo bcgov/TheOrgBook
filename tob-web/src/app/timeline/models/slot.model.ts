@@ -8,6 +8,7 @@ export class Slot {
   _renderer: Renderer2;
   _spec: SlotSpec;
   _state: SlotState = new SlotState();
+  name: String;
   start: Date;
   end: Date;
 
@@ -26,20 +27,14 @@ export class Slot {
   }
 
   handleEvent(evt) {
-    if(evt.target === this._elt) {
+    if (evt.target === this._elt) {
       let update = true;
-      if(evt.type === 'focus')
-        this._state.focused = true;
-      else if(evt.type === 'blur')
-        this._state.focused = false;
-      else if(evt.type === 'mouseenter')
-        this._state.hovered = true;
-      else if(evt.type === 'mouseleave')
-        this._state.hovered = false;
-      else
-        update = false;
-      if(update)
-        this.updateState();
+      if (evt.type === 'focus') this._state.focused = true;
+      else if (evt.type === 'blur') this._state.focused = false;
+      else if (evt.type === 'mouseenter') this._state.hovered = true;
+      else if (evt.type === 'mouseleave') this._state.hovered = false;
+      else update = false;
+      if(update) this.updateState();
     }
     if(evt.type === 'click') {
       evt.preventDefault();
@@ -64,23 +59,20 @@ export class Slot {
       'started': this._state.started,
       'ended': this._state.ended,
     }
-    for(let k in classes) {
-      if(classes[k])
-        this._renderer.addClass(this._elt, k);
-      else
-        this._renderer.removeClass(this._elt, k);
+    for (const k in classes) {
+      if (classes[k]) this._renderer.addClass(this._elt, k);
+      else this._renderer.removeClass(this._elt, k);
     }
   }
 
   render(renderer: Renderer2) {
     this._renderer = renderer;
-    if(! this._elt) {
+    if (! this._elt) {
       this._elt = renderer.createElement(this._spec.url ? 'a' : 'div');
       renderer.addClass(this._elt, 'timeline-slot');
       this._elt.tabIndex = 0;
-      if(this._spec.url)
-        this._elt.setAttribute('href', this._spec.url);
-      let handler = this.handleEvent.bind(this);
+      if (this._spec.url) this._elt.setAttribute('href', this._spec.url);
+      const handler = this.handleEvent.bind(this);
       this._elt.addEventListener('mouseenter', handler, false);
       this._elt.addEventListener('mouseleave', handler, false);
       this._elt.addEventListener('focus', handler, false);

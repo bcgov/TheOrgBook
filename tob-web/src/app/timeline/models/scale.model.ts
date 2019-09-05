@@ -6,10 +6,9 @@ export class Scale {
 
   }
 }
-
+// This is stubbed to be a full class depending on how complex we need to be
 export function timelineScale(start: Date, end: Date) {
 
   const scale =  end.getFullYear() - start.getFullYear()
-  console.log('scale')
   return scale < 10 ? 1 : 2;
 }
