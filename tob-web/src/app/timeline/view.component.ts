@@ -7,7 +7,7 @@ import { Timeline } from './models/timeline';
 import { RowSpec, MarkerSpec } from './models/i-timeline';
 import { timelineScale } from './models/scale.model';
 import { parseDate } from './models/timeline-utils';
-import { TimelineService } from 'app/services/timeline.service';
+import { TimelineService } from './services/timeline.service';
 
 @Component({
   selector: 'timeline-view',
