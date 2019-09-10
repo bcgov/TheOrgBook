@@ -41,8 +41,8 @@ mkdir credential-registry/server
 mkdir credential-registry/server/django-icat-api
 mkdir credential-registry/server/python-indy-api
 
-mv starter-kits/credential-registry/server/tob-api/api_v2 credential-registry/server/django-icat-api/
-mv starter-kits/credential-registry/server/tob-api/api_indy credential-registry/server/python-indy-api/
+#mv starter-kits/credential-registry/server/tob-api/api_v2 credential-registry/server/django-icat-api/
+#mv starter-kits/credential-registry/server/tob-api/api_indy credential-registry/server/python-indy-api/
 mv starter-kits/credential-registry/server/tob-web credential-registry/client/
 mkdir starter-kits/credential-registry/client/tob-web/
 mkdir starter-kits/credential-registry/client/tob-web/themes/
