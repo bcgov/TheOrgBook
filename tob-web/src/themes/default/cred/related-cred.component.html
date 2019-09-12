@@ -30,11 +30,11 @@
           <span class="fa right" [ngClass]="{'fa-angle-double-up': showFilters, 'fa-angle-double-down': !showFilters}"></span>
         </label>
         <div class="btn-group filter-entry">
-          <label class="btn btn-secondary btn-sm" [ngClass]="{active: (filterActive === 'true')}" tabindex="0">
+          <label class="btn btn-secondary btn-sm" [ngClass]="{active: (stateSvc.filterActive === 'true')}" tabindex="0">
             <input type="radio" name="search_active" value="true" checked class="d-none" [(ngModel)]="filterActive"><span class="fa fa-bell left"></span> <span translate>general.period-current</span>
           </label>
           <label class="btn btn-secondary btn-sm" [ngClass]="{active: (filterActive === 'false')}" tabindex="0">
-            <input type="radio" name="search_active" value="false" class="d-none" [(ngModel)]="filterActive"><span class="fa fa-history left"></span> <span translate>general.period-historical</span>
+            <input type="radio" name="search_active" value="false" class="d-none" [(ngModel)]="stateSvc.filterActive"><span class="fa fa-history left"></span> <span translate>general.period-historical</span>
           </label>
         </div>
       </div>

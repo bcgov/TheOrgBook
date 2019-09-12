@@ -7,6 +7,8 @@ import { GeneralDataService } from './general-data.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs/Subscription';
 import { mergeMap, map } from 'rxjs/operators';
+import { HttpService } from './core/services/http.service';
+import { ICredentialSet } from './core/interfaces/i-credential-set.interface';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private _router: Router,
     private _titleService: Title,
     public translate: TranslateService,
+    private httpSvc: HttpService,
   ) {}
 
   ngOnInit() {

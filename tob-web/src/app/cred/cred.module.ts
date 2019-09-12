@@ -9,12 +9,13 @@ import { CredListComponent } from './list.component';
 import { CredTypeListComponent } from './type-list.component';
 import { IssuerFormComponent } from '../issuer/form.component';
 import { NamePanelComponent } from './name-panel.component';
-import { RelatedCredsComponent } from './related-list.component';
+import { RelatedCredsComponent } from './related-creds.component';
 import { TimelineCredComponent } from './timeline-cred.component';
 import { TimelineFormatterService } from './timeline-formatter.service';
 import { TimelineViewComponent } from '../timeline/view.component';
 import { CredSetTimelineComponent } from './timeline.component';
 import { UtilModule } from '../util/util.module';
+import { TopicArchiveListHeaderComponent } from './topic-archive-list-header/topic-archive-list-header.component';
 
 
 const ROUTES = [];
@@ -30,6 +31,7 @@ const ROUTES = [];
     CredSetTimelineComponent,
     TimelineCredComponent,
     TimelineViewComponent,
+    TopicArchiveListHeaderComponent,
   ],
   entryComponents: [
     TimelineCredComponent,
@@ -55,6 +57,8 @@ const ROUTES = [];
     CredSetTimelineComponent,
     TimelineCredComponent,
     TimelineViewComponent,
+    TopicArchiveListHeaderComponent,
+
   ]
 })
 export class CredModule {}

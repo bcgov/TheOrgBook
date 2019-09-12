@@ -2,11 +2,12 @@ import { Component, EventEmitter, Output, OnInit, OnDestroy, Input } from '@angu
 import { GeneralDataService } from '../general-data.service';
 import { Fetch, Model } from '../data-types';
 import { Subscription } from 'rxjs/Subscription';
+import { TopicStateService } from 'app/topic/services/topic-state.service';
 
 @Component({
   selector: 'related-creds',
-  templateUrl: '../../themes/_active/cred/related-list.component.html',
-  styleUrls: ['../../themes/_active/cred/related-list.component.scss']
+  templateUrl: '../../themes/_active/cred/related-cred.component.html',
+  styleUrls: ['../../themes/_active/cred/related-cred.component.scss']
 })
 export class RelatedCredsComponent implements OnInit, OnDestroy {
   protected _topicId: number;
@@ -26,6 +27,7 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
 
   constructor(
     private _dataService: GeneralDataService,
+    public stateSvc: TopicStateService,
   ) { }
 
   ngOnInit() {

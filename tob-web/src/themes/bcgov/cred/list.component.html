@@ -28,6 +28,7 @@
   </div>
 </div>
 <div class="creds-list" *ngIf="format==='rows'">
+  <ng-container *ngIf="!archive; else archiveTemplate">
   <div class="row cred-row" *ngFor="let cred of records">
     <div class="col-sm-4">
       <div class="cred-title">
@@ -61,6 +62,14 @@
       <div class="badge badge-danger" *ngIf="cred.revoked" translate>cred.expired</div>
     </div>
   </div>
+</ng-container>
+  <ng-template #archiveTemplate>
+      <ng-container *ngIf="stateSvc.credentialSets; async as credSets">
+      <app-topic-archive-list-header  *ngFor="let credSet of credSets" [credSet]="credSet">
+      </app-topic-archive-list-header>
+    </ng-container>
+
+    </ng-template>
 </div>
 <div class="creds-list creds-search" *ngIf="format==='search'">
   <div class="row cred-row" *ngFor="let cred of records">

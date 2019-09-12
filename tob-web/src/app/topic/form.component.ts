@@ -4,6 +4,9 @@ import { AppConfigService } from '../app-config.service';
 import { GeneralDataService } from '../general-data.service';
 import { Fetch, Model } from '../data-types';
 import { Subscription } from 'rxjs/Subscription';
+import { HttpService } from 'app/core/services/http.service';
+import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
+import { TopicStateService } from './services/topic-state.service';
 
 @Component({
   selector: 'topic-form',
@@ -18,6 +21,7 @@ export class TopicFormComponent implements OnInit, OnDestroy {
   showFilters: boolean = false;
   _sectionsLoaded = {};
 
+
   private _loader = new Fetch.ModelLoader(Model.TopicFormatted);
 
   private _creds = new Fetch.ModelListLoader(Model.CredentialSearchResult);
@@ -28,13 +32,60 @@ export class TopicFormComponent implements OnInit, OnDestroy {
     private _config: AppConfigService,
     private _dataService: GeneralDataService,
     private _route: ActivatedRoute,
-    private _router: Router) { }
+    private httpSvc: HttpService,
+    public stateSvc: TopicStateService,
+    ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this._sectionsLoaded = {};
     this._loader.ready.subscribe(result => {
       this._fetchCreds();
-    });
+      const id = this._loader.result.data.id
+      this.httpSvc.httpGetRequest<ICredentialSet[]>(`topic/${id}/credentialset`)
+        .toPromise()
+        .then((res:ICredentialSet[]) => {
+          const addresses = []
+          const attributes = []
+          const create_timestamp = ''
+          const credential_type = null
+          const effective_date = ''
+          const id = 9
+          const inactive = true;
+          const latest = false;
+          const local_name = {
+            credential_id: 9,
+            id: 4,
+            language: null,
+            text: 'test2',
+            type: 'legal_name'
+          };
+          const names = []
+          const related_topics = []
+          const remote_name = null;
+          const topic = res[0].credentials[0].topic
+          const wallet_id = res[0].credentials[0].wallet_id
+          res[0].credentials.push({
+              addresses,
+              attributes,
+              create_timestamp,
+              credential_type,
+              effective_date,
+              id,
+              inactive,
+              local_name,
+              latest,
+              names,
+              related_topics,
+              remote_name,
+              topic,
+              wallet_id
+
+          } as any)
+          console.log(res)
+          this.stateSvc.setCredential(res)
+        })
+        .catch(err => console.error(err))
+      });
     this._loader.postProc(val => new Promise(resolve => {
       if(val && val.data) {
         let ids = {};
@@ -58,6 +109,8 @@ export class TopicFormComponent implements OnInit, OnDestroy {
       this.source_id = params['sourceId'];
       let ident = this.ident;
       this._dataService.loadRecord(this._loader, ident, {primary: true});
+
+
     });
     let format = this._config.getConfig().TOPIC_CREDS_FORMAT;
     if(format)
