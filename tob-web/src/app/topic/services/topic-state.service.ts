@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
+import { shareReplay } from 'rxjs/operators';
 
 export type StateOptions = 'true' | 'false' | '';
 @Injectable({
@@ -11,9 +12,9 @@ export class TopicStateService {
 
   filterActive = 'true';
 
-  private credentialSets$ = new BehaviorSubject<ICredentialSet[]>(null)
+  private credentialSets$ = new BehaviorSubject<ICredentialSet[]>(null);
 
-get credentialSets() {
+  get credentialSets() {
     return this.credentialSets$.asObservable();
   }
 
@@ -21,9 +22,11 @@ get credentialSets() {
     this.credentialSets$.next(credSets);
   }
 
+  constructor() {
+    // of(this.filterActive)
+    //   .pipe(shareReplay(100))
+    //   .subscribe(obs => console.log(obs));
 
-  constructor() { }
-
-
-
+    this.credentialSets.subscribe(obs => console.log('cred set', obs));
+  }
 }

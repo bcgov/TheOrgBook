@@ -43,7 +43,7 @@ export class TopicFormComponent implements OnInit, OnDestroy {
       const id = this._loader.result.data.id
       this.httpSvc.httpGetRequest<ICredentialSet[]>(`topic/${id}/credentialset`)
         .toPromise()
-        .then((res:ICredentialSet[]) => {
+        .then((res: ICredentialSet[]) => {
           const addresses = []
           const attributes = []
           const create_timestamp = ''
