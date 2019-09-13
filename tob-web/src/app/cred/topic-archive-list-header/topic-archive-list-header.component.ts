@@ -7,7 +7,9 @@ import {
 import { IIssuer } from 'app/core/interfaces/i-issuer.interface';
 import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
 import { ICredential } from 'app/core/interfaces/i-credential.interface';
-import { of, Observable } from 'rxjs';
+import { environment } from 'environments/environment';
+
+const baseUrl = environment.API_URL;
 
 @Component({
   selector: 'app-topic-archive-list-header',
@@ -18,7 +20,10 @@ import { of, Observable } from 'rxjs';
       [ngClass]="{ 'border-bottom': expanded === false }"
     >
       <div class="col-sm-4">
-        <div class="cred-title">
+        <div
+          class="cred-title"
+          [routerLink]="genLink('cred', currentCred.id) | localize"
+        >
           <a class="body-link cred-link">{{
             currentCred.credential_type.description
           }}</a>
@@ -93,12 +98,12 @@ import { of, Observable } from 'rxjs';
     </ng-container>
   `,
   styleUrls: [
+    './topic-archive-list-header.component.scss',
     '../../../themes/_active/cred/cred.scss',
     '../../../themes/_active/cred/list.component.scss'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 // http://localhost:4300/en/organization/4b4a4d57-b589-4e2f-b22b-1d288a129da8/cred/1
 export class TopicArchiveListHeaderComponent implements OnInit {
   @Input() credSet: ICredentialSet;
@@ -107,8 +112,11 @@ export class TopicArchiveListHeaderComponent implements OnInit {
   currentCred: ICredential;
   expanded = false;
   credList: ICredential[];
+  baseUrl: string;
 
-  constructor() {}
+  constructor() {
+    this.baseUrl = baseUrl;
+  }
 
   ngOnInit() {
     console.log('credSet', this.credSet);
@@ -119,5 +127,24 @@ export class TopicArchiveListHeaderComponent implements OnInit {
       cred => cred.inactive === true
     );
     // console.log(this.currentCred.credential_set[0].issuer);
+  }
+
+  // http://localhost:4300/en/organization/4b4a4d57-b589-4e2f-b22b-1d288a129da8/cred/1
+  genLink(type: string, sourceId: string, id: string) {
+    // get link(): string[] {
+    //   // FIXME need to move link generation into general data service
+    //   if(this.type === 'registration')
+    //     return ['/topic/', this.source_id];
+    //   return ['/topic/', this.type, this.source_id];
+    // }
+
+    // extLink(...args): string[] {
+    //   return this.link.concat(args)
+    // }
+    const vals = [];
+    type === 'registration'
+      ? vals.push('/topic/', sourceId)
+      : vals.push('/topic/', type, sourceId);
+    return vals.concat(type, id);
   }
 }

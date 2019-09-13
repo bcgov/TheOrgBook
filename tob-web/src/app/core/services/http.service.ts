@@ -17,7 +17,8 @@ export class HttpService {
   }
 
   httpGetRequest<T>(path: string) {
-    return this.http.get<T>(`${this.baseUrl}${path}`);
-    // .pipe(catchError(err => of(err)));
+    return this.http
+      .get<T>(`${this.baseUrl}${path}`)
+      .pipe(catchError(err => of(err)));
   }
 }

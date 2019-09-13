@@ -9,7 +9,7 @@ import { ICredential } from 'app/core/interfaces/i-credential.interface';
 @Component({
   selector: 'app-topic-archive-list-item',
   template: `
-    <div class="row border-bottom p-3">
+    <div class="row border-bottom p-2">
       <div class="col-sm-4">
         <p class="m-0">
           <span><i class="fa fa-certificate"></i></span
