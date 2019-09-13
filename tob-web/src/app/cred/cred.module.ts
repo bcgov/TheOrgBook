@@ -16,6 +16,7 @@ import { TimelineViewComponent } from '../timeline/view.component';
 import { CredSetTimelineComponent } from './timeline.component';
 import { UtilModule } from '../util/util.module';
 import { TopicArchiveListHeaderComponent } from './topic-archive-list-header/topic-archive-list-header.component';
+import { TopicArchiveListItemComponent } from './topic-archive-list-item/topic-archive-list-item.component';
 
 
 const ROUTES = [];
@@ -32,6 +33,7 @@ const ROUTES = [];
     TimelineCredComponent,
     TimelineViewComponent,
     TopicArchiveListHeaderComponent,
+    TopicArchiveListItemComponent,
   ],
   entryComponents: [
     TimelineCredComponent,

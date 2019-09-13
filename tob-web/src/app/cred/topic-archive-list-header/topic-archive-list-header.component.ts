@@ -7,11 +7,16 @@ import {
 import { IIssuer } from 'app/core/interfaces/i-issuer.interface';
 import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
 import { ICredential } from 'app/core/interfaces/i-credential.interface';
+import { of, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-topic-archive-list-header',
   template: `
-    <div class="row cred-row">
+    <div
+      class="row cred-row"
+      (click)="expanded = !expanded"
+      [ngClass]="{ 'border-bottom': expanded === false }"
+    >
       <div class="col-sm-4">
         <div class="cred-title">
           <a class="body-link cred-link">{{
@@ -34,7 +39,7 @@ import { ICredential } from 'app/core/interfaces/i-credential.interface';
         </div>
       </div>
 
-      <div class="col-sm-4">
+      <div class="col-sm-3">
         <ng-container
           *ngIf="
             currentCred.related_topics?.length;
@@ -69,7 +74,23 @@ import { ICredential } from 'app/core/interfaces/i-credential.interface';
           <div class="col-sm-8">{{ 'cred.empty-attribute' | translate }}</div>
         </ng-template>
       </div>
+      <ng-container *ngIf="credList.length > 0">
+        <i class="fa fa-caret-up" *ngIf="expanded"></i>
+        <i class="fa fa-caret-down" *ngIf="!expanded"></i>
+      </ng-container>
     </div>
+    <ng-container *ngIf="expanded">
+      <ng-container *ngIf="credList.length > 0">
+        <h5 p-1>Inactive Credentials</h5>
+        <app-topic-archive-list-item
+          *ngFor="let cred of credList"
+          [details]="cred.credential_type.description"
+          [endDate]="cred.credential_type.issuer.update_timestamp"
+          [registerDate]="cred.credential_type.issuer.create_timestamp"
+          [type]="cred.topic.local_name.text"
+        ></app-topic-archive-list-item>
+      </ng-container>
+    </ng-container>
   `,
   styleUrls: [
     '../../../themes/_active/cred/cred.scss',
@@ -85,13 +106,18 @@ export class TopicArchiveListHeaderComponent implements OnInit {
   @Input() url: string;
   currentCred: ICredential;
   expanded = false;
+  credList: ICredential[];
 
   constructor() {}
 
   ngOnInit() {
+    console.log('credSet', this.credSet);
     this.currentCred = this.credSet.credentials.filter(
       cred => cred.inactive === false
     )[0];
+    this.credList = this.credSet.credentials.filter(
+      cred => cred.inactive === true
+    );
     // console.log(this.currentCred.credential_set[0].issuer);
   }
 }
