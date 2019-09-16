@@ -19,11 +19,13 @@ import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
   styleUrls: ['../../themes/_active/cred/related-cred.component.scss']
 })
 export class RelatedCredsComponent implements OnInit, OnDestroy {
+  @Input() title: string;
+
+  @Output() afterLoad = new EventEmitter<any>();
+
   protected _topicId: number;
   protected _defaultFormat = 'timeline';
   protected _format = '';
-  @Input() title: string;
-  @Output() afterLoad = new EventEmitter<any>();
   _credTypeId: string = '';
   _credTypeOptions: Model.CredentialType[] = [];
   _filterActive: boolean = true;
@@ -34,23 +36,14 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
 
   private _loader: Fetch.ModelListLoader<Model.CredentialFacetSearchResult>;
 
-  constructor(
-    private _dataService: GeneralDataService,
-    public stateSvc: TopicStateService,
-    private httpSvc: HttpService
-  ) {}
-
-  ngOnInit() {
-    this._loader = new Fetch.ModelListLoader(Model.CredentialFacetSearchResult);
-    this._loader.ready.subscribe(this.loadOptions.bind(this));
-    this.load();
-  }
-
-  ngOnDestroy() {
-    this._loader.complete();
+  @Input() set defaultFormat(fmt: string) {
+    this._defaultFormat = fmt;
   }
 
   get result$() {
+    // this._loader.stream.subscribe(obs => {
+    //   console.log('subscription result', JSON.stringify(obs, null, 2))
+    // })
     return this._loader.stream;
   }
 
@@ -78,10 +71,6 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
 
   get issuerOptions(): Model.Issuer[] {
     return this._issuerOptions;
-  }
-
-  @Input() set defaultFormat(fmt: string) {
-    this._defaultFormat = fmt;
   }
 
   get defaultFormat(): string {
@@ -126,9 +115,22 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
     return this._topicId;
   }
 
-  @Input() set topicId(newId: number) {
-    this._topicId = newId;
+  testData: any;
+
+  constructor(
+    private _dataService: GeneralDataService,
+    public stateSvc: TopicStateService,
+    private httpSvc: HttpService
+  ) {}
+
+  ngOnInit() {
+    this._loader = new Fetch.ModelListLoader(Model.CredentialFacetSearchResult);
+    this._loader.ready.subscribe(this.loadOptions.bind(this));
     this.load();
+  }
+
+  ngOnDestroy() {
+    this._loader.complete();
   }
 
   load() {
@@ -163,7 +165,8 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
         credential_type_id: this._credTypeId,
         issuer_id: this._issuerId,
         topic_id: '' + this._topicId,
-        inactive: this.stateSvc.filterActive ? 'false' : 'true'
+        inactive: this._filterActive ? 'false' : '',
+        revoked: ''
       };
       return this._dataService.loadList(this._loader, { query: credsFilter });
     }
