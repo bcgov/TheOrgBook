@@ -20,6 +20,7 @@
     </div>
   </div>
 </div>
+
 <div class="creds-list" *ngIf="format==='rows'">
   <div class="row cred-row" *ngFor="let cred of records">
     <div class="col-sm-4">
@@ -40,6 +41,8 @@
       <div class="label label-danger" *ngIf="cred.revoked" translate>cred.expired</div>
     </div>
   </div>
+  </ng-container>
+
 </div>
 <div class="creds-list creds-search" *ngIf="format==='search'">
   <div class="row cred-row" *ngFor="let cred of records">
