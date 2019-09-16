@@ -87,7 +87,9 @@ export class AppComponent implements OnInit, OnDestroy {
       .filter((event) => event instanceof NavigationEnd)
       .pipe(map(() => this._route))
       .pipe(map((route) => {
-        while (route.firstChild) route = route.firstChild;
+        while (route.firstChild) {
+          route = route.firstChild;
+        }
         return route;
       }))
       .filter((route) => route.outlet === 'primary')
