@@ -1,8 +1,17 @@
-import { Component, EventEmitter, Output, OnInit, OnDestroy, Input } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  OnInit,
+  OnDestroy,
+  Input
+} from '@angular/core';
 import { GeneralDataService } from '../general-data.service';
 import { Fetch, Model } from '../data-types';
 import { Subscription } from 'rxjs/Subscription';
 import { TopicStateService } from 'app/topic/services/topic-state.service';
+import { HttpService } from 'app/core/services/http.service';
+import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
 
 @Component({
   selector: 'related-creds',
@@ -28,7 +37,8 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
   constructor(
     private _dataService: GeneralDataService,
     public stateSvc: TopicStateService,
-  ) { }
+    private httpSvc: HttpService
+  ) {}
 
   ngOnInit() {
     this._loader = new Fetch.ModelListLoader(Model.CredentialFacetSearchResult);
@@ -49,7 +59,7 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
   }
 
   set filterActive(active: string) {
-    this._filterActive = (active === 'true');
+    this._filterActive = active === 'true';
     this.load();
   }
 
@@ -83,8 +93,8 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
   }
 
   set credTypeId(val: string) {
-    if(! val) val = '';
-    if(this._credTypeId !== val) {
+    if (!val) val = '';
+    if (this._credTypeId !== val) {
       this._credTypeId = val;
       this.load();
     }
@@ -105,8 +115,8 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
   }
 
   set issuerId(val: string) {
-    if(! val) val = '';
-    if(this._issuerId !== val) {
+    if (!val) val = '';
+    if (this._issuerId !== val) {
       this._issuerId = val;
       this.load();
     }
@@ -122,17 +132,40 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
   }
 
   load() {
-    if(this._loader && this.format === 'timeline') {
-      this._loader.reset();
+    if (this._loader && this.format === 'timeline') {
+      return this._loader.reset();
     }
-    else if(this._loader && this._topicId) {
-      let credsFilter = {
+    if (this._format === 'rows' && this.stateSvc.filterActive === 'false') {
+      const credType = this._credTypeId
+        ? parseInt(this._credTypeId, null)
+        : null;
+      const issuerId = this._issuerId ? parseInt(this._issuerId, null) : null;
+      if (!issuerId && credType) return;
+
+      // console.log('topic id', topicId)
+      const path = this.httpSvc.credentialSet(this._topicId);
+
+      this.httpSvc
+        .httpGetRequest<ICredentialSet[]>(path)
+        .toPromise()
+        .then(res => {
+          const filtered = this.stateSvc.filterCredentials(
+            issuerId,
+            credType,
+            res
+          );
+          return this.stateSvc.setCredential(filtered);
+        });
+      return;
+    }
+    if (this._loader && this._topicId) {
+      const credsFilter = {
         credential_type_id: this._credTypeId,
         issuer_id: this._issuerId,
-        topic_id: ''+this._topicId,
-        inactive: this._filterActive ? 'false': 'true',
+        topic_id: '' + this._topicId,
+        inactive: this.stateSvc.filterActive ? 'false' : 'true'
       };
-      this._dataService.loadList(this._loader, {query: credsFilter});
+      return this._dataService.loadList(this._loader, { query: credsFilter });
     }
   }
 
@@ -140,18 +173,24 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
     let options = this._dataService.loadFacetOptions(result);
     let issuers = [];
     let credTypes = [];
-    if(options.issuer_id) {
-      for(let row of options.issuer_id) {
-        issuers.push(new Model.Issuer({id: row.value, name: row.label}));
+    if (options.issuer_id) {
+      for (let row of options.issuer_id) {
+        issuers.push(new Model.Issuer({ id: row.value, name: row.label }));
       }
     }
-    if(options.credential_type_id) {
-      for(let row of options.credential_type_id) {
-        credTypes.push(new Model.CredentialType({id: row.value, description: row.label}));
+    if (options.credential_type_id) {
+      for (let row of options.credential_type_id) {
+        credTypes.push(
+          new Model.CredentialType({ id: row.value, description: row.label })
+        );
       }
     }
     this._issuerOptions = issuers;
     this._credTypeOptions = credTypes;
     this.afterLoad.emit(true);
+  }
+
+  test() {
+    console.log('issuer id', this.issuerId);
   }
 }

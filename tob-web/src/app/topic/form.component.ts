@@ -44,6 +44,8 @@ export class TopicFormComponent implements OnInit, OnDestroy {
         .httpGetRequest<ICredentialSet[]>(`topic/${id}/credentialset`)
         .toPromise()
         .then((res: ICredentialSet[]) => {
+          /*
+          TEST DATA
           const addresses = [];
           const attributes = [];
           const create_timestamp = '2019-09-11T14:25:48.839442-07:00';
@@ -83,7 +85,7 @@ export class TopicFormComponent implements OnInit, OnDestroy {
             wallet_id,
             update_timestamp
           } as any);
-          console.log(res);
+           */
           this.stateSvc.setCredential(res);
         })
         .catch(err => console.error(err));

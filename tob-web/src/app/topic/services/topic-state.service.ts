@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, of } from 'rxjs';
 import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
-import { shareReplay } from 'rxjs/operators';
 
 export type StateOptions = 'true' | 'false' | '';
 @Injectable({
@@ -22,11 +21,39 @@ export class TopicStateService {
     this.credentialSets$.next(credSets);
   }
 
-  constructor() {
-    // of(this.filterActive)
-    //   .pipe(shareReplay(100))
-    //   .subscribe(obs => console.log(obs));
-
-    this.credentialSets.subscribe(obs => console.log('cred set', obs));
+  filterCredentials(
+    issuerId: number,
+    credentialType: number,
+    credSet: ICredentialSet[]
+  ) {
+    if (!issuerId && !credentialType) {
+      return this.credentialSets$.value;
+    }
+    const returnCreds = [];
+    if (credentialType != null) {
+      for (const creds of credSet) {
+        if (
+          creds.credentials.some(
+            itm => itm.credential_type.id === credentialType
+          )
+        ) {
+          returnCreds.push(creds);
+        }
+      }
+    }
+    if (issuerId != null) {
+      for (const creds of credSet) {
+        if (
+          creds.credentials.some(
+            itm => itm.credential_type.issuer.id === issuerId
+          )
+        ) {
+          returnCreds.push(creds);
+        }
+      }
+    }
+    return returnCreds;
   }
+
+  constructor() {}
 }

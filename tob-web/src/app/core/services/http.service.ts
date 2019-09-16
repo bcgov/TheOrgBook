@@ -12,6 +12,10 @@ const apiUrl = environment.API_URL;
 export class HttpService {
   private baseUrl: string;
 
+  credentialSet(id: number) {
+    return `topic/${id}/credentialset`;
+  }
+
   constructor(private http: HttpClient) {
     this.baseUrl = apiUrl;
   }

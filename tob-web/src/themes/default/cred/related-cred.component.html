@@ -123,7 +123,7 @@
       </div>
       <div class="col-sm-3">
         <label class="control-label" translate>cred.issuer</label>
-        <select class="form-control" [(ngModel)]="issuerId">
+        <select class="form-control" [(ngModel)]="issuerId" (click)="test()">
           <option value="" translate>cred.select-issuer</option>
           <option *ngFor="let record of issuerOptions" [value]="record.id">{{
             record.name
