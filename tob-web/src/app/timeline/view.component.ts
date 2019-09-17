@@ -63,7 +63,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
       null,
       this._renderer
     );
-    const date = parseDate('1953-06-01T00:00:00Z');
+    // const date = parseDate('1953-06-01T00:00:00Z');
     // TODO: correct this.
     this._timeline.setRange(this.rangeStart, this.rangeEnd);
     // this.rows[0].slots.push(
@@ -86,6 +86,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     //   }
 
     // )
+
     this._timeline.setRows(this.rows);
     const markers = [{ date: new Date(), label: 'Today' }] as MarkerSpec[];
     const scale = timelineScale(
@@ -95,7 +96,6 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     if (scale === 2) {
       markers.push(...this.timelineSvc.genShortDateMarkers(this.rows));
     }
-
     this._timeline.setMarkers(markers);
 
     this._renderer.listen(

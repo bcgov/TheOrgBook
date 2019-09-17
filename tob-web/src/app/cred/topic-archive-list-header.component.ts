@@ -44,7 +44,7 @@ export class TopicArchiveListHeaderComponent implements OnInit {
     );
   }
 
-  // http://localhost:4300/en/organization/4b4a4d57-b589-4e2f-b22b-1d288a129da8/cred/1
+  // registration-id / cred / topic id
   genLink(type: string, sourceId: string, id: string) {
     const vals = [];
     type === 'registration'
