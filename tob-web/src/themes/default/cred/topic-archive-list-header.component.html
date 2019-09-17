@@ -1,7 +1,7 @@
 <div
   class="row cred-row"
   (click)="expanded = !expanded"
-  [ngClass]="{ 'border-bottom': expanded === false }"
+  [ngClass]="{ dark: !bg }"
 >
   <div class="col-sm-4">
     <div
@@ -30,10 +30,14 @@
   </div>
   <div class="col-sm-4">
     <div class="cred-issuer">
-      <!--    [routerLink]="['/issuer', issuer.id] | localize" -->
-      <a class="body-link issuer-link">{{
-        currentCred.credential_type.issuer.name
-      }}</a>
+      <!--     -->
+      <a
+        class="body-link issuer-link"
+        [routerLink]="
+          ['/issuer', currentCred.credential_type.issuer.id] | localize
+        "
+        >{{ currentCred.credential_type.issuer.name }}</a
+      >
     </div>
   </div>
 
@@ -61,10 +65,13 @@
     </ng-template>
     <ng-template #topicName>
       <!--- TODO: this is identified as an issue in github as this link does not produces the correct results.
-  [routerLink]="currentCred.topic.link | localize"
+
     --->
 
-      <a class="body-link cred-link name">
+      <a
+        class="body-link cred-link name"
+        [routerLink]="currentCred.topic.link | localize"
+      >
         {{ currentCred.topic.local_name.text }}
       </a>
     </ng-template>

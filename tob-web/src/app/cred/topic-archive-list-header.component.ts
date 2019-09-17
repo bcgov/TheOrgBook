@@ -7,16 +7,13 @@ import {
 import { IIssuer } from 'app/core/interfaces/i-issuer.interface';
 import { ICredentialSet } from 'app/core/interfaces/i-credential-set.interface';
 import { ICredential } from 'app/core/interfaces/i-credential.interface';
-import { environment } from 'environments/environment';
-
-const baseUrl = environment.API_URL;
 
 @Component({
   selector: 'app-topic-archive-list-header',
   templateUrl:
     '../../themes/_active/cred/topic-archive-list-header.component.html',
   styleUrls: [
-    './topic-archive-list-header.component.scss',
+    '../../themes/_active/cred/topic-archive-list-header.component.scss',
     '../../themes/_active/cred/cred.scss',
     '../../themes/_active/cred/list.component.scss'
   ],
@@ -26,14 +23,13 @@ export class TopicArchiveListHeaderComponent implements OnInit {
   @Input() credSet: ICredentialSet;
   @Input() issuer: IIssuer;
   @Input() url: string;
+  @Input() bg: boolean;
   currentCred: ICredential;
   expanded = false;
   credList: ICredential[];
-  baseUrl: string;
+  // dark: boolean;
 
-  constructor() {
-    this.baseUrl = baseUrl;
-  }
+  constructor() {}
 
   ngOnInit() {
     this.currentCred = this.credSet.credentials.filter(

@@ -119,8 +119,9 @@
   <ng-template #archiveTemplate>
     <ng-container *ngIf="stateSvc.credentialSets | async as credSets">
       <app-topic-archive-list-header
-        *ngFor="let credSet of credSets"
+        *ngFor="let credSet of credSets; index as ind"
         [credSet]="credSet"
+        [bg]="ind % 2 === 0"
       >
       </app-topic-archive-list-header>
     </ng-container>
@@ -138,8 +139,8 @@
         </a>
       </div>
       <div class="cred-topic small" *ngIf="cred.topic as topic">
-        {{ topic.typeLabel | translate
-        }}<span
+        {{ topic.typeLabel | translate }}
+        <span
           class="cred-entity-status"
           *ngIf="topic.attribute_map.entity_status as status"
           >:
