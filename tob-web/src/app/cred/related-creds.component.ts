@@ -23,6 +23,15 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
 
   @Output() afterLoad = new EventEmitter<any>();
 
+  get topicId(): number {
+    return this._topicId;
+  }
+
+  @Input() set topicId(newId: number) {
+    this._topicId = newId;
+    this.load();
+  }
+
   protected _topicId: number;
   protected _defaultFormat = 'timeline';
   protected _format = '';
@@ -109,10 +118,6 @@ export class RelatedCredsComponent implements OnInit, OnDestroy {
       this._issuerId = val;
       this.load();
     }
-  }
-
-  get topicId(): number {
-    return this._topicId;
   }
 
   testData: any;
