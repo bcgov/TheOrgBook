@@ -1,12 +1,10 @@
-from django.db import models
-
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
-from .Auditable import Auditable
 
 from .Address import Address
 from .Attribute import Attribute
+from .Auditable import Auditable
 from .Name import Name
 
 
@@ -54,7 +52,7 @@ class Topic(Auditable):
     def get_active_attributes(self):
         creds = self.get_active_credential_ids()
         if creds:
-            return Attribute.objects.filter(credential_id__in=creds, credential__credential_type__description='Registration')
+            return Attribute.objects.filter(credential_id__in=creds)
         return []
 
     def get_active_names(self):
@@ -100,4 +98,3 @@ class Topic(Auditable):
         return self.related_from.filter(
             to_rels__credential__latest=True,
             to_rels__credential__revoked=False)
-

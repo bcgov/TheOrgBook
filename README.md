@@ -20,6 +20,8 @@ The Verifiable Organizations Network (VON) envisions the possibility of a number
 
 The best way to get started with a new project is by working with a running instance.  The VON [Quick Start Guide](https://github.com/bcgov/greenlight/blob/master/docker/VONQuickStartGuide.md) will get you started with an [Indy Network](https://github.com/bcgov/von-network), an instance of [TheOrgBook (this repo)](https://github.com/bcgov/TheOrgBook) and an instance of [GreenLight](https://github.com/bcgov/greenlight) running on your local machine in Docker.  Give it a try!
 
+OrgBook provides a set of RESTful web services you can use to query data from your third-party application, an introduction to use of these API's is available [here](docs/OrgBook-REST-Services.md).
+
 ## Running TheOrgBook on OpenShift
 
 To deploy TheOrgBook on a local instance of OpenShift, refer to [Running TheOrgBook Locally on OpenShift](./RunningLocal.md).  These instructions, apart from the steps that are specific to setting up your local environment, can also be used to get the project deployed to a production OpenShift environment.
