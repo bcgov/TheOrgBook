@@ -16,9 +16,10 @@
                 "name": "${NAME}",
                 "generation": 1,
                 "labels": {
-                    "app": "${NAME}-persistent",
-                    "template": "${NAME}-persistent-template",          
-                    "app-group": "${APP_GROUP}"
+                    "name": "${NAME}",
+                    "app": "${APP_NAME}",
+                    "app-group": "${APP_GROUP}",
+                    "template": "${NAME}-persistent-template"
                 }
             },
             "spec": {
@@ -57,7 +58,9 @@
                 "template": {
                     "metadata": {
                         "labels": {
-                            "name": "${NAME}"
+                            "name": "${NAME}",
+                            "app": "${APP_NAME}",
+                            "app-group": "${APP_GROUP}"
                         }
                     },
                     "spec": {
@@ -177,9 +180,10 @@
             "metadata": {
                 "name": "${NAME}",
                 "labels": {
-                    "app": "${NAME}-persistent",
-                    "template": "${NAME}-persistent-template",          
-                    "app-group": "${APP_GROUP}"
+                    "name": "${NAME}",
+                    "app": "${APP_NAME}",
+                    "app-group": "${APP_GROUP}",
+                    "template": "${NAME}-persistent-template"
                 }
             },
             "spec": {
@@ -200,7 +204,8 @@
             "metadata": {
                 "name": "${NAME}",
                 "labels": {
-                    "app": "${NAME}-persistent",          
+                    "name": "${NAME}",
+                    "app": "${APP_NAME}",
                     "app-group": "${APP_GROUP}"
                 }
             },
@@ -217,9 +222,10 @@
             "metadata": {
                 "name": "${NAME}",
                 "labels": {
-                    "app": "${NAME}-persistent",
-                    "template": "${NAME}-persistent-template",          
-                    "app-group": "${APP_GROUP}"
+                    "name": "${NAME}",
+                    "app": "${APP_NAME}",
+                    "app-group": "${APP_GROUP}",
+                    "template": "${NAME}-persistent-template"
                 },
                 "annotations": {
                     "template.openshift.io/expose-uri": "postgres://{.spec.clusterIP}:{.spec.ports[?(.name==\"postgresql\")].port}"
@@ -251,11 +257,18 @@
             "value": "postgresql"
         },
         {
-          "name": "APP_GROUP",
-          "displayName": "App Group",
-          "description": "The name assigned to all of the deployments in this project.",
-          "required": true,
-          "value": "tob"
+            "name": "APP_NAME",
+            "displayName": "App Name",
+            "description": "Used to group components together in the OpenShift console.",
+            "required": true,
+            "value": "OrgBook"
+        },
+        {
+            "name": "APP_GROUP",
+            "displayName": "App Group",
+            "description": "The name assigned to all of the deployments in this project.",
+            "required": true,
+            "value": "tob"
         },
         {
             "name": "IMAGE_NAMESPACE",
