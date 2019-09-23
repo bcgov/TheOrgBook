@@ -1,6 +1,12 @@
 import {
-  Component, Input, AfterViewInit, OnDestroy,
-  NgZone, ElementRef, Renderer2, ViewChild,
+  Component,
+  Input,
+  AfterViewInit,
+  OnDestroy,
+  NgZone,
+  ElementRef,
+  Renderer2,
+  ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Timeline } from './models/timeline';
@@ -11,10 +17,10 @@ import { TimelineService } from './services/timeline.service';
 
 @Component({
   selector: 'timeline-view',
-  template: `<div #outer></div>`,
-  styleUrls: [
-    '../../themes/_active/timeline/timeline.scss',
-  ],
+  template: `
+    <div #outer></div>
+  `,
+  styleUrls: ['../../themes/_active/timeline/timeline.scss']
   /*host: {
     '(window:resize)': 'onResize($event)',
   },*/
@@ -22,7 +28,7 @@ import { TimelineService } from './services/timeline.service';
 export class TimelineViewComponent implements AfterViewInit, OnDestroy {
   @ViewChild('outer') private _outer: ElementRef;
 
-  @Input() set range(rng: {start: (string | Date), end: (string | Date)}) {
+  @Input() set range(rng: { start: string | Date; end: string | Date }) {
     if (rng.start && rng.end) {
       // expand range
       const start = Timeline.parseDate(rng.start);
@@ -39,10 +45,9 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
   }
 
   private _timeline: Timeline.TimelineView;
-  private _range: {start: (string | Date), end: (string | Date)};
+  private _range: { start: string | Date; end: string | Date };
   private _resizeHook: null;
   private _rows: RowSpec[] = [];
-
 
   constructor(
     // private _cd: ChangeDetectorRef,
@@ -50,14 +55,17 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     private _router: Router,
     private _zone: NgZone,
     private timelineSvc: TimelineService
-  ) { }
+  ) {}
 
   ngAfterViewInit() {
-
-    this._timeline = new Timeline.TimelineView(this._outer.nativeElement, null, this._renderer);
-    const date = parseDate('1953-06-01T00:00:00Z')
+    this._timeline = new Timeline.TimelineView(
+      this._outer.nativeElement,
+      null,
+      this._renderer
+    );
+    // const date = parseDate('1953-06-01T00:00:00Z');
     // TODO: correct this.
-    this._timeline.setRange(date, this.rangeEnd);
+    this._timeline.setRange(this.rangeStart, this.rangeEnd);
     // this.rows[0].slots.push(
     //   {
     //     groups: ['all'],
@@ -78,20 +86,27 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
     //   }
 
     // )
-    this._timeline.setRows(this.rows);
-    const markers = [{date: new Date(), label: 'Today'}] as MarkerSpec[]
-    const scale = timelineScale(date, parseDate(this.rangeEnd))
-    if (scale === 2) {
-      markers.push(...this.timelineSvc.genShortDateMarkers(this.rows))
-    }
 
+    this._timeline.setRows(this.rows);
+    const markers = [{ date: new Date(), label: 'Today' }] as MarkerSpec[];
+    const scale = timelineScale(
+      parseDate(this.rangeStart),
+      parseDate(this.rangeEnd)
+    );
+    if (scale === 2) {
+      markers.push(...this.timelineSvc.genShortDateMarkers(this.rows));
+    }
     this._timeline.setMarkers(markers);
 
-    this._renderer.listen(this._timeline.container, 'slotclick', this.click.bind(this));
+    this._renderer.listen(
+      this._timeline.container,
+      'slotclick',
+      this.click.bind(this)
+    );
     this._zone.runOutsideAngular(() => {
       this._timeline.render();
       this._resizeHook = this.onResize.bind(this);
-      window.addEventListener('resize', this._resizeHook, {passive: true});
+      window.addEventListener('resize', this._resizeHook, { passive: true });
     });
   }
 
@@ -108,7 +123,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
   }
 
   get rangeStart() {
-    if (! this._range || ! this._range.start) {
+    if (!this._range || !this._range.start) {
       const d = new Date();
       d.setFullYear(d.getFullYear() - 1);
       return d.toISOString();
@@ -117,7 +132,7 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
   }
 
   get rangeEnd() {
-    if (! this._range || ! this._range.end) {
+    if (!this._range || !this._range.end) {
       const d = new Date();
       d.setFullYear(d.getFullYear() + 1);
       return d.toISOString();
@@ -126,9 +141,8 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
   }
 
   get range() {
-    return {start: this.rangeStart, end: this.rangeEnd};
+    return { start: this.rangeStart, end: this.rangeEnd };
   }
-
 
   get rows() {
     return this._rows;
@@ -136,55 +150,49 @@ export class TimelineViewComponent implements AfterViewInit, OnDestroy {
 
   @Input() set rows(vals: RowSpec[]) {
     this._rows = vals;
-    if (this._timeline) this._timeline.setRows(this.rows)
+    if (this._timeline) this._timeline.setRows(this.rows);
   }
 
   onResize(evt?) {
-    return this._timeline ? this._timeline.update() : null
+    return this._timeline ? this._timeline.update() : null;
   }
 
   get testdata(): RowSpec[] {
     const rows = [];
-    rows.push(
-      {
-        id: 'set-1',
-        slots: [
-          {
-            id: 'slot-1a',
-            groups: ['all'],
-            htmlContent: '<strong>Testing</strong>,<br>testing',
-            start: '2018-06-01T00:00:00Z',
-            end: '2020-05-31T00:00:00Z',
-            classNames: ['slot-primary'],
-          },
-          {
-            id: 'slot-1b',
-            groups: ['all'],
-            htmlContent: '<strong>Testing</strong>,<br>testing',
-            start: '2020-05-31T00:00:00Z',
-            end: '2021-05-31T00:00:00Z',
-            classNames: ['slot-secondary'],
-
-          }
-        ]
-      }
-    );
-    rows.push(
-      {
-        id: 'set-2',
-        slots: [
-          {
-            id: 'slot-2',
-            groups: ['all'],
-            htmlContent: 'Hello there',
-            start: '2020-03-15T00:00:00Z',
-            end: '2030-05-31T00:00:00Z',
-            classNames: ['slot-primary'],
-          }
-        ]
-      }
-    );
+    rows.push({
+      id: 'set-1',
+      slots: [
+        {
+          id: 'slot-1a',
+          groups: ['all'],
+          htmlContent: '<strong>Testing</strong>,<br>testing',
+          start: '2018-06-01T00:00:00Z',
+          end: '2020-05-31T00:00:00Z',
+          classNames: ['slot-primary']
+        },
+        {
+          id: 'slot-1b',
+          groups: ['all'],
+          htmlContent: '<strong>Testing</strong>,<br>testing',
+          start: '2020-05-31T00:00:00Z',
+          end: '2021-05-31T00:00:00Z',
+          classNames: ['slot-secondary']
+        }
+      ]
+    });
+    rows.push({
+      id: 'set-2',
+      slots: [
+        {
+          id: 'slot-2',
+          groups: ['all'],
+          htmlContent: 'Hello there',
+          start: '2020-03-15T00:00:00Z',
+          end: '2030-05-31T00:00:00Z',
+          classNames: ['slot-primary']
+        }
+      ]
+    });
     return rows;
   }
-
 }
