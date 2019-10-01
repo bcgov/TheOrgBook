@@ -43,6 +43,7 @@ export class TopicArchiveListHeaderComponent implements OnInit {
   // registration-id / cred / topic id
   genLink(type: string, sourceId: string, id: string) {
     const vals = [];
+
     type === 'registration'
       ? vals.push('/topic/', sourceId)
       : vals.push('/topic/', type, sourceId);
