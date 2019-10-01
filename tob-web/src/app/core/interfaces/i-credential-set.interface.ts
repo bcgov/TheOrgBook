@@ -41,7 +41,7 @@ export interface ICredentialName {
 }
 
 export interface ITopic {
-  id: number;
+  id: string;
   create_timestamp: Date;
   update_timestamp: Date;
   source_id: string;
