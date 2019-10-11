@@ -16,7 +16,8 @@
       "metadata": {
         "name": "${EMAIL_SETTINGS_STORE_NAME}",
         "labels": {
-          "app": "${NAME}",
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -32,7 +33,8 @@
       "metadata": {
         "name": "${WALLET_CREDENTIAL_STORE_NAME}",
         "labels": {
-          "app": "${NAME}",
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -49,7 +51,8 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -71,7 +74,8 @@
           "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"},{\"name\": \"${SOLR_SERVICE_NAME}\", \"kind\": \"Service\"}]"
         },
         "labels": {
-          "app": "${NAME}",
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -94,7 +98,8 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -124,7 +129,8 @@
           "description": "Defines how to deploy the application server"
         },
         "labels": {
-          "app": "${NAME}",
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -159,7 +165,9 @@
           "metadata": {
             "name": "${NAME}",
             "labels": {
-              "name": "${NAME}"
+              "name": "${NAME}",
+              "app": "${APP_NAME}",
+              "app-group": "${APP_GROUP}"
             }
           },
           "spec": {
@@ -435,7 +443,8 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -456,6 +465,13 @@
       "description": "The name assigned to all of the OpenShift resources associated to the server instance.",
       "required": true,
       "value": "django"
+    },
+    {
+      "name": "APP_NAME",
+      "displayName": "App Name",
+      "description": "Used to group components together in the OpenShift console.",
+      "required": true,
+      "value": "OrgBook"
     },
     {
       "name": "APP_GROUP",

@@ -11,9 +11,10 @@
       "metadata": {
         "name": "${BACKUP_VOLUME_NAME}",
         "labels": {
-          "app": "${NAME}-persistent",
-          "template": "${NAME}-persistent-template",
-          "app-group": "${APP_GROUP}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "template": "${NAME}-template"
         }
       },
       "spec": {
@@ -34,9 +35,10 @@
       "metadata": {
         "name": "${VERIFICATION_VOLUME_NAME}",
         "labels": {
-          "app": "${NAME}-persistent",
-          "template": "${NAME}-persistent-template",
-          "app-group": "${APP_GROUP}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "template": "${NAME}-template"
         }
       },
       "spec": {
@@ -57,8 +59,10 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "template": "${NAME}-deployment",
-          "app-group": "${APP_GROUP}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "template": "${NAME}-template"
         },
         "annotations": {
           "description": "Defines how to deploy the ${NAME} server"
@@ -95,7 +99,10 @@
           "metadata": {
             "name": "${NAME}",
             "labels": {
-              "name": "${NAME}"
+              "name": "${NAME}",
+              "app": "${APP_NAME}",
+              "app-group": "${APP_GROUP}",
+              "template": "${NAME}-template"
             }
           },
           "spec": {
@@ -206,6 +213,10 @@
                   {
                     "name": "ENVIRONMENT_NAME",
                     "value": "${ENVIRONMENT_NAME}"
+                  },
+                  {
+                    "name": "DATABASE_SERVER_TIMEOUT",
+                    "value": "${DATABASE_SERVER_TIMEOUT}"
                   }
                 ],
                 "resources": {
@@ -247,6 +258,13 @@
       "description": "The name assigned to all of the resources defined in this template.",
       "required": true,
       "value": "backup"
+    },
+    {
+      "name": "APP_NAME",
+      "displayName": "App Name",
+      "description": "Used to group components together in the OpenShift console.",
+      "required": true,
+      "value": "Backup"
     },
     {
       "name": "APP_GROUP",
@@ -373,6 +391,13 @@
       "description": "Period (d,m,s) between backups in a format used by the sleep command",
       "required": true,
       "value": "1d"
+    },
+    {
+      "name": "DATABASE_SERVER_TIMEOUT",
+      "displayName": "Database Server Timeout",
+      "description": "The timeout, in seconds, to wait for the local database server to startup during a verification.",
+      "required": true,
+      "value": "60"
     },
     {
       "name": "CONFIG_FILE_NAME",
