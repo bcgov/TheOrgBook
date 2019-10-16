@@ -11,10 +11,9 @@ from . import views
 # admin.autodiscover()
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="api/v2/")),
-    path("api-auth/",
-        include("rest_framework.urls", namespace="rest_framework"),
-    ),
+    path("", RedirectView.as_view(url="api/v2")),
+    path("api/", RedirectView.as_view(url="/api/v2")),
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/v2/", include("api_v2.urls")),
     path("health", views.health),
 ]

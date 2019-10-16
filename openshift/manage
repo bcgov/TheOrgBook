@@ -18,16 +18,6 @@ usage () {
     $0 -P -e test resetDatabase
     - This will reset the database in TheOrgBook's TEST environment.
 
-  Options:
-  ========
-    -h prints the usage for the script
-    -e <Environment> the environment (dev/test/prod) into which you are deploying (default: ${DEPLOYMENT_ENV_NAME})
-    -l apply local settings and parameters
-    -p <profile> load a specific settings profile; setting.<profile>.sh
-    -P Use the default settings profile; settings.sh.  Use this flag to ignore all but the default 
-       settings profile when there is more than one settings profile defined for a project.
-    -x run the script in debug mode to see what's happening
-
   Commands:
   ========
     resetDatabase
@@ -53,6 +43,11 @@ usage () {
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
 
+    updateSearchIndex
+      - Update the search index for a given environment.
+      - Supports passing arguments to updateSearchIndex.sh.  For example:
+          $0 -p bc-tob -e prod updateSearchIndex -b 500 -s 2019-07-04T00:00:00
+
     indexSynced
       - Check to see if the Solr indexes are syned with the database credentials.
 
@@ -72,41 +67,36 @@ usage () {
           $0 -e dev recycle django
 
 EOF
-exit 1
+}
+
+# -----------------------------------------------------------------------------------------------------------------
+# Define hook scripts:
+# - These must be defined before the main settings script 'settings.sh' is loaded.
+# -----------------------------------------------------------------------------------------------------------------
+onRequiredOptionsExist() {
+  (
+if [ -z "${DEPLOYMENT_ENV_NAME}" ]; then
+  _red='\033[0;31m'
+  _nc='\033[0m' # No Color
+      echo -e "\n${_red}You MUST specify an environment name using the '-e' flag.${_nc}"
+      echo -e "${_red}Assuming a default would have unwanted consequences.${_nc}\n"
+      return 1
+    else
+      return 0
+fi
+  )
+}
+
+onUsesCommandLineArguments() {
+  (
+    # This script is expecting command line arguments to be passed ...
+    return 0
+  )
 }
 
 # -----------------------------------------------------------------------------------------------------------------
 # Initialization:
 # -----------------------------------------------------------------------------------------------------------------
-while getopts p:Pe:lxh FLAG; do
-  case $FLAG in
-    p ) export PROFILE=$OPTARG ;;
-    P ) export IGNORE_PROFILES=1 ;;    
-    e ) export DEPLOYMENT_ENV_NAME=$OPTARG ;;
-    l ) export APPLY_LOCAL_SETTINGS=1 ;;
-    x ) export DEBUG=1 ;;
-    h ) usage ;;
-    \? ) #unrecognized option - show help
-      echo -e \\n"Invalid script option: -${OPTARG}"\\n
-      usage
-      ;;
-  esac
-done
-shift $((OPTIND-1))
-
-if [ ! -z "${DEBUG}" ]; then
-  set -x
-fi
-
-# Check for required options ...
-if [ -z "${DEPLOYMENT_ENV_NAME}" ]; then
-  _red='\033[0;31m'
-  _nc='\033[0m' # No Color
-  echo -e "${_red}You MUST specify an environment name using the '-e' flag.${_nc}"
-  echo -e "${_red}Assuming a default would have unwanted consequences.${_nc}"
-  usage
-fi
-
 # Load the project settings and functions ...
 _includeFile="ocFunctions.inc"
 _settingsFile="settings.sh"
@@ -277,6 +267,31 @@ rebuildSearchIndex() {
   exitOnError
 }
 
+updateSearchIndex() {
+  (
+    local OPTIND
+    local OPTARG
+    unset local args
+    while getopts s:b: FLAG; do
+      case $FLAG in
+        * ) args="${args} -${FLAG} ${OPTARG}"
+          ;;
+      esac
+    done
+    shift $((OPTIND-1))
+    
+    _apiPodName=${1:-django}
+    if [ -z "${_apiPodName}" ]; then
+      echo -e \\n"updateSearchIndex; Missing parameter!"\\n
+      exit 1
+    fi
+
+    echoWarning "\nUpdating the search index ..."
+    args="$(echo "${args}" | sed -e 's/^[[:space:]]*//')"
+    runInContainer ${_apiPodName} "./updateSearchIndex.sh ${args}"
+  )
+}
+
 indexSynced() {
   _apiPodName=${1}
   _dbPodName=${2}
@@ -344,6 +359,10 @@ case "${_cmd}" in
     switchProject
     exitOnError
     rebuildSearchIndex "${apiPodName}"
+    ;;
+  updatesearchindex)
+    # apiPodName=${1:-django}
+    updateSearchIndex ${@}
     ;;
   indexsynced)
     apiPodName=${1:-django}

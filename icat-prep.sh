@@ -41,8 +41,8 @@ mkdir credential-registry/server
 mkdir credential-registry/server/django-icat-api
 mkdir credential-registry/server/python-indy-api
 
-mv starter-kits/credential-registry/server/tob-api/api_v2 credential-registry/server/django-icat-api/
-mv starter-kits/credential-registry/server/tob-api/api_indy credential-registry/server/python-indy-api/
+#mv starter-kits/credential-registry/server/tob-api/api_v2 credential-registry/server/django-icat-api/
+#mv starter-kits/credential-registry/server/tob-api/api_indy credential-registry/server/python-indy-api/
 mv starter-kits/credential-registry/server/tob-web credential-registry/client/
 mkdir starter-kits/credential-registry/client/tob-web/
 mkdir starter-kits/credential-registry/client/tob-web/themes/
@@ -52,9 +52,21 @@ mv starter-kits/credential-registry/server/docker starter-kits/credential-regist
 rm starter-kits/credential-registry/server/Deploy*
 rm starter-kits/credential-registry/server/SonarQube-*
 rm starter-kits/credential-registry/server/Zap-*
+
+rm -rf starter-kits/credential-registry/server/tob-db/openshift
+rm starter-kits/credential-registry/server/tob-db/Jenkinsfile
+rm -rf starter-kits/credential-registry/server/tob-api/openshift
+rm starter-kits/credential-registry/server/tob-api/Jenkinsfile
+rm -rf starter-kits/credential-registry/server/tob-solr/openshift
+rm starter-kits/credential-registry/server/tob-solr/Jenkinsfile
+rm -rf starter-kits/credential-registry/server/tob-wallet/openshift
+rm starter-kits/credential-registry/server/tob-wallet/Jenkinsfile
+
 rm -rf starter-kits/credential-registry/server/openshift
 rm -rf starter-kits/credential-registry/server/sonar-runner
 rm -rf starter-kits/credential-registry/server/tob-backup
 rm -rf starter-kits/credential-registry/client/tob-web/themes/default
 rm -rf credential-registry/client/tob-web/src/themes/bcgov
 rm -rf credential-registry/client/tob-web/src/themes/ongov
+rm -rf credential-registry/client/tob-web/openshift
+rm credential-registry/client/tob-web/Jenkinsfile

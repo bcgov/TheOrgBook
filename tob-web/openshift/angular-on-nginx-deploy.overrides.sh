@@ -5,7 +5,7 @@
 # ========================================================================
 
 CONFIG_MAP_NAME=blacklist-conf
-SOURCE_FILE=./config/blacklist.conf
+SOURCE_FILE=$( dirname "$0" )/config/blacklist.conf
 OUTPUT_FORMAT=json
 OUTPUT_FILE=blacklist-conf-configmap_DeploymentConfig.json
 

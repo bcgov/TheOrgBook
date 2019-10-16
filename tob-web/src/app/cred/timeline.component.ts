@@ -3,6 +3,7 @@ import { GeneralDataService } from '../general-data.service';
 import { Fetch, Model } from '../data-types';
 import { Subscription } from 'rxjs/Subscription';
 import { TimelineFormatterService } from './timeline-formatter.service';
+import { TopicStateService } from 'app/topic/services/topic-state.service';
 
 
 @Component({
@@ -18,9 +19,11 @@ export class CredSetTimelineComponent implements OnInit, OnDestroy {
 
   private _loader: Fetch.ModelListLoader<Model.CredentialSet>;
 
+
   constructor(
     private _dataService: GeneralDataService,
     private _formatter: TimelineFormatterService,
+    private stateSvc: TopicStateService,
   ) {
   }
 

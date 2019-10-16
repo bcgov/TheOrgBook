@@ -33,6 +33,7 @@ const ROUTES = [];
     TopicFormComponent,
     TopicListComponent,
     TopicRelatedListComponent,
+
   ]
 })
 export class TopicModule {}
