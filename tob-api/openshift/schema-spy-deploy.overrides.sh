@@ -8,7 +8,7 @@
 # ========================================================================
 
 CONFIG_MAP_NAME=caddy-conf
-SOURCE_FILE=./templates/schema-spy/Caddyfile
+SOURCE_FILE=$( dirname "$0" )/templates/schema-spy/Caddyfile
 OUTPUT_FORMAT=json
 OUTPUT_FILE=caddy-configmap_DeploymentConfig.json
 

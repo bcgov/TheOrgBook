@@ -5,7 +5,7 @@
 # ========================================================================
 
 CONFIG_MAP_NAME=backup-conf
-SOURCE_FILE=../config/backup.conf
+SOURCE_FILE=$( dirname "$0" )/../config/backup.conf
 OUTPUT_FORMAT=json
 OUTPUT_FILE=backup-conf-configmap_DeploymentConfig.json
 
