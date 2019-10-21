@@ -6,10 +6,9 @@ import { Model } from '../data-types';
   templateUrl: '../../themes/_active/cred/type-list.component.html',
   styleUrls: [
     '../../themes/_active/cred/cred.scss',
-    '../../themes/_active/cred/type-list.component.scss']
+    '../../themes/_active/cred/type-list.component.scss'
+  ]
 })
 export class CredTypeListComponent {
-
   @Input() records: Model.CredentialType[];
-
 }

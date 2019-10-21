@@ -11,7 +11,8 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",          
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -25,7 +26,7 @@
           }
         ],
         "selector": {
-          "app": "${NAME}",
+          "name": "${NAME}",
           "deploymentconfig": "${NAME}"
         },
         "type": "ClusterIP",
@@ -38,9 +39,10 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",
-          "template": "${NAME}-deployment-template",          
-          "app-group": "${APP_GROUP}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "template": "${NAME}-deployment-template"
         }
       },
       "spec": {
@@ -61,20 +63,18 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",          
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
       "spec": {
         "strategy": {
-          "type": "Rolling",
-          "rollingParams": {
-            "updatePeriodSeconds": 1,
-            "intervalSeconds": 1,
-            "timeoutSeconds": 600,
-            "maxUnavailable": "25%",
-            "maxSurge": "25%"
+          "type": "Recreate",
+          "recreateParams": {
+            "timeoutSeconds": 600
           },
+          "resources": {},
           "activeDeadlineSeconds": 21600
         },
         "triggers": [
@@ -99,13 +99,15 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "app": "${NAME}",
+          "name": "${NAME}",
           "deploymentconfig": "${NAME}"
         },
         "template": {
           "metadata": {
             "labels": {
-              "app": "${NAME}",
+              "name": "${NAME}",
+              "app": "${APP_NAME}",
+              "app-group": "${APP_GROUP}",
               "deploymentconfig": "${NAME}"
             }
           },
@@ -128,6 +130,26 @@
                     "protocol": "TCP"
                   }
                 ],
+                "readinessProbe": {
+                  "failureThreshold": 5,
+                  "periodSeconds": 30,
+                  "initialDelaySeconds": 3,
+                  "timeoutSeconds": 20,
+                  "httpGet": {
+                    "path": "/solr/${CORE_NAME}/admin/luke?wt=json&show=index&numTerms=0",
+                    "port": 8983
+                  }
+                },
+                "livenessProbe": {
+                  "failureThreshold": 5,
+                  "periodSeconds": 60,
+                  "initialDelaySeconds": 30,
+                  "timeoutSeconds": 20,
+                  "httpGet": {
+                    "path": "/solr/${CORE_NAME}/admin/luke?wt=json&show=index&numTerms=0",
+                    "port": 8983
+                  }
+                },
                 "volumeMounts": [
                   {
                     "name": "${NAME}-data",
@@ -172,6 +194,13 @@
       "description": "The name assigned to all of the resources defined in this template.",
       "required": true,
       "value": "solr"
+    },
+    {
+      "name": "APP_NAME",
+      "displayName": "App Name",
+      "description": "Used to group components together in the OpenShift console.",
+      "required": true,
+      "value": "OrgBook"
     },
     {
       "name": "APP_GROUP",
