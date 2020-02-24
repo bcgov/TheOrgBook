@@ -115,14 +115,14 @@ build-web() {
   # The angular-on-nginx image is copy of the nginx-runtime image complete with a copy of the build artifacts.
   #
   echo -e "\nBuilding nginx-runtime image ..."
-  docker build -q \
+  docker build -q $(initDockerBuildArgs) \
     -t 'nginx-runtime' \
     -f '../tob-web/openshift/templates/nginx-runtime/Dockerfile' '../tob-web/openshift/templates/nginx-runtime/'
 
   # This image only exists to pre-create the npm cache directory
   # so it can be properly used as a volume, it doesn't apply to openshift
   echo -e "\nBuilding nodejs-build image ..."
-  docker build -q \
+  docker build -q $(initDockerBuildArgs) \
     -t 'nodejs-build' \
     -f '../tob-web/openshift/templates/nodejs-build/Dockerfile' '../tob-web/openshift/templates/nodejs-build/'
 
@@ -156,7 +156,7 @@ build-web-dev() {
   # Alternative version of tob-web for live development
   #
   echo -e "\nBuilding nodejs-build image ..."
-  docker build -q \
+  docker build -q $(initDockerBuildArgs) \
     -t 'nodejs-build' \
     -f '../tob-web/openshift/templates/nodejs-build/Dockerfile' '../tob-web/openshift/templates/nodejs-build/'
 
@@ -180,7 +180,7 @@ build-solr() {
   # tob-solr
   #
   echo -e "\nBuilding solr-base image ..."
-  docker build \
+  docker build $(initDockerBuildArgs) \
     https://github.com/bcgov/openshift-solr.git \
     -t 'solr-base'
 
@@ -211,7 +211,7 @@ build-schema-spy() {
   # schema-spy
   #
   echo -e "\nBuilding schema-spy image ..."
-  docker build \
+  docker build $(initDockerBuildArgs) \
     https://github.com/bcgov/SchemaSpy.git \
     -t 'schema-spy'
 }
@@ -441,6 +441,31 @@ getLedgerRegistrationUrl() {
 toLower() {
   echo $(echo ${@} | tr '[:upper:]' '[:lower:]')
 }
+
+initDockerBuildArgs() {
+  dockerBuildArgs=""
+
+  # HTTP proxy, prefer lower case
+  if [[ "${http_proxy}" ]]; then
+    dockerBuildArgs=" ${dockerBuildArgs} --build-arg http_proxy=${http_proxy}"
+  else
+    if [[ "${HTTP_PROXY}" ]]; then
+      dockerBuildArgs=" ${dockerBuildArgs} --build-arg http_proxy=${HTTP_PROXY}"
+    fi
+  fi
+
+  # HTTPS proxy, prefer lower case
+  if [[ "${https_proxy}" ]]; then
+    dockerBuildArgs=" ${dockerBuildArgs} --build-arg https_proxy=${https_proxy}"
+  else
+    if [[ "${HTTPS_PROXY}" ]]; then
+      dockerBuildArgs=" ${dockerBuildArgs} --build-arg https_proxy=${HTTPS_PROXY}"
+    fi
+  fi
+
+  echo ${dockerBuildArgs}
+}
+
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
