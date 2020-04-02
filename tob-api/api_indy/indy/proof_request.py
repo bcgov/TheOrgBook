@@ -60,6 +60,8 @@ class ProofRequest(object):
         self.nonce = ""
         while len(self.nonce) < 16:
             self.nonce += str(randrange(10))
+        while self.nonce[0] == '0':
+            self.nonce = str(randrange(10)) + self.nonce[1:]
 
         self.requested_attributes = []
 
