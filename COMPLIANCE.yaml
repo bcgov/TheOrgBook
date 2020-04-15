@@ -4,8 +4,8 @@ description: |
   compliance.
 spec:
   - name: PIA
-    status: exempt
-    last-updated: '2020-04-02T21:25:14.712Z'
+    status: not-required
+    last-updated: '2020-04-15T00:14:57.975Z'
   - name: STRA
-    status: exempt
-    last-updated: '2020-04-02T21:25:14.712Z'
+    status: not-required
+    last-updated: '2020-04-15T00:14:57.975Z'
