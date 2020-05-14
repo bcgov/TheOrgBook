@@ -8,7 +8,14 @@ Zap Results:
 
 [![Bugs](https://sonarqube.orgbook.gov.bc.ca/api/badges/measure?key=TheOrgBook-Zap&metric=bugs&template=FLAT)](https://sonarqube.orgbook.gov.bc.ca/dashboard?id=TheOrgBook-Zap) [![Vulnerabilities](https://sonarqube.orgbook.gov.bc.ca/api/badges/measure?key=TheOrgBook-Zap&metric=vulnerabilities&template=FLAT)](https://sonarqube.orgbook.gov.bc.ca/dashboard?id=TheOrgBook-Zap) [![Code smells](https://sonarqube.orgbook.gov.bc.ca/api/badges/measure?key=TheOrgBook-Zap&metric=code_smells&template=FLAT)](https://sonarqube.orgbook.gov.bc.ca/dashboard?id=TheOrgBook-Zap)
 
-# TheOrgBook
+# End-of-Life Notice
+
+TheOrgBook has now reached it's end-of-life and will not be actively maintained or supported.
+
+If you are interested in building your own Credential Registry please refer to [Aries VCR](https://github.com/bcgov/aries-vcr).
+
+
+## TheOrgBook
 
 TheOrgBook is a **Credential Registry** of verifiable credentials about entities. A public instance of TheOrgBook, such as [BC's OrgBook](https://orgbook.gov.bc.ca) contains a verifiable credentials about organizations (incorporations, professionals, etc.) issued by trusted public services such as Corporate Registries, regulatory agencies, permitting services, licencing services, procurement services and the like.
 
