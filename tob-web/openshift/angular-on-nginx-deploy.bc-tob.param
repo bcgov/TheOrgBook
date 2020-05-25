@@ -12,6 +12,7 @@ API_SERVICE_NAME=django
 API_PATH=/api/v2/
 AdditionalRealIpFromRules=
 IpFilterRules=include blacklist.conf;
+API_RATE_LIMIT=limit_req zone=bra25 burst=100;
 BLACK_LIST_CONFIG_FILE_NAME=blacklist.conf
 BLACK_LIST_CONFIG_MAP_NAME=blacklist-conf
 BLACK_LIST_CONFIG_MOUNT_PATH=/etc/nginx/

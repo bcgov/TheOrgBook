@@ -99,6 +99,10 @@
                     "value": "${IpFilterRules}"
                   },
                   {
+                    "name": "API_RATE_LIMIT",
+                    "value": "${API_RATE_LIMIT}"
+                  },
+                  {
                     "name": "HTTP_BASIC",
                     "value": "${HTTP_BASIC}"
                   },
@@ -342,6 +346,12 @@
       "description": "Nginx ngx_http_access_module ip filter rules",
       "displayName": "Ip Filter Rules",
       "name": "IpFilterRules",
+      "value": ""
+    },
+    {
+      "name": "API_RATE_LIMIT",
+      "description": "API Rate Limit",
+      "displayName": "API Rate Limit",
       "value": ""
     },
     {
