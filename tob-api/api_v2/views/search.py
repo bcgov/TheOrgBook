@@ -9,6 +9,9 @@ from drf_haystack.filters import (
     HaystackOrderingFilter,
 )
 from drf_haystack.mixins import FacetMixin
+from rest_framework.mixins import ListModelMixin
+from rest_framework.viewsets import ViewSetMixin
+from drf_haystack.generics import HaystackGenericAPIView
 from drf_haystack.viewsets import HaystackViewSet
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -35,7 +38,7 @@ from django.conf import settings
 LOGGER = logging.getLogger(__name__)
 
 
-class NameAutocompleteView(HaystackViewSet):
+class NameAutocompleteView(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
     """
     Return autocomplete results for a query string
     """
@@ -89,6 +92,7 @@ class NameAutocompleteView(HaystackViewSet):
         ret = super(NameAutocompleteView, self).list(*args, **kwargs)
         print(' >>> autocomplete returns', ret)
         return ret
+
     retrieve = None
 
     index_models = [Credential]

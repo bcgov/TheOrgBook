@@ -160,6 +160,9 @@ REST_FRAMEWORK = {
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {"basic": {"type": "basic"}},
     "USE_SESSION_AUTH": True,
+    "DEFAULT_PAGINATOR_INSPECTORS": [
+        'tob_api.inspector.PageNumberPaginatorInspectorClass',
+    ],
 }
 
 LOGIN_URL = "rest_framework:login"
