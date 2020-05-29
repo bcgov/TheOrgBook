@@ -32,7 +32,7 @@ from api_v2.serializers.search import (
     CredentialFacetSerializer,
     CredentialTopicSearchSerializer,
 )
-from tob_api.pagination import ResultLimitPagination
+from tob_api.pagination import EnhancedPageNumberPagination
 from django.conf import settings
 
 LOGGER = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class NameAutocompleteView(ListModelMixin, ViewSetMixin, HaystackGenericAPIView)
     Return autocomplete results for a query string
     """
     permission_classes = (permissions.AllowAny,)
-    pagination_class = ResultLimitPagination
+    pagination_class = EnhancedPageNumberPagination
 
     _swagger_params = [
         openapi.Parameter(
