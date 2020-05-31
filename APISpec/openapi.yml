@@ -1,8 +1,7 @@
 openapi: 3.0.0
 info:
   title: OrgBook BC API
-  description:
-    OrgBook BC is a public, searchable directory of digital records for
+  description: OrgBook BC is a public, searchable directory of digital records for
     registered businesses in the Province of British Columbia. Over time, other
     government organizations and businesses will also begin to issue digital
     records through OrgBook BC. For example, permits and licenses issued by
@@ -21,19 +20,6 @@ paths:
     get:
       operationId: v2_address_list
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -41,11 +27,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -86,19 +79,6 @@ paths:
     get:
       operationId: v2_attribute_list
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -106,11 +86,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -151,19 +138,6 @@ paths:
     get:
       operationId: v2_credential_list
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -171,11 +145,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -196,44 +177,15 @@ paths:
     get:
       operationId: v2_credential_list_active
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
           content:
             application/json:
               schema:
-                required:
-                  - count
-                  - results
-                type: object
-                properties:
-                  count:
-                    type: integer
-                  next:
-                    type: string
-                    format: uri
-                    nullable: true
-                  previous:
-                    type: string
-                    format: uri
-                    nullable: true
-                  results:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Credential"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Credential"
       tags:
         - v2
     parameters: []
@@ -241,44 +193,15 @@ paths:
     get:
       operationId: v2_credential_list_historical
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
           content:
             application/json:
               schema:
-                required:
-                  - count
-                  - results
-                type: object
-                properties:
-                  count:
-                    type: integer
-                  next:
-                    type: string
-                    format: uri
-                    nullable: true
-                  previous:
-                    type: string
-                    format: uri
-                    nullable: true
-                  results:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Credential"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Credential"
       tags:
         - v2
     parameters: []
@@ -346,19 +269,6 @@ paths:
     get:
       operationId: v2_credentialtype_list
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -366,11 +276,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -390,6 +307,26 @@ paths:
   "/v2/credentialtype/{id}":
     get:
       operationId: v2_credentialtype_read
+      description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialType"
+      tags:
+        - v2
+    parameters:
+      - name: id
+        in: path
+        description: A unique integer value identifying this credential type.
+        required: true
+        schema:
+          type: integer
+  "/v2/credentialtype/{id}/language":
+    get:
+      operationId: v2_credentialtype_fetch_language
       description: ""
       responses:
         "200":
@@ -460,19 +397,6 @@ paths:
     get:
       operationId: v2_issuer_list
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -480,11 +404,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -531,7 +462,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Issuer"
+                type: array
+                items:
+                  $ref: "#/components/schemas/CredentialType"
       tags:
         - v2
     parameters:
@@ -565,19 +498,6 @@ paths:
     get:
       operationId: v2_name_list
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -585,11 +505,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -680,18 +607,6 @@ paths:
           required: false
           schema:
             type: string
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -699,11 +614,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -788,8 +710,7 @@ paths:
             default: "false"
         - name: category
           in: query
-          description:
-            Filter by credential category. The category name and value should be
+          description: Filter by credential category. The category name and value should be
             joined by '::'
           schema:
             type: string
@@ -799,9 +720,32 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CredentialAutocomplete"
+                required:
+                  - results
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CredentialAutocomplete"
       tags:
         - v2
     parameters: []
@@ -827,8 +771,7 @@ paths:
   /v2/search/credential:
     get:
       operationId: v2_search_credential_list
-      description:
-        Provide credential search via Solr with both faceted (/facets) and
+      description: Provide credential search via Solr with both faceted (/facets) and
         unfaceted results
       parameters:
         - name: ordering
@@ -837,18 +780,6 @@ paths:
           required: false
           schema:
             type: string
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
         - name: name
           in: query
           description: Filter credentials by related name or topic source ID
@@ -886,8 +817,7 @@ paths:
             default: "false"
         - name: category
           in: query
-          description:
-            Filter by credential category. The category name and value should be
+          description: Filter by credential category. The category name and value should be
             joined by '::'
           schema:
             type: string
@@ -913,11 +843,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -945,18 +882,6 @@ paths:
           required: false
           schema:
             type: string
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -964,11 +889,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -996,18 +928,6 @@ paths:
           required: false
           schema:
             type: string
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
         - name: name
           in: query
           description: Filter credentials by related name or topic source ID
@@ -1045,8 +965,7 @@ paths:
             default: "false"
         - name: category
           in: query
-          description:
-            Filter by credential category. The category name and value should be
+          description: Filter by credential category. The category name and value should be
             joined by '::'
           schema:
             type: string
@@ -1072,11 +991,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -1104,18 +1030,6 @@ paths:
           required: false
           schema:
             type: string
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -1123,11 +1037,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -1186,8 +1107,7 @@ paths:
             default: "false"
         - name: category
           in: query
-          description:
-            Filter by credential category. The category name and value should be
+          description: Filter by credential category. The category name and value should be
             joined by '::'
           schema:
             type: string
@@ -1224,8 +1144,7 @@ paths:
   "/v2/search/credential/{id}":
     get:
       operationId: v2_search_credential_read
-      description:
-        Provide credential search via Solr with both faceted (/facets) and
+      description: Provide credential search via Solr with both faceted (/facets) and
         unfaceted results
       parameters:
         - name: name
@@ -1265,8 +1184,7 @@ paths:
             default: "false"
         - name: category
           in: query
-          description:
-            Filter by credential category. The category name and value should be
+          description: Filter by credential category. The category name and value should be
             joined by '::'
           schema:
             type: string
@@ -1304,19 +1222,6 @@ paths:
     get:
       operationId: v2_topic_list
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
@@ -1324,11 +1229,18 @@ paths:
             application/json:
               schema:
                 required:
-                  - count
                   - results
                 type: object
                 properties:
-                  count:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
                     type: integer
                   next:
                     type: string
@@ -1349,44 +1261,13 @@ paths:
     get:
       operationId: v2_topic_retrieve_by_type
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
           content:
             application/json:
               schema:
-                required:
-                  - count
-                  - results
-                type: object
-                properties:
-                  count:
-                    type: integer
-                  next:
-                    type: string
-                    format: uri
-                    nullable: true
-                  previous:
-                    type: string
-                    format: uri
-                    nullable: true
-                  results:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Topic"
+                $ref: "#/components/schemas/Topic"
       tags:
         - v2
     parameters:
@@ -1404,44 +1285,13 @@ paths:
     get:
       operationId: v2_topic_ident_retrieve_by_type_formatted
       description: ""
-      parameters:
-        - name: page
-          in: query
-          description: A page number within the paginated result set.
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: Number of results to return per page.
-          required: false
-          schema:
-            type: integer
       responses:
         "200":
           description: ""
           content:
             application/json:
               schema:
-                required:
-                  - count
-                  - results
-                type: object
-                properties:
-                  count:
-                    type: integer
-                  next:
-                    type: string
-                    format: uri
-                    nullable: true
-                  previous:
-                    type: string
-                    format: uri
-                    nullable: true
-                  results:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Topic"
+                $ref: "#/components/schemas/CustomTopic"
       tags:
         - v2
     parameters:
@@ -1485,7 +1335,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Topic"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExpandedCredential"
       tags:
         - v2
     parameters:
@@ -1505,7 +1357,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Topic"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExpandedCredential"
       tags:
         - v2
     parameters:
@@ -1525,7 +1379,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Topic"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExpandedCredential"
       tags:
         - v2
     parameters:
@@ -1545,7 +1401,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Topic"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExpandedCredentialSet"
       tags:
         - v2
     parameters:
@@ -1615,9 +1473,9 @@ paths:
         required: true
         schema:
           type: integer
-  "/v2/topicrelationship/{id}/related_to_relations":
+  /v2/topic_relationship:
     get:
-      operationId: v2_topic_list_related_to_relations
+      operationId: v2_topic_relationship_list
       description: ""
       responses:
         "200":
@@ -1625,19 +1483,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Topic"
+                required:
+                  - results
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page_size:
+                    type: integer
+                  page:
+                    type: integer
+                  first_index:
+                    type: integer
+                  last_index:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TopicRelationship"
       tags:
         - v2
-    parameters:
-      - name: id
-        in: path
-        description: A unique integer value identifying this topic.
-        required: true
-        schema:
-          type: integer
-  "/v2/topicrelationship/{id}/related_from_relations":
+    parameters: []
+  "/v2/topic_relationship/{id}":
     get:
-      operationId: v2_topic_list_related_from_relations
+      operationId: v2_topic_relationship_read
       description: ""
       responses:
         "200":
@@ -1645,361 +1522,58 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Topic"
+                $ref: "#/components/schemas/TopicRelationship"
       tags:
         - v2
     parameters:
       - name: id
         in: path
-        description: A unique integer value identifying this topic.
+        description: A unique integer value identifying this topic relationship.
         required: true
         schema:
           type: integer
-  "/indy/construct-proof":
-    post:
-      operationId: indy_construct_proof
-      description: >-
-        Constructs a proof given a proof request
-
-        ```json
-
-        {
-            "proof_request": <HL Indy proof request>
-        }
-
-        ```
-
-        returns: HL Indy proof data
-
-      responses:
-        "200":
-          description: OK
-      tags:
-        - indy
-
-  "/indy/generate-credential-request":
-    post:
-      operationId: indy_generate_credential_request
-      description: >-
-        Processes a credential definition and responds with a credential request
-        which can then be used to submit a credential.
-
-        Example request payload:
-
-        ```json
-
-        {
-            'credential_offer': <credential offer json>,
-            'credential_definition': <credential definition json>
-        }
-
-        ```
-
-        returns:
-
-        ```json
-
-        {
-            "credential_request": <credential request json>,
-            "credential_request_metadata": <credential request metadata json>
-        }
-
-        ```
-
-      responses:
-        "200":
-          description: OK
-      tags:
-        - indy
-
-  "/indy/store-credential":
-    post:
-      operationId: indy_store_credential
-      description: >-
-        Stores one or more verifiable credentials in the wallet.
-
-        The data in the credential is parsed and stored in the database
-        for search/display purposes based on the issuer's processor config.
-        The data is then made available through a REST API as well as a
-        search API.
-
-        Example request payload:
-
-        ```json
-
-        {
-            "credential_data": <credential data>,
-            "credential_request_metadata": <credential request metadata>
-        }
-
-        ```
-
-        Input may also be in the form of an array of credential data:
-
-        ```json
-
-        [
-            {
-                "credential_data": <credential data>,
-                "credential_request_metadata": <credential request metadata>
-            },
-            {
-                "credential_data": <credential data>,
-                "credential_request_metadata": <credential request metadata>
-            }
-        ]
-
-        ```
-
-        Returns: the wallet ID of the stored credential or credentials
-      responses:
-        "200":
-          description: OK
-      tags:
-        - indy
-
-  "/indy/register-issuer":
-    post:
-      operationId: indy_register_issuer
-      description: >-
-        Processes an issuer definition and creates or updates the
-        corresponding records. Responds with the updated issuer
-        definition including record IDs.
-
-        Example request payload:
-
-        ```json
-
-        {
-            "issuer": {
-                "did": "6qnvgJtqwK44D8LFYnV5Yf", // required
-                "name": "BC Corporate Registry", // required
-                "abbreviation": "BCReg",
-                "email": "bcreg.test.issuer@example.ca",
-                "url": "http://localhost:5000"
-            },
-            "credential_types": [
-                {
-                "name": "Incorporation",
-                "schema": "incorporation.bc_registries",
-                "version": "1.0.31",
-                "endpoint": "http://localhost:5000/bcreg/incorporation",
-                "topic": {
-                    "source_id": {
-                        "input": "corp_num",
-                        "from": "claim"
-                    },
-                    "type": {
-                        "input": "incorporation",
-                        "from": "value"
-                    }
-                },
-                "mapping": [
-                    {
-                    "model": "name",
-                    "fields": {
-                        "text": {
-                            "input": "legal_name",
-                            "from": "claim"
-                        },
-                        "type": {
-                            "input": "legal_name",
-                            "from": "value"
-                        }
-                    }
-                    }
-                ]
-                },
-                {
-                "name": "Doing Business As",
-                "schema": "doing_business_as.bc_registries",
-                "version": "1.0.31",
-                "endpoint": "http://localhost:5000/bcreg/dba",
-                "topic": {
-                    "parent_source_id": {
-                        "input": "org_registry_id",
-                        "from": "claim"
-                    },
-                    "parent_type": {
-                        "input": "incorporation",
-                        "from": "value"
-                    },
-                    "source_id": {
-                        "input": "dba_corp_num",
-                        "from": "claim"
-                    },
-                    "type": {
-                        "input": "doing_business_as",
-                        "from": "value"
-                    }
-                },
-                "mapping": [
-                    {
-                    "model": "name",
-                    "fields": {
-                        "text": {
-                            "input": "dba_name",
-                            "from": "claim"
-                        },
-                        "type": {
-                            "input": "dba_name",
-                            "from": "value"
-                        }
-                    }
-                    }
-                ]
-                },
-                {
-                "name": "Corporate Address",
-                "schema": "address.bc_registries",
-                "version": "1.0.31",
-                "endpoint": "http://localhost:5000/bcreg/address",
-                "topic": [
-                    {
-                        "parent_source_id": {
-                            "input": "org_registry_id",
-                            "from": "claim"
-                        },
-                        "parent_type": {
-                            "input": "incorporation",
-                            "from": "value"
-                        },
-                        "source_id": {
-                            "input": "dba_corp_num",
-                            "from": "claim"
-                        },
-                        "type": {
-                            "input": "doing_business_as",
-                            "from": "value"
-                        }
-                    },
-                    {
-                        "source_id": {
-                            "input": "org_registry_id",
-                            "from": "claim"
-                        },
-                        "type": {
-                            "input": "incorporation",
-                            "from": "value"
-                        }
-                    }
-                ],
-                "cardinality_fields": ["addr_type"],
-                "mapping": [
-                    {
-                        "model": "address",
-                        "fields": {
-                            "addressee": {
-                                "input": "addressee",
-                                "from": "claim"
-                            },
-                            "civic_address": {
-                                "input": "local_address",
-                                "from": "claim"
-                            },
-                            "city": {
-                                "input": "municipality",
-                                "from": "claim"
-                            },
-                            "province": {
-                                "input": "province",
-                                "from": "claim"
-                            },
-                            "postal_code": {
-                                "input": "postal_code",
-                                "from": "claim",
-                                "processor": ["string_helpers.uppercase"]
-                            },
-                            "country": {
-                                "input": "country",
-                                "from": "claim"
-                            },
-                            "type": {
-                                "input": "addr_type",
-                                "from": "claim"
-                            },
-                            "end_date": {
-                                "input": "end_date",
-                                "from": "claim"
-                            }
-                        }
-                    }
-                ]
-                }
-            ]
-            }
-
-        ```
-
-        returns:
-
-        ```json
-
-        {
-            "success": true,
-            "result": {
-                "issuer": {
-                    "id": 1,
-                    "did": "6qnvgJtqwK44D8LFYnV5Yf",
-                    "name": "BC Corporate Registry",
-                    "abbreviation": "BCReg",
-                    "email": "bcreg.test.issuer@example.ca",
-                    "url": "http://localhost:5000"
-                },
-                "schemas": [
-                    {
-                        "id": 1,
-                        "name": "incorporation.bc_registries",
-                        "version": "1.0.31",
-                        "origin_did": "6qnvgJtqwK44D8LFYnV5Yf"
-                    },
-                    {
-                        "id": 2,
-                        "name": "doing_business_as.bc_registries",
-                        "version": "1.0.31",
-                        "origin_did": "6qnvgJtqwK44D8LFYnV5Yf"
-                    }
-                ],
-                "credential_types": [
-                    {
-                        "id": 1,
-                        "schema_id": 1,
-                        "issuer_id": 1,
-                        "description": "Incorporation",
-                        "processor_config": null
-                    },
-                    {
-                        "id": 2,
-                        "schema_id": 2,
-                        "issuer_id": 1,
-                        "description": "Doing Business As",
-                        "processor_config": null
-                    }
-                ]
-            }
-        }
-
-        ```
-
-      responses:
-        "200":
-          description: OK
-      tags:
-        - indy
-
-  "/indy/status":
+  "/v2/topic_relationship/{id}/related_from_relations":
     get:
-      operationId: indy_status
-      description: >-
-        Return status of the Indy service including statistics on the requests performed
+      operationId: v2_topic_relationship_list_related_from_relations
+      description: ""
       responses:
         "200":
-          description: OK
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TopicRelationship"
       tags:
-        - indy
-
+        - v2
+    parameters:
+      - name: id
+        in: path
+        description: A unique integer value identifying this topic relationship.
+        required: true
+        schema:
+          type: integer
+  "/v2/topic_relationship/{id}/related_to_relations":
+    get:
+      operationId: v2_topic_relationship_list_related_to_relations
+      description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TopicRelationship"
+      tags:
+        - v2
+    parameters:
+      - name: id
+        in: path
+        description: A unique integer value identifying this topic relationship.
+        required: true
+        schema:
+          type: integer
 servers:
-  - url: https://orgbook.gov.bc.ca:443/api
+  - url: http://localhost/api
 components:
   requestBodies:
     v2_feedback_create:
@@ -2112,27 +1686,49 @@ components:
         credential:
           title: Credential
           type: integer
-    Credential:
-      required:
-        - wallet_id
-        - topic
-        - credential_type
+    CredentialAttribute:
       type: object
       properties:
         id:
           title: ID
           type: integer
           readOnly: true
-        create_timestamp:
-          title: Create timestamp
+        type:
+          title: Type
           type: string
-          format: date-time
-          readOnly: true
-        update_timestamp:
-          title: Update timestamp
+          minLength: 1
+        format:
+          title: Format
           type: string
-          format: date-time
+          minLength: 1
+          nullable: true
+        value:
+          title: Value
+          type: string
+          minLength: 1
+          nullable: true
+        credential_id:
+          title: Credential id
+          type: string
           readOnly: true
+    Credential:
+      required:
+        - topic
+        - credential_type
+        - wallet_id
+        - attributes
+      type: object
+      properties:
+        topic:
+          title: Topic
+          type: integer
+        credential_set:
+          title: Credential set
+          type: integer
+          nullable: true
+        credential_type:
+          title: Credential type
+          type: integer
         wallet_id:
           title: Wallet id
           type: string
@@ -2165,16 +1761,6 @@ components:
           type: string
           format: date-time
           nullable: true
-        topic:
-          title: Topic
-          type: integer
-        credential_set:
-          title: Credential set
-          type: integer
-          nullable: true
-        credential_type:
-          title: Credential type
-          type: integer
         revoked_by:
           title: Revoked by
           type: integer
@@ -2185,6 +1771,10 @@ components:
             type: integer
           readOnly: true
           uniqueItems: true
+        attributes:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialAttribute"
     Issuer:
       title: Issuer
       required:
@@ -2233,6 +1823,11 @@ components:
           title: Url
           type: string
           minLength: 1
+        endpoint:
+          title: Endpoint
+          type: string
+          minLength: 1
+          nullable: true
     CredentialType:
       required:
         - issuer
@@ -2339,6 +1934,11 @@ components:
           type: string
           minLength: 1
           nullable: true
+        type:
+          title: Type
+          type: string
+          minLength: 1
+          nullable: true
         credential:
           title: Credential
           type: integer
@@ -2396,6 +1996,11 @@ components:
           title: Credential id
           type: string
           readOnly: true
+        type:
+          title: Type
+          type: string
+          minLength: 1
+          nullable: true
     CredentialAutocomplete:
       required:
         - names
@@ -2451,6 +2056,20 @@ components:
     CredentialAddress:
       type: object
       properties:
+        city:
+          title: City
+          type: string
+          minLength: 1
+          nullable: true
+        credential_id:
+          title: Credential id
+          type: string
+          readOnly: true
+        province:
+          title: Province
+          type: string
+          minLength: 1
+          nullable: true
         civic_address:
           title: Civic address
           type: string
@@ -2461,30 +2080,21 @@ components:
           type: string
           format: date-time
           readOnly: true
-        addressee:
-          title: Addressee
-          type: string
-          minLength: 1
-          nullable: true
-        country:
-          title: Country
-          type: string
-          minLength: 1
-          nullable: true
-        province:
-          title: Province
-          type: string
-          minLength: 1
-          nullable: true
-        credential_id:
-          title: Credential id
-          type: string
-          readOnly: true
         create_timestamp:
           title: Create timestamp
           type: string
           format: date-time
           readOnly: true
+        country:
+          title: Country
+          type: string
+          minLength: 1
+          nullable: true
+        addressee:
+          title: Addressee
+          type: string
+          minLength: 1
+          nullable: true
         id:
           title: ID
           type: integer
@@ -2494,70 +2104,14 @@ components:
           type: string
           minLength: 1
           nullable: true
-        city:
-          title: City
-          type: string
-          minLength: 1
-          nullable: true
-    CredentialAttribute:
-      type: object
-      properties:
-        id:
-          title: ID
-          type: integer
-          readOnly: true
-        type:
-          title: Type
-          type: string
-          minLength: 1
-        format:
-          title: Format
-          type: string
-          minLength: 1
-          nullable: true
-        value:
-          title: Value
-          type: string
-          minLength: 1
-          nullable: true
-        credential_id:
-          title: Credential id
-          type: string
-          readOnly: true
-    CredentialTopic:
+    CredentialNamedTopic:
       title: Topic
       required:
         - source_id
         - type
-      type: object
-      properties:
-        id:
-          title: ID
-          type: integer
-          readOnly: true
-        create_timestamp:
-          title: Create timestamp
-          type: string
-          format: date-time
-          readOnly: true
-        update_timestamp:
-          title: Update timestamp
-          type: string
-          format: date-time
-          readOnly: true
-        source_id:
-          title: Source id
-          type: string
-          minLength: 1
-        type:
-          title: Type
-          type: string
-          minLength: 1
-    CredentialNamedTopic:
-      required:
-        - source_id
-        - type
         - names
+        - local_name
+        - remote_name
       type: object
       properties:
         id:
@@ -2586,6 +2140,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CredentialName"
+        local_name:
+          $ref: "#/components/schemas/CredentialName"
+        remote_name:
+          $ref: "#/components/schemas/CredentialName"
     CredentialSearch:
       required:
         - wallet_id
@@ -2651,17 +2209,48 @@ components:
           items:
             $ref: "#/components/schemas/CredentialName"
         topic:
-          $ref: "#/components/schemas/CredentialTopic"
+          $ref: "#/components/schemas/CredentialNamedTopic"
         related_topics:
           type: array
           items:
             $ref: "#/components/schemas/CredentialNamedTopic"
+    TopicAttribute:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        type:
+          title: Type
+          type: string
+          minLength: 1
+        format:
+          title: Format
+          type: string
+          minLength: 1
+          nullable: true
+        value:
+          title: Value
+          type: string
+          minLength: 1
+          nullable: true
+        credential_id:
+          title: Credential id
+          type: string
+          readOnly: true
+        credential_type_id:
+          title: Credential type id
+          type: string
+          readOnly: true
     CredentialTopicExt:
       title: Topic
       required:
         - source_id
         - type
         - names
+        - local_name
+        - remote_name
         - addresses
         - attributes
       type: object
@@ -2692,6 +2281,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CredentialName"
+        local_name:
+          $ref: "#/components/schemas/CredentialName"
+        remote_name:
+          $ref: "#/components/schemas/CredentialName"
         addresses:
           type: array
           items:
@@ -2699,12 +2292,13 @@ components:
         attributes:
           type: array
           items:
-            $ref: "#/components/schemas/CredentialAttribute"
+            $ref: "#/components/schemas/TopicAttribute"
     CredentialTopicSearch:
       required:
         - wallet_id
         - credential_set
         - credential_type
+        - attributes
         - names
         - topic
         - related_topics
@@ -2750,6 +2344,10 @@ components:
           $ref: "#/components/schemas/CredentialSet"
         credential_type:
           $ref: "#/components/schemas/CredentialType"
+        attributes:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialAttribute"
         names:
           type: array
           items:
@@ -2800,16 +2398,239 @@ components:
             type: integer
           readOnly: true
           uniqueItems: true
-    TopicRelationship:
+    CustomTopic:
+      required:
+        - source_id
+        - type
       type: object
       properties:
         id:
           title: ID
           type: integer
           readOnly: true
+        create_timestamp:
+          title: Create timestamp
+          type: string
+          format: date-time
+          readOnly: true
+        source_id:
+          title: Source id
+          type: string
+          minLength: 1
+        type:
+          title: Type
+          type: string
+          minLength: 1
+        names:
+          title: Names
+          type: string
+          readOnly: true
+        addresses:
+          title: Addresses
+          type: string
+          readOnly: true
+        attributes:
+          title: Attributes
+          type: string
+          readOnly: true
+    CredentialExt:
+      required:
+        - wallet_id
+        - credential_type
+        - addresses
+        - attributes
+        - names
+        - local_name
+        - remote_name
+        - topic
+        - related_topics
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        create_timestamp:
+          title: Create timestamp
+          type: string
+          format: date-time
+          readOnly: true
+        effective_date:
+          title: Effective date
+          type: string
+          format: date-time
+        inactive:
+          title: Inactive
+          type: boolean
+        latest:
+          title: Latest
+          type: boolean
+        revoked:
+          title: Revoked
+          type: boolean
+        revoked_date:
+          title: Revoked date
+          type: string
+          format: date-time
+          nullable: true
+        wallet_id:
+          title: Wallet id
+          type: string
+          minLength: 1
+        credential_type:
+          $ref: "#/components/schemas/CredentialType"
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialAddress"
+        attributes:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialAttribute"
+        names:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialName"
+        local_name:
+          $ref: "#/components/schemas/CredentialName"
+        remote_name:
+          $ref: "#/components/schemas/CredentialName"
+        topic:
+          $ref: "#/components/schemas/CredentialTopicExt"
+        related_topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialNamedTopic"
+    ExpandedCredentialSet:
+      title: Credential set
+      required:
+        - credentials
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        create_timestamp:
+          title: Create timestamp
+          type: string
+          format: date-time
+          readOnly: true
+        update_timestamp:
+          title: Update timestamp
+          type: string
+          format: date-time
+          readOnly: true
+        latest_credential_id:
+          title: Latest credential id
+          type: string
+          readOnly: true
+        topic_id:
+          title: Topic id
+          type: string
+          readOnly: true
+        first_effective_date:
+          title: First effective date
+          type: string
+          format: date-time
+          nullable: true
+        last_effective_date:
+          title: Last effective date
+          type: string
+          format: date-time
+          nullable: true
+        credentials:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialExt"
+    ExpandedCredential:
+      required:
+        - wallet_id
+        - credential_type
+        - addresses
+        - attributes
+        - names
+        - local_name
+        - remote_name
+        - topic
+        - related_topics
+        - credential_set
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        create_timestamp:
+          title: Create timestamp
+          type: string
+          format: date-time
+          readOnly: true
+        effective_date:
+          title: Effective date
+          type: string
+          format: date-time
+        inactive:
+          title: Inactive
+          type: boolean
+        latest:
+          title: Latest
+          type: boolean
+        revoked:
+          title: Revoked
+          type: boolean
+        revoked_date:
+          title: Revoked date
+          type: string
+          format: date-time
+          nullable: true
+        wallet_id:
+          title: Wallet id
+          type: string
+          minLength: 1
+        credential_type:
+          $ref: "#/components/schemas/CredentialType"
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialAddress"
+        attributes:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialAttribute"
+        names:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialName"
+        local_name:
+          $ref: "#/components/schemas/CredentialName"
+        remote_name:
+          $ref: "#/components/schemas/CredentialName"
+        topic:
+          $ref: "#/components/schemas/CredentialTopicExt"
+        related_topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialNamedTopic"
+        credential_set:
+          $ref: "#/components/schemas/ExpandedCredentialSet"
+    TopicRelationship:
+      required:
+        - credential
+        - topic
+        - related_topic
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        credential:
+          title: Credential
+          type: integer
         topic:
           title: Topic
           type: integer
         related_topic:
-          title: Related Topic
+          title: Related topic
           type: integer
