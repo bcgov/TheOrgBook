@@ -52,8 +52,11 @@ usage () {
       - Check to see if the Solr indexes are syned with the database credentials.
 
     deleteTopic <topic_id>
-      - delete the specified topic from the OrgBook database
-      - topic_id *must* be the first option specified, e.g. `$0 <topic_id> -e dev`
+      - Delete the specified topic from the OrgBook database.
+      Where:
+        - <topic_id> is the 'subject_id' of the Topic to delete, e.g. BC1234567
+      Example:
+        $0 -p bc-tob -e dev deleteTopic BC1234567
 
     scaleUp
       - Scale up one or more pods.
@@ -322,14 +325,14 @@ indexSynced() {
 }
 
 deleteTopic() {
-  _topic_id = ${1}
+  _topic_id=${1}
   _apiPodName=${2:-django}
-  if [ -z "${_apiPodName}" ]; then
+  if [ -z "${_topic_id}" ] || [ -z "${_apiPodName}" ]; then
     echo -e \\n"deleteTopic; Missing parameter!"\\n
     exit 1
   fi
-  echoWarning "\nDeleting topic from OrgBook database ..."
-  runInContainerInteractively ${_apiPodName} './deleteTopic.sh'
+  printAndAskToContinue "If you continue the following topic will be permanently deleted from the OrgBook database; '${_topic_id}'."
+  runInContainer ${_apiPodName} "./deleteTopic.sh ${_topic_id}"
   exitOnError
 }
 
@@ -386,7 +389,7 @@ case "${_cmd}" in
     dbPodName=${2:-postgresql}
     indexSynced "${apiPodName}" "${dbPodName}"
     ;;
-  deleteTopic)
+  deletetopic)
     topic_id=${1}
     apiPodName=${2:-django}
     switchProject
