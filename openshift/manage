@@ -51,6 +51,13 @@ usage () {
     indexSynced
       - Check to see if the Solr indexes are syned with the database credentials.
 
+    deleteTopic <topic_id>
+      - Delete the specified topic from the OrgBook database.
+      Where:
+        - <topic_id> is the 'subject_id' of the Topic to delete, e.g. BC1234567
+      Example:
+        $0 -p bc-tob -e dev deleteTopic BC1234567
+
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -316,6 +323,19 @@ indexSynced() {
   echo "Indexed Credentials: ${indexCount}"
   echo "Actual Credentials: ${actualCount}"
 }
+
+deleteTopic() {
+  _topic_id=${1}
+  _apiPodName=${2:-django}
+  if [ -z "${_topic_id}" ] || [ -z "${_apiPodName}" ]; then
+    echo -e \\n"deleteTopic; Missing parameter!"\\n
+    exit 1
+  fi
+  printAndAskToContinue "If you continue the following topic will be permanently deleted from the OrgBook database; '${_topic_id}'."
+  runInContainer ${_apiPodName} "./deleteTopic.sh ${_topic_id}"
+  exitOnError
+}
+
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -369,7 +389,15 @@ case "${_cmd}" in
     dbPodName=${2:-postgresql}
     indexSynced "${apiPodName}" "${dbPodName}"
     ;;
+  deletetopic)
+    topic_id=${1}
+    apiPodName=${2:-django}
+    switchProject
+    exitOnError
+    deleteTopic "${topic_id}" "${apiPodName}"
+    ;;
   scaleup)
+    apiPodName=${1:-django}
     scaleUp ${@}
     ;;
   scaledown)
