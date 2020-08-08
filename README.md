@@ -8,12 +8,13 @@ Zap Results:
 
 [![Bugs](https://sonarqube.orgbook.gov.bc.ca/api/badges/measure?key=TheOrgBook-Zap&metric=bugs&template=FLAT)](https://sonarqube.orgbook.gov.bc.ca/dashboard?id=TheOrgBook-Zap) [![Vulnerabilities](https://sonarqube.orgbook.gov.bc.ca/api/badges/measure?key=TheOrgBook-Zap&metric=vulnerabilities&template=FLAT)](https://sonarqube.orgbook.gov.bc.ca/dashboard?id=TheOrgBook-Zap) [![Code smells](https://sonarqube.orgbook.gov.bc.ca/api/badges/measure?key=TheOrgBook-Zap&metric=code_smells&template=FLAT)](https://sonarqube.orgbook.gov.bc.ca/dashboard?id=TheOrgBook-Zap)
 
-# End-of-Life Notice
+## TheOrgBook is now Aries Verifiable Credential Registry
 
-TheOrgBook has now reached it's end-of-life and will not be actively maintained or supported.
+[OrgBook BC](https://orgbook.gov.bc.ca) is a deployment of an underlying software component called a Verifiable Credential Registry (VCR). A VCR is more general component that can drive OrgBooks (repositories of information about registered organizations), and other repositories of verifiable information across a variety of use cases, including education, government services, public works projects and many more. The first generation of OrgBook BC was built on top of the software whose source code is in this repository. The current iteration of OrgBook BC is powered by the [Aries Verifiable Credential Registry (VCR)](https://github.com/bcgov/aries-vcr) (Aries VCR). TheOrgBook was implemented using custom protocols defined locally by the [Verifiable Organizations Network (VON)](https://vonx.io) team here in BC, Aries VCR is based on [Hyperledger Aries](https://www.hyperledger.org/use/aries) protocols defined by a global community at the [Linux Foundation](https://www.linuxfoundation.org/).
 
-If you are interested in building your own Credential Registry please refer to [Aries VCR](https://github.com/bcgov/aries-vcr).
+If you are interested in deploying your own OrgBook (perhaps for another jurisdiction), or learning about the internals of Verifiable Credential Registries, please start with the latest and greatest code in the [Aries VCR](https://github.com/bcgov/aries-vcr) open source repository.
 
+If you are just interested in running the Greenlight demo to get a feel of how OrgBooks work at the user interface level, feel free to use this repository&mdash;instructions are below. We recommend that you don't build on top of the code in this repo.  Stick to [Aries VCR](https://github.com/bcgov/aries-vcr).
 
 ## TheOrgBook
 
