@@ -1,6 +1,6 @@
 # OrgBook REST Services
 
-OrgBook provides a [Swagger](https://swagger.io/) ([OpenAPI](https://www.openapis.org)) page that provides an interactive way to test out its available APIs.  TheOrgBook's Swagger page is available in a local OrgBook install at [http://localhost:8080/api/](http://localhost:8080/api/), or (for example) in a stable test deployment at [https://test.orgbook.gov.bc.ca/api/](https://test.orgbook.gov.bc.ca/api/).
+OrgBook provides a [Swagger](https://swagger.io/) ([OpenAPI](https://www.openapis.org)) page that provides an interactive way to test out its available APIs.  TheOrgBook's Swagger page is available in a local OrgBook install at [http://localhost:8080/api/](http://localhost:8080/api/), or (for example) in a stable test deployment at [https://vonx-test.orgbook.gov.bc.ca/api/](https://vonx-test.orgbook.gov.bc.ca/api/).
 
 ## Organization Name Search
 
@@ -88,7 +88,7 @@ Review the returned JSON structure (below - abbreviated for clarity). A useful f
 You can use the `source_id` value in, for example, the following query to get more information about the organization.
 
 ```
-http://test.orgbook.gov.bc.ca/api/v2/topic/ident/registration/S0030754/formatted
+http://vonx-test.orgbook.gov.bc.ca/api/v2/topic/ident/registration/S0030754/formatted
 ```
 
 That provides some basic information about querying for organizations and then getting details on those organization. We recommend you experiment with other API endpoints using the Swagger pages on your local or the test instance.
